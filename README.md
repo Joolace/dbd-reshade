@@ -66,7 +66,7 @@ A special thanks to the creators of the following presets for *Dead by Daylight*
 - **KnightLight**: [KnightLight](https://www.twitch.tv/knightlight)
 - **Koda**: [Koda](https://discord.com/invite/bNvWEde5Vr)
 - **MomoSeventh**: [MomoSeventh](https://www.twitch.tv/momoseventh/)
-- **Trolling Prophets**: [MomoSeventh](https://discord.com/invite/bNvWEde5Vr)
+- **Trolling Prophets**: [Trolling Prophets](https://discord.com/invite/bNvWEde5Vr)
 
 Please refer to the respective preset files in the [Presets directory](https://github.com/Joolace/dbd-reshade/tree/main/Presets) for detailed credits and information.
 
