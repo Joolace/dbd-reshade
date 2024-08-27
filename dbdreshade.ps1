@@ -130,11 +130,11 @@ function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
     }
 
     # Check if PresetPath already exists in the [GENERAL] section
-    $presetPathLineIndex = ($iniLines | Select-String -Pattern 'PresetPath=').LineNumber - 1
+    $presetPathLineIndex = ($iniLines | Select-String -Pattern 'PresetPath=' | Select-Object -First 1).LineNumber - 1
     if ($presetPathLineIndex -ge 0 -and $presetPathLineIndex -lt $iniLines.Length) {
-        $iniLines[$presetPathLineIndex] = "PresetPath=$presetPath"
+    $iniLines[$presetPathLineIndex] = "PresetPath=$presetPath"
     } else {
-        $iniLines = $iniLines[0..($generalSectionIndex+1)] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+2)..($iniLines.Length-1)]
+    $iniLines = $iniLines[0..($generalSectionIndex+1)] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+2)..($iniLines.Length-1)]
     }
 
     # Write the updated content back to ReShade.ini
