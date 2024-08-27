@@ -53,6 +53,23 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 - **ReShade Installation Failure**: Make sure you have sufficient permissions and the game directory is correctly identified.
 - **Missing Presets or Media**: Verify that the `presets` and `media` directories are present in the same location as the script.
 
+## Credits
+
+A special thanks to the creators of the following presets for *Dead by Daylight*, which are included in this repository:
+
+- **STX**: [steaxss](https://github.com/steaxss/STEAXS-FILTER-PACK)
+- **April**: [april](https://www.youtube.com/watch?v=2_YQ_rWiKFE)
+- **Aroz**: [Aroz](https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s)
+- **Azef**: [azef](https://www.youtube.com/watch?v=FUelIy0sGOk)
+- **Faelayis**: [Faelayis](https://github.com/Faelayis/dbd-reshade)
+- **Henz**: [Henz](https://discord.com/invite/HxjbEKuvZY)
+- **KnightLight**: [KnightLight](https://www.twitch.tv/knightlight)
+- **Koda**: [Koda](https://discord.com/invite/bNvWEde5Vr)
+- **MomoSeventh**: [MomoSeventh](https://www.twitch.tv/momoseventh/)
+- **Trolling Prophets**: [MomoSeventh](https://discord.com/invite/bNvWEde5Vr)
+
+Please refer to the respective preset files in the [Presets directory](https://github.com/Joolace/dbd-reshade/tree/main/Presets) for detailed credits and information.
+
 ## Contributing
 
 Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.
