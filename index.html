@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReShade Installer for Dead by Daylight</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        
+        header {
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        
+        main {
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1,
+        h2,
+        h3 {
+            color: #333;
+        }
+        
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background: #1e90ff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        
+        .button:hover {
+            background: #0a74da;
+        }
+        
+        .credits {
+            margin-top: 20px;
+        }
+        
+        .credits a {
+            display: block;
+            margin: 5px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>ReShade Installer for Dead by Daylight</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Overview</h2>
+            <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and
+                installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
+        </section>
+
+        <section>
+            <h2>Features</h2>
+            <ul>
+                <li>Automatic Detection: Finds the Dead by Daylight installation directory from both Steam and Epic Games.</li>
+                <li>ReShade Installation: Downloads and installs ReShade if not already present.</li>
+                <li>Preset Management: Allows users to select and apply ReShade presets.</li>
+                <li>GUI Interface: Provides a user-friendly graphical interface for managing presets and installation.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Installation</h2>
+            <ol>
+                <li>Clone the Repository:
+                    <pre><code>git clone https://github.com/Joolace/dbd-reshade.git</code></pre>
+                </li>
+                <li>Navigate to the Script Directory:
+                    <pre><code>cd dbd-reshade</code></pre>
+                </li>
+                <li>Run the Script:
+                    <pre><code>Open PowerShell as Administrator and execute the script:</code></pre>
+                    <pre><code>.\ReShadeInstaller.ps1</code></pre>
+                </li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Usage</h2>
+            <ol>
+                <li>Launch the GUI: When you run the script, a GUI window will appear.</li>
+                <li>Select a Preset: Choose a preset from the list in the GUI.</li>
+                <li>Select Installation Folder: Click on the "Select Folder" button to choose the destination folder for the preset.</li>
+                <li>Install or Change Preset: Click on the "Install or Change Preset" button to apply the selected preset.</li>
+                <li>Log Output: The GUI includes a log box to display real-time log information during installation.</li>
+            </ol>
+        </section>
+
+        <section class="credits">
+            <h2>Credits</h2>
+            <p>A special thanks to the creators of the following presets for <em>Dead by Daylight</em>, which are included in this repository:</p>
+            <ul>
+                <li><a href="https://github.com/creator-profile">Preset 1 - Creator Name</a></li>
+                <li><a href="https://github.com/creator-profile">Preset 2 - Creator Name</a></li>
+                <li><a href="https://github.com/creator-profile">Preset 3 - Creator Name</a></li>
+            </ul>
+            <p>Please refer to the respective preset files in the <a href="https://github.com/Joolace/dbd-reshade/tree/main/Presets">Presets directory</a> for detailed credits and information.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Joolace. Licensed under the <a href="https://opensource.org/licenses/gpl-3.0.php" target="_blank" style="color: #fff;">GNU General Public License (GPL)</a>.</p>
+        <p>For any questions or feedback, you can reach out to the developer:</p>
+        <p><a href="https://twitch.tv/joolace_" class="button" target="_blank">Twitch: Joolace_</a></p>
+        <p><a href="https://github.com/Joolace" class="button" target="_blank">GitHub: Joolace</a></p>
+    </footer>
+
+</body>
+
+</html>
