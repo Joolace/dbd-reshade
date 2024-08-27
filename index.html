@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,44 +12,35 @@
             background-color: #f4f4f4;
             color: #333;
         }
-        
         header {
             background: #333;
             color: #fff;
             padding: 20px;
             text-align: center;
         }
-        
         header h1 {
             margin: 0;
-            font-size: 2.5em;
+            font-size: 3em; /* Increased font size for visibility */
             font-weight: bold;
         }
-        
         main {
             padding: 20px;
             max-width: 900px;
-            margin: 0 auto;
+            margin: 20px auto; /* Added margin to separate from header */
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
-        h1,
-        h2,
-        h3 {
+        h1, h2, h3 {
             color: #333;
         }
-        
         a {
             color: #1e90ff;
             text-decoration: none;
         }
-        
         a:hover {
             text-decoration: underline;
         }
-        
         pre {
             background: #f9f9f9;
             padding: 10px;
@@ -58,7 +48,6 @@
             border-radius: 5px;
             overflow-x: auto;
         }
-        
         .button {
             display: inline-block;
             padding: 10px 20px;
@@ -68,134 +57,129 @@
             text-decoration: none;
             border-radius: 5px;
         }
-        
         .button:hover {
             background: #0a74da;
         }
-        
         .credits a {
             display: block;
             margin: 5px 0;
         }
-        
         footer {
             text-align: center;
             padding: 10px;
             background: #333;
             color: #fff;
+            margin-top: 20px; /* Added margin to separate from content */
         }
     </style>
 </head>
-
 <body>
 
-    <header>
-        <h1>ReShade Installer for Dead by Daylight</h1>
-    </header>
+<header>
+    <h1>ReShade Installer for Dead by Daylight</h1>
+</header>
 
-    <main>
-        <section>
-            <h2>Overview</h2>
-            <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and
-                installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
-        </section>
+<main>
+    <section>
+        <h2>Overview</h2>
+        <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
+    </section>
 
-        <section>
-            <h2>Features</h2>
-            <ul>
-                <li><strong>Automatic Detection</strong>: Finds the Dead by Daylight installation directory from both Steam and Epic Games.</li>
-                <li><strong>ReShade Installation</strong>: Downloads and installs ReShade if not already present.</li>
-                <li><strong>Preset Management</strong>: Allows users to select and apply ReShade presets.</li>
-                <li><strong>GUI Interface</strong>: Provides a user-friendly graphical interface for managing presets and installation.</li>
-            </ul>
-        </section>
+    <section>
+        <h2>Features</h2>
+        <ul>
+            <li><strong>Automatic Detection</strong>: Finds the Dead by Daylight installation directory from both Steam and Epic Games.</li>
+            <li><strong>ReShade Installation</strong>: Downloads and installs ReShade if not already present.</li>
+            <li><strong>Preset Management</strong>: Allows users to select and apply ReShade presets.</li>
+            <li><strong>GUI Interface</strong>: Provides a user-friendly graphical interface for managing presets and installation.</li>
+        </ul>
+    </section>
 
-        <section>
-            <h2>Requirements</h2>
-            <ul>
-                <li><strong>PowerShell</strong>: This script is designed to run on PowerShell (Windows only).</li>
-                <li><strong>.NET Framework</strong>: Required for Windows Forms.</li>
-                <li><strong>Dead by Daylight</strong>: The game must be installed either via Steam or Epic Games.</li>
-            </ul>
-        </section>
+    <section>
+        <h2>Requirements</h2>
+        <ul>
+            <li><strong>PowerShell</strong>: This script is designed to run on PowerShell (Windows only).</li>
+            <li><strong>.NET Framework</strong>: Required for Windows Forms.</li>
+            <li><strong>Dead by Daylight</strong>: The game must be installed either via Steam or Epic Games.</li>
+        </ul>
+    </section>
 
-        <section>
-            <h2>Installation</h2>
-            <ol>
-                <li><strong>Clone the Repository</strong>:
-                    <pre><code>git clone https://github.com/Joolace/dbd-reshade.git</code></pre>
-                </li>
-                <li><strong>Navigate to the Script Directory</strong>:
-                    <pre><code>cd dbd-reshade</code></pre>
-                </li>
-                <li><strong>Run the Script</strong>: Open PowerShell as Administrator and execute the script:
-                    <pre><code>.\ReShadeInstaller.ps1</code></pre>
-                </li>
-            </ol>
-        </section>
+    <section>
+        <h2>Installation</h2>
+        <ol>
+            <li><strong>Clone the Repository</strong>:
+                <pre><code>git clone https://github.com/Joolace/dbd-reshade.git</code></pre>
+            </li>
+            <li><strong>Navigate to the Script Directory</strong>:
+                <pre><code>cd dbd-reshade</code></pre>
+            </li>
+            <li><strong>Run the Script</strong>: Open PowerShell as Administrator and execute the script:
+                <pre><code>.\ReShadeInstaller.ps1</code></pre>
+            </li>
+        </ol>
+    </section>
 
-        <section>
-            <h2>Usage</h2>
-            <ol>
-                <li><strong>Launch the GUI</strong>: When you run the script, a GUI window will appear.</li>
-                <li><strong>Select a Preset</strong>: Choose a preset from the list in the GUI.</li>
-                <li><strong>Select Installation Folder</strong>: Click on the "Select Folder" button to choose the destination folder for the preset.</li>
-                <li><strong>Install or Change Preset</strong>: Click on the "Install or Change Preset" button to apply the selected preset.</li>
-                <li><strong>Log Output</strong>: The GUI includes a log box to display real-time log information during installation.</li>
-            </ol>
-        </section>
+    <section>
+        <h2>Usage</h2>
+        <ol>
+            <li><strong>Launch the GUI</strong>: When you run the script, a GUI window will appear.</li>
+            <li><strong>Select a Preset</strong>: Choose a preset from the list in the GUI.</li>
+            <li><strong>Select Installation Folder</strong>: Click on the "Select Folder" button to choose the destination folder for the preset.</li>
+            <li><strong>Install or Change Preset</strong>: Click on the "Install or Change Preset" button to apply the selected preset.</li>
+            <li><strong>Log Output</strong>: The GUI includes a log box to display real-time log information during installation.</li>
+        </ol>
+    </section>
 
-        <section>
-            <h2>Troubleshooting</h2>
-            <ul>
-                <li><strong>Error Retrieving ReShade URL</strong>: Ensure you have an active internet connection and the URL to ReShade is accessible.</li>
-                <li><strong>ReShade Installation Failure</strong>: Make sure you have sufficient permissions and the game directory is correctly identified.</li>
-                <li><strong>Missing Presets or Media</strong>: Verify that the <code>presets</code> and <code>media</code> directories are present in the same location as the script.</li>
-            </ul>
-        </section>
+    <section>
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li><strong>Error Retrieving ReShade URL</strong>: Ensure you have an active internet connection and the URL to ReShade is accessible.</li>
+            <li><strong>ReShade Installation Failure</strong>: Make sure you have sufficient permissions and the game directory is correctly identified.</li>
+            <li><strong>Missing Presets or Media</strong>: Verify that the <code>presets</code> and <code>media</code> directories are present in the same location as the script.</li>
+        </ul>
+    </section>
 
-        <section>
-            <h2>Credits</h2>
-            <p>A special thanks to the creators of the following presets for <em>Dead by Daylight</em>, which are included in this repository:</p>
-            <ul class="credits">
-                <li><strong>STX</strong>: <a href="https://github.com/steaxss/STEAXS-FILTER-PACK" target="_blank">steaxss</a></li>
-                <li><strong>April</strong>: <a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE" target="_blank">april</a></li>
-                <li><strong>Aroz</strong>: <a href="https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s" target="_blank">Aroz</a></li>
-                <li><strong>Azef</strong>: <a href="https://www.youtube.com/watch?v=FUelIy0sGOk" target="_blank">azef</a></li>
-                <li><strong>Faelayis</strong>: <a href="https://github.com/Faelayis/dbd-reshade" target="_blank">Faelayis</a></li>
-                <li><strong>Henz</strong>: <a href="https://discord.com/invite/HxjbEKuvZY" target="_blank">Henz</a></li>
-                <li><strong>KnightLight</strong>: <a href="https://www.twitch.tv/knightlight" target="_blank">KnightLight</a></li>
-                <li><strong>Koda</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">Koda</a></li>
-                <li><strong>MomoSeventh</strong>: <a href="https://www.twitch.tv/momoseventh/" target="_blank">MomoSeventh</a></li>
-                <li><strong>Trolling Prophets</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">Trolling Prophets</a></li>
-            </ul>
-            <p>Please refer to the respective preset files in the <a href="https://github.com/Joolace/dbd-reshade/tree/main/Presets" target="_blank">Presets directory</a> for detailed credits and information.</p>
-        </section>
+    <section>
+        <h2>Credits</h2>
+        <p>A special thanks to the creators of the following presets for <em>Dead by Daylight</em>, which are included in this repository:</p>
+        <ul class="credits">
+            <li><strong>STX</strong>: <a href="https://github.com/steaxss/STEAXS-FILTER-PACK" target="_blank">steaxss</a></li>
+            <li><strong>April</strong>: <a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE" target="_blank">april</a></li>
+            <li><strong>Aroz</strong>: <a href="https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s" target="_blank">Aroz</a></li>
+            <li><strong>Azef</strong>: <a href="https://www.youtube.com/watch?v=FUelIy0sGOk" target="_blank">azef</a></li>
+            <li><strong>Faelayis</strong>: <a href="https://github.com/Faelayis/dbd-reshade" target="_blank">Faelayis</a></li>
+            <li><strong>Henz</strong>: <a href="https://discord.com/invite/HxjbEKuvZY" target="_blank">Henz</a></li>
+            <li><strong>KnightLight</strong>: <a href="https://www.twitch.tv/knightlight" target="_blank">KnightLight</a></li>
+            <li><strong>Koda</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">Koda</a></li>
+            <li><strong>MomoSeventh</strong>: <a href="https://www.twitch.tv/momoseventh/" target="_blank">MomoSeventh</a></li>
+            <li><strong>Trolling Prophets</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">MomoSeventh</a></li>
+        </ul>
+        <p>Please refer to the respective preset files in the <a href="https://github.com/Joolace/dbd-reshade/tree/main/Presets" target="_blank">Presets directory</a> for detailed credits and information.</p>
+    </section>
 
-        <section>
-            <h2>Contributing</h2>
-            <p>Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.</p>
-        </section>
+    <section>
+        <h2>Contributing</h2>
+        <p>Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.</p>
+    </section>
 
-        <section>
-            <h2>License</h2>
-            <p>This project is licensed under the GNU General Public License (GPL) - see the <a href="https://github.com/Joolace/dbd-reshade/blob/main/LICENSE" target="_blank">LICENSE</a> file for details.</p>
-        </section>
+    <section>
+        <h2>License</h2>
+        <p>This project is licensed under the GNU General Public License (GPL) - see the <a href="https://github.com/Joolace/dbd-reshade/blob/main/LICENSE" target="_blank">LICENSE</a> file for details.</p>
+    </section>
 
-        <section>
-            <h2>Contact</h2>
-            <p>For any questions or feedback, you can reach out to the developer:</p>
-            <ul>
-                <li><strong>Twitch</strong>: <a href="https://twitch.tv/joolace_" target="_blank">Joolace_</a></li>
-                <li><strong>GitHub</strong>: <a href="https://github.com/Joolace" target="_blank">Joolace</a></li>
-            </ul>
-        </section>
-    </main>
+    <section>
+        <h2>Contact</h2>
+        <p>For any questions or feedback, you can reach out to the developer:</p>
+        <ul>
+            <li><strong>Twitch</strong>: <a href="https://twitch.tv/joolace_" target="_blank">Joolace_</a></li>
+            <li><strong>GitHub</strong>: <a href="https://github.com/Joolace" target="_blank">Joolace</a></li>
+        </ul>
+    </section>
+</main>
 
-    <footer>
-        <p>&copy; 2024 Joolace. All rights reserved.</p>
-    </footer>
+<footer>
+    <p>&copy; 2024 Joolace. All rights reserved.</p>
+</footer>
 
 </body>
-
 </html>
