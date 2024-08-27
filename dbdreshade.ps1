@@ -1,0 +1,460 @@
+# Add necessary assembly for creating message boxes
+Add-Type -AssemblyName PresentationFramework
+
+# Function to display a message box with a given message
+function Show-MessageBox($message) {
+    [System.Windows.MessageBox]::Show($message)
+}
+
+# Function to append log entries to the log box
+function Add-LogEntry($message) {
+    $logBox.AppendText("$message`r`n")
+}
+
+# Function to retrieve the game installation directory
+function Get-GameDirectory {
+    # Try to get the Steam installation path
+    $steamGamePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 381210' -ErrorAction SilentlyContinue).InstallLocation
+    
+    # Try to get the Epic Games installation path
+    $epicGamePath = Get-ChildItem "C:\Program Files\Epic Games\DeadByDaylight" -Directory -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+
+    # Return the appropriate game directory if found
+    if ($steamGamePath) {
+        return $steamGamePath
+    } elseif ($epicGamePath) {
+        return $epicGamePath.FullName
+    } else {
+        Show-MessageBox "Unable to find the Dead by Daylight installation."
+        return $null
+    }
+}
+
+# Function to check if ReShade is installed in the given game directory
+function Is-ReShadeInstalled($gameDir) {
+    $reshadeIniPath = "$gameDir\DeadByDaylight\Binaries\Win64\ReShade.ini"
+
+    Add-LogEntry "Checking ReShade installation:"
+    Add-LogEntry "  ReShade.ini path: $reshadeIniPath"
+
+    # Check if ReShade.ini exists
+    $reshadeInstalled = Test-Path $reshadeIniPath
+
+    Add-LogEntry "  ReShade.ini found: $reshadeInstalled"
+
+    return $reshadeInstalled
+}
+
+# Function to download and install ReShade
+function Install-ReShade($gameDir) {
+    $tempDir = "$env:TEMP\ReShadeInstaller"
+    New-Item -Path $tempDir -ItemType Directory -Force | Out-Null
+
+    Add-LogEntry "Fetching the latest version of ReShade..."
+
+    # Get the latest ReShade setup executable URL
+    $reshadeUrl = Invoke-WebRequest -Uri 'https://reshade.me/' | 
+                  Select-Object -ExpandProperty Links | 
+                  Where-Object { $_.href -match 'ReShade_Setup_.*\.exe' -and $_.href -notmatch 'Addon' } | 
+                  Select-Object -ExpandProperty href | 
+                  Sort-Object -Descending | 
+                  Select-Object -First 1
+
+    if (-not $reshadeUrl) {
+        Show-MessageBox "Error retrieving ReShade URL."
+        Add-LogEntry "Error retrieving ReShade URL."
+        return $false
+    }
+
+    $reshadeInstaller = "$tempDir\ReShade_Setup.exe"
+    $reshadeUrl = "https://reshade.me$reshadeUrl"
+
+    Add-LogEntry "Downloading ReShade from URL: $reshadeUrl"
+    Invoke-WebRequest -Uri $reshadeUrl -OutFile $reshadeInstaller
+
+    Add-LogEntry "Installing ReShade..."
+    try {
+        $process = Start-Process -FilePath $reshadeInstaller -ArgumentList '/silent' -Wait -PassThru
+        Start-Sleep -Seconds 10
+
+        $reshadeIniPath = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+
+        $reshadeInstalled = Test-Path $reshadeIniPath
+
+        if ($reshadeInstalled) {
+            Add-LogEntry "ReShade installation completed successfully."
+            return $true
+        } else {
+            Add-LogEntry "ReShade installation failed or was interrupted."
+            Show-MessageBox "ReShade installation was interrupted or failed. Please install ReShade to continue."
+            return $false
+        }
+    } catch {
+        Add-LogEntry "Error during ReShade installation: $_"
+        Show-MessageBox "An error occurred during the ReShade installation. Please try again."
+        return $false
+    } finally {
+        Remove-Item -Path $reshadeInstaller -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# Function to set the preset path in ReShade.ini
+function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
+    # Define possible paths for ReShade.ini for both Steam and Epic Games installations
+    $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+    $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
+    
+    # Check which ReShade.ini file exists
+    if (Test-Path $reshadeIniPathSteam) {
+        $reshadeIniPath = $reshadeIniPathSteam
+    } elseif (Test-Path $reshadeIniPathEpic) {
+        $reshadeIniPath = $reshadeIniPathEpic
+    } else {
+        Show-MessageBox "ReShade.ini not found in the game directory."
+        return $false
+    }
+
+    # Read the contents of ReShade.ini
+    $iniContent = Get-Content -Path $reshadeIniPath -Raw
+    $iniLines = $iniContent -split "`r`n"
+
+    Add-LogEntry "Updating PresetPath in ReShade.ini"
+
+    # Find the [GENERAL] section
+    $generalSectionIndex = $iniLines.IndexOf('[GENERAL]')
+    if ($generalSectionIndex -eq -1) {
+        Add-LogEntry "[GENERAL] section not found in ReShade.ini"
+        Show-MessageBox "[GENERAL] section not found in ReShade.ini"
+        return $false
+    }
+
+    # Check if PresetPath already exists in the [GENERAL] section
+    $presetPathLineIndex = ($iniLines | Select-String -Pattern 'PresetPath=').LineNumber - 1
+    if ($presetPathLineIndex -ge 0 -and $presetPathLineIndex -lt $iniLines.Length) {
+        $iniLines[$presetPathLineIndex] = "PresetPath=$presetPath"
+    } else {
+        $iniLines = $iniLines[0..($generalSectionIndex+1)] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+2)..($iniLines.Length-1)]
+    }
+
+    # Write the updated content back to ReShade.ini
+    Set-Content -Path $reshadeIniPath -Value ($iniLines -join "`r`n") -Force
+
+    Add-LogEntry "Preset path set in ReShade.ini to $presetPath"
+    return $true
+}
+
+# Function to start capturing log output
+function Start-LogCapture {
+    $global:logFile = "$env:TEMP\ReShadeInstallerLog.txt"
+    Start-Transcript -Path $global:logFile -Append
+}
+
+# Function to stop capturing log output and display it
+function Stop-LogCapture {
+    Stop-Transcript
+    if (Test-Path $global:logFile) {
+        $logContent = Get-Content -Path $global:logFile -Raw
+        Add-LogEntry $logContent
+        Remove-Item -Path $global:logFile -Force
+    }
+}
+
+# Function to load preset descriptions from a JSON file
+function Load-PresetDescriptions {
+    # Path to the JSON file containing preset descriptions
+    $jsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
+    
+    if (Test-Path -Path $jsonPath) {
+        try {
+            # Read the JSON file as raw content and convert it to a PowerShell object
+            $jsonContent = Get-Content -Path $jsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            
+            # Return the JSON content as a PowerShell object
+            return $jsonContent
+        } catch {
+            # Display an error message if loading or parsing the JSON fails
+            Show-MessageBox "Error loading JSON file: $_"
+            return @{}
+        }
+    } else {
+        # Display an error message if the JSON file is not found
+        Show-MessageBox "JSON file not found at path: $jsonPath"
+        return @{}
+    }
+}
+
+
+# Function to update preset description in the GUI
+function Update-PresetDescription($presetName) {
+    $descriptions = Load-PresetDescriptions
+    if ($descriptions -and $descriptions.PSObject.Properties.Match($presetName)) {
+        $preset = $descriptions.$presetName
+        if ($preset) {
+            $description = $preset.description
+            $videoLink = $preset.videoLink
+            if ($description) {
+                $descriptionLabel.Text = $description
+            } else {
+                $descriptionLabel.Text = "No description available."
+            }
+            
+            # Clear any previous links
+            $descriptionLink.Links.Clear()
+            
+            if ($videoLink) {
+                $descriptionLink.Text = "More Info"
+                
+                # Add the link
+                $linkStart = $descriptionLink.Text.IndexOf("More Info")
+                $linkLength = $descriptionLink.Text.Length
+                $descriptionLink.Links.Add($linkStart, $linkLength - $linkStart, $videoLink)
+                
+                # Associate the URL with the LinkClicked event
+                $descriptionLink.Tag = $videoLink
+            } else {
+                $descriptionLink.Text = ""
+            }
+        } else {
+            $descriptionLabel.Text = "No description available for this preset."
+            $descriptionLink.Text = ""
+        }
+    } else {
+        $descriptionLabel.Text = "No description available for this preset."
+        $descriptionLink.Text = ""
+    }
+}
+
+
+# Create the GUI interface
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "ReShade Installer for Dead by Daylight"
+$form.Size = New-Object System.Drawing.Size(500, 750)
+$form.StartPosition = "CenterScreen"
+$form.BackColor = [System.Drawing.Color]::Black
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
+$form.MinimizeBox = $false
+
+# Paths to media and presets directories
+$mediaDir = Join-Path -Path $PSScriptRoot -ChildPath "media"
+$presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
+
+# Check if presets directory exists
+if (-Not (Test-Path -Path $presetDir)) {
+    Show-MessageBox "The presets folder was not found: $presetDir"
+    exit
+}
+
+# Check if media directory exists
+if (-Not (Test-Path -Path $mediaDir)) {
+    Show-MessageBox "The media folder was not found: $mediaDir"
+    exit
+}
+
+# Set up custom font
+$fontPath = Join-Path -Path $mediaDir -ChildPath "Montserrat-Regular.ttf"
+if (Test-Path -Path $fontPath) {
+    $fontCollection = New-Object System.Drawing.Text.PrivateFontCollection
+    $fontCollection.AddFontFile($fontPath)
+    $font = New-Object System.Drawing.Font($fontCollection.Families[0], 10, [System.Drawing.FontStyle]::Regular)
+} else {
+    Show-MessageBox "Montserrat font not found in the media folder: $fontPath"
+    exit
+}
+
+# Add a logo image to the form
+$logoPath = Join-Path -Path $mediaDir -ChildPath "dbdreshade.png"
+if (Test-Path -Path $logoPath) {
+    $logo = New-Object System.Windows.Forms.PictureBox
+    $logo.Image = [System.Drawing.Image]::FromFile($logoPath)
+    $logo.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+    $logo.Width = 400
+    $logo.Height = 100
+    $logo.BackColor = [System.Drawing.Color]::Transparent
+    $logo.Location = New-Object System.Drawing.Point(50, 10)
+    $form.Controls.Add($logo)
+} else {
+    Show-MessageBox "Logo image not found in the media folder: $logoPath"
+}
+
+# Add and configure the label for instructions
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,120)
+$label.Size = New-Object System.Drawing.Size(460,30)
+$label.Text = "Please select a preset and install it to the game."
+$label.ForeColor = [System.Drawing.Color]::White
+$label.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$label.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$form.Controls.Add($label)
+
+# Add and configure the list box for presets
+$listBox = New-Object System.Windows.Forms.ListBox
+$listBox.Location = New-Object System.Drawing.Point(10,150)
+$listBox.Size = New-Object System.Drawing.Size(460,120)
+$listBox.Font = $font
+$form.Controls.Add($listBox)
+
+# Add and configure the description label
+$descriptionLabel = New-Object System.Windows.Forms.Label
+$descriptionLabel.Location = New-Object System.Drawing.Point(10, 280)  # Updated location
+$descriptionLabel.Size = New-Object System.Drawing.Size(460,60)  # Adjusted size
+$descriptionLabel.ForeColor = [System.Drawing.Color]::White
+$descriptionLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$descriptionLabel.TextAlign = [System.Drawing.ContentAlignment]::TopLeft
+$descriptionLabel.AutoSize = $false
+$form.Controls.Add($descriptionLabel)
+
+# Add and configure the description link
+$descriptionLink = New-Object System.Windows.Forms.LinkLabel
+$descriptionLink.Location = New-Object System.Drawing.Point(10, 340)  # Updated location
+$descriptionLink.Size = New-Object System.Drawing.Size(460,20)  # Adjusted size
+$descriptionLink.LinkColor = [System.Drawing.Color]::LightBlue
+$descriptionLink.VisitedLinkColor = [System.Drawing.Color]::LightPink
+$descriptionLink.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$descriptionLink.Add_LinkClicked({
+    $url = $descriptionLink.Tag
+    if ($url) {
+        Start-Process $url
+    }
+})
+$form.Controls.Add($descriptionLink)
+
+# Add and configure the "Select Folder" button
+$buttonSelectFolder = New-Object System.Windows.Forms.Button
+$buttonSelectFolder.Location = New-Object System.Drawing.Point(10, 370)  # Adjusted location
+$buttonSelectFolder.Size = New-Object System.Drawing.Size(460,30)
+$buttonSelectFolder.Text = "Select Folder"
+$buttonSelectFolder.BackColor = [System.Drawing.Color]::White
+$buttonSelectFolder.ForeColor = [System.Drawing.Color]::Black
+$buttonSelectFolder.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$form.Controls.Add($buttonSelectFolder)
+
+# Add and configure the "Install or Change Preset" button
+$buttonInstall = New-Object System.Windows.Forms.Button
+$buttonInstall.Location = New-Object System.Drawing.Point(10, 410)  # Adjusted location
+$buttonInstall.Size = New-Object System.Drawing.Size(460,30)
+$buttonInstall.Text = "Install or Change Preset"
+$buttonInstall.BackColor = [System.Drawing.Color]::White
+$buttonInstall.ForeColor = [System.Drawing.Color]::Black
+$buttonInstall.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$form.Controls.Add($buttonInstall)
+
+# Add and configure the log box for displaying logs
+$logBox = New-Object System.Windows.Forms.TextBox
+$logBox.Multiline = $true
+$logBox.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
+$logBox.Location = New-Object System.Drawing.Point(10, 450)  # Updated location
+$logBox.Size = New-Object System.Drawing.Size(460, 200)
+$logBox.Font = $font
+$logBox.BackColor = [System.Drawing.Color]::Black
+$logBox.ForeColor = [System.Drawing.Color]::White
+$form.Controls.Add($logBox)
+
+# Load preset files into the list box
+$presetFiles = Get-ChildItem -Path $presetDir -Filter "*.ini"
+foreach ($preset in $presetFiles) {
+    $listBox.Items.Add($preset.Name)
+}
+
+# Global variable to store selected folder path
+$global:selectedFolder = ""
+
+# Function to open a folder browser dialog and select a folder
+function Browse-Folder {
+    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $folderBrowser.Description = "Select the folder where you want to install the preset."
+    if ($folderBrowser.ShowDialog() -eq 'OK') {
+        $global:selectedFolder = $folderBrowser.SelectedPath
+        Add-LogEntry "Selected folder: $global:selectedFolder"
+        Show-MessageBox "Selected folder: $global:selectedFolder"
+    }
+}
+
+# Add click event handler for the "Select Folder" button
+$buttonSelectFolder.Add_Click({
+    Browse-Folder
+})
+
+# Add selection changed event handler for the list box
+$listBox.Add_SelectedIndexChanged({
+    $selectedPreset = $listBox.SelectedItem
+    if ($selectedPreset) {
+        Update-PresetDescription -presetName $selectedPreset
+    }
+})
+
+# Add click event handler for the "Install or Change Preset" button
+$buttonInstall.Add_Click({
+    Start-LogCapture
+
+    $selectedPreset = $listBox.SelectedItem
+    if (-not $selectedPreset) {
+        Show-MessageBox "Please select a preset from the list."
+        Stop-LogCapture
+        return
+    }
+
+    if (-not $global:selectedFolder) {
+        Show-MessageBox "Please select a folder to install the preset."
+        Stop-LogCapture
+        return
+    }
+
+    Add-LogEntry "Selected preset: $selectedPreset"
+    Add-LogEntry "Installation folder: $global:selectedFolder"
+
+    $gameDir = Get-GameDirectory
+    if (-not $gameDir) {
+        Stop-LogCapture
+        return
+    }
+
+    if (-not (Is-ReShadeInstalled $gameDir)) {
+        Add-LogEntry "ReShade is not installed. Proceeding with installation."
+        $reshadeInstalled = Install-ReShade $gameDir
+
+        if (-not $reshadeInstalled) {
+            Show-MessageBox "ReShade installation failed. Exiting."
+            Stop-LogCapture
+            return
+        }
+    } else {
+        Add-LogEntry "ReShade is already installed. Proceeding with preset update only."
+    }
+
+    $destinationPath = Join-Path -Path $global:selectedFolder -ChildPath $selectedPreset
+    Copy-Item -Path "$presetDir\$selectedPreset" -Destination $destinationPath -Force
+
+    $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath $destinationPath
+
+    if ($presetSet) {
+        Add-LogEntry "Preset installed successfully!"
+        Show-MessageBox "Preset installed successfully!"
+    } else {
+        Add-LogEntry "Failed to set the preset path in ReShade.ini."
+        Show-MessageBox "Failed to set the preset path in ReShade.ini."
+    }
+
+    Stop-LogCapture
+})
+
+# Add version and developer info label
+$infoLabel = New-Object System.Windows.Forms.Label
+$infoLabel.Location = New-Object System.Drawing.Point(10, 680)
+$infoLabel.Size = New-Object System.Drawing.Size(460, 20)
+$infoLabel.Text = "v1.0.0 - Developed by Joolace"
+$infoLabel.ForeColor = [System.Drawing.Color]::White
+$infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$infoLabel.Cursor = [System.Windows.Forms.Cursors]::Hand
+$infoLabel.Add_Click({
+    Start-Process "https://twitch.tv/joolace_"
+})
+$form.Controls.Add($infoLabel)
+
+$form.Add_Shown({$form.Activate()})
+[void]$form.ShowDialog()

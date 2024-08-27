@@ -1,0 +1,538 @@
+{
+    "azefSettings.ini": {
+        "description": "Azef's custom settings with optimized graphics for a balanced performance and visual quality.",
+        "videoLink": "https://www.youtube.com/watch?v=FUelIy0sGOk"
+    },
+    "ItsArozTTV-PRESET.ini": {
+        "description": "A specialized TTV preset designed for streamers, offering enhanced visibility and clarity for a better streaming experience.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "AROZ-PRESET.ini": {
+        "description": "A TTV preset tailored for streamers, focusing on improved visibility and clarity to enhance the quality of streams.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "AROZ-COMP-RED-N-BLACK.ini": {
+        "description": "A TTV preset with a red and black theme, optimized for streamers to provide enhanced visibility and a distinct visual style.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "Aroz-Config.ini": {
+        "description": "A TTV configuration preset designed for streamers, enhancing visibility and making it easier to maintain stream quality.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "AROZ-VIBES.ini": {
+        "description": "A TTV preset for streamers, designed to enhance visibility and provide a unique vibe for your stream with vibrant color adjustments.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "DREDGE-NIGHTLIGHT.ini": {
+        "description": "A TTV preset designed for nighttime streaming, providing enhanced visibility and clarity in darker environments.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "AROZwind.ini": {
+        "description": "A TTV preset focused on improving visibility and stream quality, suitable for various streaming conditions.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "Current-Aroz-Reshade.ini": {
+        "description": "The latest reshade preset by Aroz for TTV, optimized for streamers seeking enhanced visibility and color accuracy.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "AROZ-SMURF.ini": {
+        "description": "A TTV preset designed for streamers, providing enhanced visibility and optimized performance, tailored for streaming with a unique visual style.",
+        "videoLink": "https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s"
+    },
+    "00.STX.Universal(Twitch Friendly).ini": {
+        "description": "A versatile TTV preset suitable for all maps in Dead by Daylight, offering enhanced visibility and optimized performance, perfect for streamers looking for a balanced visual style.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "01.STX.Dvarka.ini": {
+        "description": "A TTV preset specifically designed for the Dvarka map, enhancing visibility and performance for a better streaming experience on this unique terrain.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "02.STX.Toba.ini": {
+        "description": "Tailored for the Toba map in Dead by Daylight, this TTV preset optimizes visuals for streamers, providing clearer visibility and a refined visual style.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "03.STX.Shattered (Borgo).ini": {
+        "description": "A TTV preset crafted for the Shattered Borgo map, enhancing visibility and optimizing streaming performance on this dark and atmospheric map.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "04.STX.Garden of joy.ini": {
+        "description": "Designed for the Garden of Joy map, this TTV preset enhances visibility and performance, making it easier for streamers to capture the essence of this map.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "05.STX.Eyrie Of Crows.ini": {
+        "description": "Optimized for the Eyrie Of Crows map, this TTV preset provides improved visibility and performance for streaming in this hauntingly atmospheric setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "06.STX.Raccoon City.ini": {
+        "description": "A TTV preset tailored for the Raccoon City map, enhancing visuals and performance to ensure streamers can navigate and broadcast effectively in this iconic setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "07.STX.Midwich.ini": {
+        "description": "Specifically designed for the Midwich Elementary School map, this preset optimizes streaming quality and visibility in this chilling environment.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "08.STX.Saloon.ini": {
+        "description": "Enhance your stream on the Dead Dawg Saloon map with this TTV preset, which provides better visibility and performance for the Wild West-themed setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "09.STX.Yamaoka.ini": {
+        "description": "Optimized for the Yamaoka Estate map, this preset enhances the visibility and performance needed for streaming in this serene yet eerie setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "10.STX.Red Forest.ini": {
+        "description": "Tailored for the Red Forest map, this TTV preset provides enhanced visibility and performance, perfect for capturing the haunting atmosphere of this map.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "11.STX.Ormond.ini": {
+        "description": "This preset is designed for the Ormond map, offering improved visibility and optimized performance to help streamers deliver high-quality content from this snowy environment.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "12.STX.The Game.ini": {
+        "description": "Enhance your streams on The Game map with this TTV preset, providing better visibility and performance for navigating this twisted and intricate environment.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "13.STX.Badham.ini": {
+        "description": "Specifically for the Badham Preschool map, this preset improves streaming quality with enhanced visibility and performance, ideal for this eerie school setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "14.STX.Lery's.ini": {
+        "description": "A TTV preset tailored for the Léry's Memorial Institute map, enhancing visibility and stream quality in this abandoned hospital environment.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "15.STX.Backwater.ini": {
+        "description": "Designed for the Backwater Swamp map, this preset optimizes performance and visibility, providing streamers with a clearer view of this murky and treacherous terrain.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "16.STX.Haddonfield.ini": {
+        "description": "A TTV preset optimized for the Haddonfield map, enhancing streaming quality with better visibility and performance in this iconic suburban setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "17.STX.Crotus.ini": {
+        "description": "Specifically for the Crotus Prenn Asylum map, this preset provides enhanced visibility and performance for streaming in this chilling and disorienting environment.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "18.STX.Coldwind.ini": {
+        "description": "Optimized for the Coldwind Farm map, this preset offers improved visibility and streaming performance, ideal for capturing the haunting essence of this map.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "19.STX.Macmillan.ini": {
+        "description": "A TTV preset designed for the Macmillan Estate map, providing enhanced visibility and optimized streaming performance to navigate this foggy and atmospheric location.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "20.STX.Autohaven.ini": {
+        "description": "Tailored for the Autohaven Wreckers map, this preset enhances visibility and streaming performance, making it perfect for this scrapyard-themed setting.",
+        "videoLink": "https://github.com/steaxss/STEAXS-FILTER-PACK"
+    },
+    "Faelayis.ini": {
+        "description": "This preset focuses on improving color balance, sharpness, and overall visibility to provide a more immersive and visually appealing experience for both players and streamers.",
+        "videoLink": "https://github.com/Faelayis/dbd-reshade"
+    },
+    "Trolling Prophet Autohaven Wreckers - prophet.ini": {
+        "description": "A custom ReShade preset by Trolling Prophet for the Autohaven Wreckers map in Dead by Daylight. This preset enhances color balance, sharpness, and visibility, offering streamers and players a more immersive and visually appealing experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Backwater Swamp - prophet.ini": {
+        "description": "Trolling Prophet's ReShade preset for the Backwater Swamp map, tailored to improve visual clarity and enhance the gameplay atmosphere with better color contrast and detail visibility.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Badham Preschool - prophet.ini": {
+        "description": "A ReShade preset designed by Trolling Prophet for Badham Preschool, focused on sharpening visuals and improving lighting effects to create a more engaging experience for streamers and players.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Coldwind Farm - prophet.ini": {
+        "description": "Enhance your experience on Coldwind Farm with Trolling Prophet’s custom preset, which optimizes visuals for better clarity and atmosphere, making it perfect for streaming and gameplay.",
+        "videoLink": "https://discord.gg/bNvWEde5Vre"
+    },
+    "Trolling Prophet Crotus Prenn Asylum - prophet.ini": {
+        "description": "A preset designed specifically for Crotus Prenn Asylum by Trolling Prophet, focusing on enhancing the eerie environment through refined lighting and color adjustments.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Dvarka Deepwood - prophet.ini": {
+        "description": "This custom ReShade preset by Trolling Prophet is tailored for the Dvarka Deepwood map in Dead by Daylight. It enhances the game's visual appeal by improving color accuracy, sharpness, and overall visibility, creating a more atmospheric and engaging experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Dead Dwag Saloon - prophet.ini": {
+        "description": "Improve the visual atmosphere of Dead Dawg Saloon with this preset by Trolling Prophet, featuring enhanced contrast and sharpness to highlight key details and improve stream quality.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Eyrie of Crows - prophet.ini": {
+        "description": "Trolling Prophet’s preset for Eyrie of Crows offers optimized visuals that heighten the map’s unique ambiance, ensuring better visibility and a more engaging experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Garden of Joy - prophet.ini": {
+        "description": "A custom preset for Garden of Joy by Trolling Prophet, designed to enhance colors and sharpness, providing players with clearer visibility and a more pleasant visual experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Gideon Meat Plant - prophet.ini": {
+        "description": "Experience the Gideon Meat Plant map with improved clarity and atmosphere using Trolling Prophet’s preset, tailored to enhance lighting and detail for a more immersive gameplay experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Haddonfield - prophet.ini": {
+        "description": "A ReShade preset by Trolling Prophet for Haddonfield, focused on balancing colors and sharpening visuals to better capture the map’s unique aesthetic.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Lry's Memorial Institute - prophet.ini": {
+        "description": "Enhance your experience on Léry's Memorial Institute with this preset by Trolling Prophet, featuring optimized visuals for improved color balance and sharper details.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet MacMillan Estate - prophet.ini": {
+        "description": "This preset by Trolling Prophet is tailored for the MacMillan Estate map, offering improved visual sharpness and color balance for better gameplay immersion and streaming quality.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Midwich Elementary - prophet.ini": {
+        "description": "A preset for Midwich Elementary designed by Trolling Prophet, enhancing the map’s visual appeal with better color dynamics and lighting effects to create a more engaging experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Mount Ormond Resort - prophet.ini": {
+        "description": "Improve the atmosphere of Mount Ormond Resort with this ReShade preset by Trolling Prophet, which sharpens visuals and enhances color contrasts for a richer gameplay experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Raccoon City Police Department - prophet.ini": {
+        "description": "Trolling Prophet’s preset for Raccoon City Police Department, focusing on optimizing visual clarity and enhancing the map’s distinct ambiance for better streaming and play.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Red Forest - prophet.ini": {
+        "description": "This ReShade preset by Trolling Prophet enhances the Red Forest map’s visuals by improving color balance and sharpening details, offering a more immersive experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Shattered Square - prophet.ini": {
+        "description": "A preset designed for the Shattered Square map by Trolling Prophet, focusing on enhancing visual clarity and color dynamics to provide a more appealing and immersive environment.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Trolling Prophet Yamaoka Estate - prophet.ini": {
+        "description": "Enhance your Yamaoka Estate gameplay with Trolling Prophet’s preset, which sharpens visuals and improves lighting to provide a better experience for both players and streamers.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Autohaven Wreckers (Koda).ini": {
+        "description": "This preset by Koda enhances the Autohaven Wreckers map in Dead by Daylight, focusing on improving color balance, sharpness, and overall visibility to provide a more immersive and visually appealing experience for both players and streamers.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Backwater Swamp (Koda).ini": {
+        "description": "Improve your gameplay on Backwater Swamp with Koda's preset, which enhances color clarity, sharpens details, and optimizes lighting for a more engaging experience. Ideal for streamers and players seeking better visibility and visual appeal.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Badham (Koda).ini": {
+        "description": "Koda’s ReShade preset for Badham Preschool focuses on refining visual clarity with enhanced color contrast and sharper details, ensuring a more immersive and visually appealing experience for both players and streamers.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Coldwind Farm (Koda).ini": {
+        "description": "This preset by Koda enhances Coldwind Farm with improved color balance and sharpness, offering better visibility and a more immersive gameplay experience. Perfect for streamers looking to elevate their visual presentation.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Crotus Prenn Asylum (Koda).ini": {
+        "description": "Enhance your experience on Crotus Prenn Asylum with Koda’s custom preset, which sharpens visuals and optimizes lighting to create a more atmospheric and engaging environment for both players and streamers.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Dead Dawg Saloon (Koda).ini": {
+        "description": "Koda’s preset for Dead Dawg Saloon improves visual clarity and contrast, offering a more immersive and visually engaging experience. Ideal for enhancing the map’s details and overall visual appeal.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Eyrie of Crows (Koda).ini": {
+        "description": "This ReShade preset by Koda for Eyrie of Crows enhances color balance and sharpness, providing better visibility and a more captivating visual experience for both players and streamers.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Lrys Memorial Institute (Koda).ini": {
+        "description": "Optimize your gameplay on Léry's Memorial Institute with Koda’s preset, which enhances visual clarity and lighting effects for a more immersive and visually appealing experience.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - MacMillan Estate (Koda).ini": {
+        "description": "Koda’s preset for MacMillan Estate focuses on improving color accuracy, sharpness, and overall visual details, enhancing the gameplay experience and making it ideal for streaming.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Midwich (Koda).ini": {
+        "description": "Enhance your Midwich Elementary gameplay with this preset by Koda, which sharpens visuals and adjusts lighting for a more immersive and engaging experience. Perfect for streamers and players seeking improved visual clarity.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Shattered Square (Koda).ini": {
+        "description": "Koda’s ReShade preset for Shattered Square enhances visual details and lighting, providing better color balance and clarity to create a more immersive gameplay environment.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Koda - Yamaoka Estate (Koda).ini": {
+        "description": "This preset by Koda for Yamaoka Estate improves visual sharpness and lighting, enhancing color balance and overall detail for a better experience in both gameplay and streaming.",
+        "videoLink": "https://discord.gg/bNvWEde5Vr"
+    },
+    "Hens - 01-DarkMaps.ini": {
+        "description": "This preset by Hens is designed to enhance maps with darker themes. It improves visual sharpness and lighting, adjusting color balance to make details more visible, thus providing a better gameplay and streaming experience.",
+        "videoLink": "https://discord.com/invite/HxjbEKuvZY"
+    },
+    "Hens - 02-BrightMaps.ini": {
+        "description": "Optimize your experience on bright maps with Hens' preset. This configuration enhances visual sharpness and lighting while adjusting color balance to ensure clearer and more detailed visuals, perfect for both gameplay and streaming.",
+        "videoLink": "https://discord.com/invite/HxjbEKuvZY"
+    },
+    "Hens - 03-Borgo.ini": {
+        "description": "Tailored for the Borgo map, this preset by Hens enhances visual sharpness and lighting, improving color accuracy and detail. It provides a more immersive and visually appealing experience for players and streamers alike.",
+        "videoLink": "https://discord.com/invite/HxjbEKuvZY"
+    },
+    "Hens - 04-NoFilters.ini": {
+        "description": "Hens’ NoFilters preset offers a clean visual enhancement by improving sharpness and lighting without additional color filters. It enhances map details and overall clarity, ideal for a straightforward and detailed visual experience.",
+        "videoLink": "https://discord.com/invite/HxjbEKuvZY"
+    },
+    "MomoSeventh - Autohaven Wreckers (MS).ini": {
+        "description": "This preset enhances your gameplay on Autohaven Wreckers with improved sharpness and lighting, offering better color balance and clarity without additional filters. Ideal for a detailed and immersive visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Backwater Swamp (MS).ini": {
+        "description": "Optimize your experience on Backwater Swamp with this preset that enhances sharpness and lighting, ensuring improved color balance and map clarity without added filters. Perfect for both gameplay and streaming.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Badham (MS).ini": {
+        "description": "This preset improves visual sharpness and lighting on Badham, enhancing map details and overall clarity without additional filters for a straightforward and detailed visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Coldwind Farm (MS).ini": {
+        "description": "Enhance your gameplay on Coldwind Farm with improved sharpness and lighting. This preset adjusts color balance and map clarity, offering a detailed visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Crotus Prenn Asylum (MS).ini": {
+        "description": "This preset sharpens visuals and improves lighting on Crotus Prenn Asylum, enhancing color balance and map details without additional filters for a clearer and more immersive experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Dead Dawg Saloon (MS).ini": {
+        "description": "Optimize your gameplay in Dead Dawg Saloon with this preset, which enhances sharpness and lighting while improving color balance and map clarity without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Eyrie of Crows (MS).ini": {
+        "description": "Improve your experience on Eyrie of Crows with this preset, which enhances visual sharpness and lighting, providing better color balance and map clarity without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Garden of Joy (MS).ini": {
+        "description": "This preset enhances Garden of Joy by improving sharpness and lighting, adjusting color balance and map clarity for a more detailed and immersive visual experience.4",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Haddonfield (MS).ini": {
+        "description": "Enhance your gameplay on Haddonfield with improved sharpness and lighting. This preset adjusts color balance and map details, providing a clearer visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Lerys Memorial Institute (MS).ini": {
+        "description": "Improve your experience on Lery's Memorial Institute with this preset that sharpens visuals and enhances lighting, providing better color balance and clarity without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - MacMillan Estate (MS).ini": {
+        "description": "This preset enhances MacMillan Estate by improving sharpness and lighting, ensuring better color balance and map details without additional filters for a detailed visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Midwich (MS).ini": {
+        "description": "Optimize your gameplay on Midwich with improved sharpness and lighting, providing enhanced color balance and map clarity without added filters for a more immersive experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Mount Ormond (MS).ini": {
+        "description": "Enhance your experience on Mount Ormond with this preset that improves sharpness and lighting, adjusting color balance and map clarity without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Red Forest (MS).ini": {
+        "description": "Improve gameplay on Red Forest with this preset that enhances sharpness and lighting, offering better color balance and map clarity without additional filters for a detailed visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - RPD (MS).ini": {
+        "description": "This preset sharpens visuals and improves lighting for the Raccoon City Police Department map, providing enhanced color balance and clarity without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - The Game (MS).ini": {
+        "description": "Optimize your experience in The Game map with this preset that improves sharpness and lighting, enhancing color balance and map details without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - Yamaoka Estate (MS).ini": {
+        "description": "This preset enhances Yamaoka Estate with improved sharpness and lighting, providing better color balance and map clarity without additional filters for a detailed visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - z - BLACK & RED.ini": {
+        "description": "Enhance your gameplay with this preset that provides sharpness and improved lighting with a black and red theme. It ensures better color balance and map clarity without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoSeventh - z - DISTURBED.ini": {
+        "description": "This preset offers a distinctive visual enhancement with sharpness and improved lighting, tailored for a disturbed theme. It enhances color balance and map clarity without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - AUTO.ini": {
+        "description": "This preset provides a unique visual enhancement with improved sharpness and lighting, offering better color balance and map clarity tailored to a distinctive theme. Perfect for an enhanced gameplay experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - Black_and_Red.ini": {
+        "description": "Enhance your visuals with this preset featuring sharpness and lighting improvements, designed with a black and red theme. It ensures better color balance and map clarity, all without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - Blue.ini": {
+        "description": "This preset offers a clean visual enhancement with improved sharpness and lighting, featuring a blue theme. It enhances color balance and map clarity, providing a straightforward visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - Coldwind.ini": {
+        "description": "Optimize your Coldwind Farm gameplay with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity, delivering a detailed visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - disturbed.ini": {
+        "description": "This preset enhances visuals with improved sharpness and lighting, tailored to a disturbed theme. It ensures better color balance and map clarity without extra filters, ideal for a more immersive experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - everything.ini": {
+        "description": "Featuring a distinctive visual enhancement, this preset improves sharpness and lighting for a comprehensive visual experience. It enhances color balance and map clarity without additional filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - Knightlight Reshade.ini": {
+        "description": "Enhance your gameplay with this preset that provides improved sharpness and lighting, Knightlight Reshade. It enhances color balance and map clarity without extra filters for a more detailed visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - Normal.ini": {
+        "description": "This preset offers a standard visual enhancement with improved sharpness and lighting, providing better color balance and map clarity without additional filters. Ideal for a clear and straightforward visual experience.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "MomoS - SHATTERED_SQUARE.ini": {
+        "description": "Enhance your experience on Shattered Square with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, offering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/momoseventh/"
+    },
+    "April_autohaven.ini": {
+        "description": "This preset enhances the visual experience on Autohaven Wreckers with improved sharpness and lighting. It fine-tunes color balance and map clarity, delivering a more detailed and immersive view without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_coldwind.ini": {
+        "description": "Optimize your gameplay on Coldwind Farm with this preset, featuring enhanced sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive experience without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_crotusprenn.ini": {
+        "description": "Enhance your experience in Crotus Prenn Asylum with this preset that improves sharpness and lighting. It provides better color balance and map clarity, offering a clearer and more immersive visual experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_eyrieofcrows.ini": {
+        "description": "Improve your gameplay on Eyrie of Crows with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity, providing a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_game.ini": {
+        "description": "This preset enhances your experience on The Game map with improved sharpness and lighting. It fine-tunes color balance and map clarity, delivering a more detailed and immersive view without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_garden.ini": {
+        "description": "Enhance your visuals on Garden of Joy with this preset, which improves sharpness and lighting. It adjusts color balance and map clarity, offering a more detailed and immersive experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_lampkinlane.ini": {
+        "description": "This preset enhances your experience on Lampkin Lane with improved sharpness and lighting. It provides better color balance and map clarity, ensuring a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_lerys.ini": {
+        "description": "Improve your gameplay on Lery's Memorial Institute with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_macmillan.ini": {
+        "description": "This preset enhances the visuals on MacMillan Estate with improved sharpness and lighting. It fine-tunes color balance and map clarity, offering a more detailed and immersive view without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_midwich.ini": {
+        "description": "Enhance your experience on Midwich Elementary with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, providing a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_ormond.ini": {
+        "description": "Optimize your gameplay on Mount Ormond Resort with this preset, featuring improved sharpness and lighting. It enhances color balance and map clarity, delivering a more detailed and immersive view without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_preschool.ini": {
+        "description": "This preset enhances visuals on the Preschool map with better sharpness and lighting. It provides improved color balance and map clarity for a more detailed and immersive experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_redforest.ini": {
+        "description": "Enhance your experience in the Red Forest with this preset that improves sharpness and lighting. It fine-tunes color balance and map clarity, offering a clearer and more immersive view without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_RPD.ini": {
+        "description": "Improve your gameplay on Raccoon City Police Department with this preset, which enhances sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_saloon.ini": {
+        "description": "This preset enhances visuals on Dead Dawg Saloon with improved sharpness and lighting. It provides better color balance and map clarity, ensuring a clearer and more immersive experience without additional filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_shatteredsquare.ini": {
+        "description": "Enhance your experience on Shattered Square with this preset that improves sharpness and lighting. It fine-tunes color balance and map clarity, delivering a more detailed and immersive view without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_swamp.ini": {
+        "description": "Optimize your gameplay on Backwater Swamp with this preset, featuring enhanced sharpness and lighting. It adjusts color balance and map clarity, providing a clearer and more immersive visual experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_toba.ini": {
+        "description": "This preset enhances visuals on Toba Landing with improved sharpness and lighting. It provides better color balance and map clarity, ensuring a more detailed and immersive experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "April_yamaoka.ini": {
+        "description": "Enhance your experience on Yamaoka Estate with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.youtube.com/watch?v=2_YQ_rWiKFE"
+    },
+    "KnightLight - 01.KL.MacMillan_v2.ini": {
+        "description": "Enhance your experience on MacMillan Estate with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 02.KL.Coldwind_v2.ini": {
+        "description": "Optimize your gameplay on Coldwind Farm with this preset, which enhances sharpness and lighting. It fine-tunes color balance and map clarity, offering a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 03.KL.Autohaven_v2.ini": {
+        "description": "Improve your visuals on Autohaven Wreckers with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 04.KL.Asylum_v2.ini": {
+        "description": "Enhance your experience on Crotus Prenn Asylum with this preset, which improves sharpness and lighting. It provides better color balance and map clarity, ensuring a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 06.KL.Lerys_v2.ini": {
+        "description": "Optimize your gameplay on Lery’s Memorial Institute with this preset. It enhances sharpness and lighting, adjusts color balance, and improves map clarity for a more immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 07.KL.Redforest_v2.ini": {
+        "description": "Enhance your experience in the Red Forest with this preset that improves sharpness and lighting. It fine-tunes color balance and map clarity, delivering a more detailed and immersive view without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 08.KL.Swamp_v2.ini": {
+        "description": "Improve your visuals on Backwater Swamp with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity, providing a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 09.KL.Springwood_v2.ini": {
+        "description": "Enhance your gameplay on Springwood with this preset, featuring improved sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 10.KL.TheGame_v2.ini": {
+        "description": "Optimize your experience on The Game map with this preset that improves sharpness and lighting. It fine-tunes color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 11.KL.Yamaoka_v2.ini": {
+        "description": "Enhance your gameplay on Yamaoka Estate with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, offering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 12.KL.Ormond_v2.ini": {
+        "description": "Improve your visuals on Mount Ormond Resort with this preset that enhances sharpness and lighting. It fine-tunes color balance and map clarity for a clearer and more immersive experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 13.KL.Saloon_v2.ini": {
+        "description": "Optimize your gameplay on Dead Dawg Saloon with this preset, which improves sharpness and lighting. It adjusts color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 14.KL.Midwich_v2.ini": {
+        "description": "Enhance your experience on Midwich Elementary with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, providing a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 15.KL.RPD_v2.ini": {
+        "description": "Improve your gameplay on Raccoon City Police Department with this preset, which enhances sharpness and lighting. It fine-tunes color balance and map clarity for a clearer and more immersive visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 16.KL.Eyrie_v2.ini": {
+        "description": "Enhance your experience on Eyrie of Crows with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 17.KL.Garden_v2.ini": {
+        "description": "Optimize your gameplay on Garden of Joy with this preset that enhances sharpness and lighting. It adjusts color balance and map clarity for a more detailed and immersive visual experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 18.KL.Borgo_v2.ini": {
+        "description": "Enhance your experience on Borgo Montenero with this preset that improves sharpness and lighting. It adjusts color balance and map clarity, providing a clearer and more immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - 19.KL.Dvarka_v2.ini": {
+        "description": "Improve your visuals on Dvarka's Temple with this preset that enhances sharpness and lighting. It fine-tunes color balance and map clarity for a more detailed and immersive experience without additional filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - z - KNIGHTLIGHT 1.ini": {
+        "description": "This preset enhances your overall gaming experience with improved sharpness and lighting. It adjusts color balance and map clarity, delivering a more detailed and immersive visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    },
+    "KnightLight - z - KNIGHTLIGHT 2.ini": {
+        "description": "Enhance your gaming visuals with this preset featuring improved sharpness and lighting. It adjusts color balance and map clarity for a more immersive and detailed visual experience without extra filters.",
+        "videoLink": "https://www.twitch.tv/knightlight"
+    }
+}
