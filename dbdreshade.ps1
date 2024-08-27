@@ -129,12 +129,26 @@ function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
         return $false
     }
 
-    # Check if PresetPath already exists in the [GENERAL] section
-    $presetPathLineIndex = ($iniLines | Select-String -Pattern 'PresetPath=' | Select-Object -First 1).LineNumber - 1
-    if ($presetPathLineIndex -ge 0 -and $presetPathLineIndex -lt $iniLines.Length) {
-    $iniLines[$presetPathLineIndex] = "PresetPath=$presetPath"
-    } else {
-    $iniLines = $iniLines[0..($generalSectionIndex+1)] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+2)..($iniLines.Length-1)]
+    # Initialize a flag to check if PresetPath exists
+    $presetPathFound = $false
+
+    # Loop through lines starting from the [GENERAL] section to find or set PresetPath
+    for ($i = $generalSectionIndex + 1; $i -lt $iniLines.Length; $i++) {
+        if ($iniLines[$i] -match '^\[.+\]') {
+            # Break if a new section starts
+            break
+        }
+        if ($iniLines[$i] -match '^PresetPath=') {
+            # Update the existing PresetPath line
+            $iniLines[$i] = "PresetPath=$presetPath"
+            $presetPathFound = $true
+            break
+        }
+    }
+
+    # If PresetPath was not found, add it just after the [GENERAL] section
+    if (-not $presetPathFound) {
+        $iniLines = $iniLines[0..$generalSectionIndex] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+1)..($iniLines.Length-1)]
     }
 
     # Write the updated content back to ReShade.ini
@@ -446,7 +460,7 @@ $buttonInstall.Add_Click({
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Location = New-Object System.Drawing.Point(10, 680)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.0.0 - Developed by Joolace"
+$infoLabel.Text = "v1.0.1 - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
