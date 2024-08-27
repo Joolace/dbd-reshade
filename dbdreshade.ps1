@@ -16,18 +16,28 @@ function Get-GameDirectory {
     # Try to get the Steam installation path
     $steamGamePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 381210' -ErrorAction SilentlyContinue).InstallLocation
     
-    # Try to get the Epic Games installation path
-    $epicGamePath = Get-ChildItem "C:\Program Files\Epic Games\DeadByDaylight" -Directory -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-
-    # Return the appropriate game directory if found
+    # If Steam path is found, return it
     if ($steamGamePath) {
         return $steamGamePath
-    } elseif ($epicGamePath) {
-        return $epicGamePath.FullName
-    } else {
-        Show-MessageBox "Unable to find the Dead by Daylight installation."
-        return $null
     }
+
+    # Try to get the Epic Games installation path
+    $epicGamesLauncherPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
+    
+    if (Test-Path $epicGamesLauncherPath) {
+        # Loop through all the manifest files
+        $manifests = Get-ChildItem -Path $epicGamesLauncherPath -Filter *.item -ErrorAction SilentlyContinue
+        foreach ($manifest in $manifests) {
+            $manifestContent = Get-Content -Path $manifest.FullName | Out-String | ConvertFrom-Json
+            if ($manifestContent.AppName -eq "DeadByDaylight") {
+                return $manifestContent.InstallLocation
+            }
+        }
+    }
+
+    # If neither path is found, show a message and return $null
+    Show-MessageBox "Unable to find the Dead by Daylight installation."
+    return $null
 }
 
 # Function to check if ReShade is installed in the given game directory
@@ -77,11 +87,15 @@ function Install-ReShade($gameDir) {
         $process = Start-Process -FilePath $reshadeInstaller -ArgumentList '/silent' -Wait -PassThru
         Start-Sleep -Seconds 10
 
-        $reshadeIniPath = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+        # Check for ReShade installation in Steam path
+        $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+        # Check for ReShade installation in Epic Games path
+        $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
 
-        $reshadeInstalled = Test-Path $reshadeIniPath
+        $reshadeInstalledSteam = Test-Path $reshadeIniPathSteam
+        $reshadeInstalledEpic = Test-Path $reshadeIniPathEpic
 
-        if ($reshadeInstalled) {
+        if ($reshadeInstalledSteam -or $reshadeInstalledEpic) {
             Add-LogEntry "ReShade installation completed successfully."
             return $true
         } else {
