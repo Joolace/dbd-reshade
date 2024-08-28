@@ -369,6 +369,17 @@ function Update-PresetDescription($presetName) {
     }
 }
 
+# Function to reload preset list
+function Reload-PresetList {
+    # Clear the current items in the list box
+    $listBox.Items.Clear()
+
+    # Load preset files into the list box
+    $presetFiles = Get-ChildItem -Path $presetDir -Filter "*.ini"
+    foreach ($preset in $presetFiles) {
+        $listBox.Items.Add($preset.Name)
+    }
+}
 
 # Create the GUI interface
 [void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
@@ -601,12 +612,12 @@ $buttonInstall.Add_Click({
     $progressBar.Value = 85
     $form.Refresh()
 
-    Copy-Item -Path "$presetDir\$selectedPreset" -Destination $destinationPath -Force
+    Copy-Item -Path "$presetDir\$selectedPreset" -Destination $global:selectedFolder -Force
 
     $progressBar.Value = 95
     $form.Refresh()
 
-    $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath $destinationPath
+    $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath (Join-Path -Path $global:selectedFolder -ChildPath $selectedPreset)
 
     if ($presetSet) {
         Add-LogEntry "Preset installed successfully!"
@@ -614,6 +625,9 @@ $buttonInstall.Add_Click({
         
         $progressBar.Value = 100
         $form.Refresh()
+
+        # Reload the preset list
+        Reload-PresetList
     } else {
         Add-LogEntry "Failed to set the preset path in ReShade.ini."
         Show-MessageBox "Failed to set the preset path in ReShade.ini."
