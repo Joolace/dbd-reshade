@@ -21,20 +21,28 @@
     <!-- Favicon -->
     <link rel="icon" href="https://raw.githubusercontent.com/Joolace/dbd-reshade/main/favicon.ico" type="image/x-icon">
 
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Open Sans', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #000;
+            color: #fff;
         }
         
         header {
-            background: #333;
+            background: #000;
             color: #fff;
             padding: 20px;
             text-align: center;
+        }
+        
+        header img {
+            width: 150px;
+            margin-bottom: 10px;
         }
         
         header h1 {
@@ -47,18 +55,14 @@
             padding: 20px;
             max-width: 900px;
             margin: 20px auto;
-            background: #fff;
+            background: #111;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
         }
         
         h2,
         h3 {
-            color: #333;
+            color: #fff;
         }
         
         a {
@@ -71,9 +75,10 @@
         }
         
         pre {
-            background: #f9f9f9;
+            background: #222;
+            color: #fff;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
             border-radius: 5px;
             overflow-x: auto;
         }
@@ -100,7 +105,7 @@
         footer {
             text-align: center;
             padding: 10px;
-            background: #333;
+            background: #000;
             color: #fff;
             margin-top: 20px;
         }
@@ -110,6 +115,7 @@
 <body>
 
     <header>
+        <img src="https://raw.githubusercontent.com/Joolace/dbd-reshade/main/dbdreshade_logo.png" alt="ReShade Logo">
         <h1>ReShade Installer for Dead by Daylight</h1>
     </header>
 
@@ -177,7 +183,9 @@
         <section>
             <h2>Download</h2>
             <p>To get started with the ReShade Installer for Dead by Daylight, download the latest version from the link below:</p>
-            <a href="https://github.com/Joolace/dbd-reshade/releases" class="button" download>Download Now</a>
+            <a href="https://github.com/Joolace/dbd-reshade/blob/main/DBDReshade.exe" class="button" download>Download EXE</a>
+            <p>This executable has been verified on <a href="https://www.virustotal.com/gui/file/25cc829ea9425176b5feabbccbe50a850da1770158879039fc3a28fe38e62649?nocache=1" target="_blank">VirusTotal</a>. If your antivirus detects it as a virus, it's likely
+                a false positive. The code is open-source and can be reviewed <a href="https://github.com/Joolace/dbd-reshade" target="_blank">here</a>.</p>
         </section>
 
         <section>
