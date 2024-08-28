@@ -34,12 +34,24 @@ function Update-PresetsFromGitHub {
     }
 
     $presetFiles = $responseJson | Where-Object { $_.name -match '\.ini$' }
+    $existingPresets = Get-ChildItem -Path $presetDir -Filter "*.ini" | Select-Object -ExpandProperty Name
+
+    $newPresets = $presetFiles | Where-Object { $_.name -notin $existingPresets }
+
+    if ($newPresets) {
+        Show-MessageBox "New presets are available for download!"
+    }
 
     foreach ($file in $presetFiles) {
         $fileName = $file.name
         $fileUrl = $file.download_url
         $localPath = Join-Path -Path $presetDir -ChildPath $fileName
-    
+
+        if ($file.name -in $existingPresets) {
+            Add-LogEntry "Preset $fileName already exists. Skipping download."
+            continue
+        }
+
         Add-LogEntry "Downloading $fileName from $fileUrl"
         try {
             Invoke-WebRequest -Uri $fileUrl -OutFile $localPath -ErrorAction Stop
@@ -582,7 +594,7 @@ $buttonInstall.Add_Click({
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.0.2 - Developed by Joolace"
+$infoLabel.Text = "v1.0.3b - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
