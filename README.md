@@ -1,5 +1,7 @@
 # ReShade Installer for Dead by Daylight
 
+![Project Logo](https://raw.githubusercontent.com/Joolace/dbd-reshade/main/dbdreshade_logo.png)
+
 ## Overview
 
 The **ReShade Installer for Dead by Daylight** is a PowerShell script designed to simplify the installation and configuration of ReShade for the game *Dead by Daylight*. This tool automates the process of downloading and installing ReShade, setting up the preset files, and configuring the necessary settings.
@@ -53,6 +55,11 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 - **ReShade Installation Failure**: Make sure you have sufficient permissions and the game directory is correctly identified.
 - **Missing Presets or Media**: Verify that the `presets` and `media` directories are present in the same location as the script.
 
+## Disclaimer
+
+- **Responsibility**: I do not assume any responsibility for bans or other consequences resulting from the use of this tool. Use it at your own risk.
+- **False Positives**: The executable file may be flagged as a false positive by some antivirus programs. Ensure that you download the file from the official repository and use it with caution.
+
 ## Credits
 
 A special thanks to the creators of the following presets for *Dead by Daylight*, which are included in this repository:
@@ -84,3 +91,9 @@ For any questions or feedback, you can reach out to the developer:
 
 - **Twitch**: [Joolace_](https://twitch.tv/joolace_)
 - **GitHub**: [Joolace](https://github.com/Joolace)
+
+## Join Us on Discord
+
+Feel free to join our Discord community for support and discussions:
+
+[![Join our Discord](https://img.shields.io/badge/Join_Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/RB85R838K9)
