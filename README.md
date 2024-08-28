@@ -74,6 +74,7 @@ A special thanks to the creators of the following presets for *Dead by Daylight*
 - **Koda**: [Koda](https://discord.com/invite/bNvWEde5Vr)
 - **MomoSeventh**: [MomoSeventh](https://www.twitch.tv/momoseventh/)
 - **Trolling Prophets**: [Trolling Prophets](https://discord.com/invite/bNvWEde5Vr)
+- **NUGGETZ**: [NUGGETZ](https://www.youtube.com/watch?v=Qs28LJTro70)
 
 Please refer to the respective preset files in the [Presets directory](https://github.com/Joolace/dbd-reshade/tree/main/Presets) for detailed credits and information.
 
