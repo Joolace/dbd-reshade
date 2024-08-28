@@ -11,6 +11,49 @@ function Add-LogEntry($message) {
     $logBox.AppendText("$message`r`n")
 }
 
+# Function to download and update presets from GitHub repository
+function Update-PresetsFromGitHub {
+    $repoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/Presets'
+    $presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
+    
+    # Make sure the Presets directory exists
+    if (-not (Test-Path -Path $presetDir)) {
+        New-Item -Path $presetDir -ItemType Directory -Force
+    }
+    
+    $headers = @{
+        "User-Agent" = "PowerShell Script" # GitHub API requires a User-Agent header
+    }
+    
+    $response = Invoke-WebRequest -Uri $repoUrl -Headers $headers -UseBasicP
+    $responseJson = $response.Content | ConvertFrom-Json
+
+    if (-not $responseJson) {
+        Show-MessageBox "Error retrieving presets list from GitHub."
+        return $false
+    }
+
+    $presetFiles = $responseJson | Where-Object { $_.name -match '\.ini$' }
+
+    foreach ($file in $presetFiles) {
+        $fileName = $file.name
+        $fileUrl = $file.download_url
+        $localPath = Join-Path -Path $presetDir -ChildPath $fileName
+    
+        Add-LogEntry "Downloading $fileName from $fileUrl"
+        try {
+            Invoke-WebRequest -Uri $fileUrl -OutFile $localPath -ErrorAction Stop
+            Add-LogEntry "$fileName downloaded successfully."
+        } catch {
+            $errorMessage = $_.Exception.Message
+            Add-LogEntry ("Error downloading " + $fileName + ": " + $errorMessage)
+        }            
+    }    
+
+    Add-LogEntry "Preset update process completed."
+    return $true
+}
+
 # Function to retrieve the game installation directory
 function Get-GameDirectory {
     # Try to get the Steam installation path
@@ -469,6 +512,14 @@ $buttonInstall.Add_Click({
 
     $gameDir = Get-GameDirectory
     if (-not $gameDir) {
+        Stop-LogCapture
+        return
+    }
+
+    # Update presets from GitHub before proceeding
+    $updatePresets = Update-PresetsFromGitHub
+    if (-not $updatePresets) {
+        Show-MessageBox "Failed to update presets from GitHub. Exiting."
         Stop-LogCapture
         return
     }
