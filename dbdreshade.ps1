@@ -28,9 +28,13 @@ function Get-GameDirectory {
         # Loop through all the manifest files
         $manifests = Get-ChildItem -Path $epicGamesLauncherPath -Filter *.item -ErrorAction SilentlyContinue
         foreach ($manifest in $manifests) {
-            $manifestContent = Get-Content -Path $manifest.FullName | Out-String | ConvertFrom-Json
-            if ($manifestContent.AppName -eq "DeadByDaylight") {
-                return $manifestContent.InstallLocation
+            try {
+                $manifestContent = Get-Content -Path $manifest.FullName -Raw | ConvertFrom-Json
+                if ($manifestContent.AppName -eq "DeadByDaylight") {
+                    return $manifestContent.InstallLocation
+                }
+            } catch {
+                Add-LogEntry "Error reading manifest file $($manifest.FullName): $_"
             }
         }
     }
@@ -42,17 +46,21 @@ function Get-GameDirectory {
 
 # Function to check if ReShade is installed in the given game directory
 function Is-ReShadeInstalled($gameDir) {
-    $reshadeIniPath = "$gameDir\DeadByDaylight\Binaries\Win64\ReShade.ini"
+    $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+    $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
 
     Add-LogEntry "Checking ReShade installation:"
-    Add-LogEntry "  ReShade.ini path: $reshadeIniPath"
+    Add-LogEntry "  ReShade.ini path (Steam): $reshadeIniPathSteam"
+    Add-LogEntry "  ReShade.ini path (Epic): $reshadeIniPathEpic"
 
     # Check if ReShade.ini exists
-    $reshadeInstalled = Test-Path $reshadeIniPath
+    $reshadeInstalledSteam = Test-Path $reshadeIniPathSteam
+    $reshadeInstalledEpic = Test-Path $reshadeIniPathEpic
 
-    Add-LogEntry "  ReShade.ini found: $reshadeInstalled"
+    Add-LogEntry "  ReShade.ini found (Steam): $reshadeInstalledSteam"
+    Add-LogEntry "  ReShade.ini found (Epic): $reshadeInstalledEpic"
 
-    return $reshadeInstalled
+    return ($reshadeInstalledSteam -or $reshadeInstalledEpic)
 }
 
 # Function to download and install ReShade
@@ -63,12 +71,18 @@ function Install-ReShade($gameDir) {
     Add-LogEntry "Fetching the latest version of ReShade..."
 
     # Get the latest ReShade setup executable URL
-    $reshadeUrl = Invoke-WebRequest -Uri 'https://reshade.me/' | 
-                  Select-Object -ExpandProperty Links | 
-                  Where-Object { $_.href -match 'ReShade_Setup_.*\.exe' -and $_.href -notmatch 'Addon' } | 
-                  Select-Object -ExpandProperty href | 
-                  Sort-Object -Descending | 
-                  Select-Object -First 1
+    try {
+        $reshadeUrl = Invoke-WebRequest -Uri 'https://reshade.me/' -ErrorAction Stop | 
+                      Select-Object -ExpandProperty Links | 
+                      Where-Object { $_.href -match 'ReShade_Setup_.*\.exe' -and $_.href -notmatch 'Addon' } | 
+                      Select-Object -ExpandProperty href | 
+                      Sort-Object -Descending | 
+                      Select-Object -First 1
+    } catch {
+        Show-MessageBox "Error retrieving ReShade URL: $_"
+        Add-LogEntry "Error retrieving ReShade URL: $_"
+        return $false
+    }
 
     if (-not $reshadeUrl) {
         Show-MessageBox "Error retrieving ReShade URL."
@@ -80,37 +94,34 @@ function Install-ReShade($gameDir) {
     $reshadeUrl = "https://reshade.me$reshadeUrl"
 
     Add-LogEntry "Downloading ReShade from URL: $reshadeUrl"
-    Invoke-WebRequest -Uri $reshadeUrl -OutFile $reshadeInstaller
+    try {
+        Invoke-WebRequest -Uri $reshadeUrl -OutFile $reshadeInstaller -ErrorAction Stop
+    } catch {
+        Show-MessageBox "Error downloading ReShade installer: $_"
+        Add-LogEntry "Error downloading ReShade installer: $_"
+        return $false
+    }
 
     Add-LogEntry "Installing ReShade..."
     try {
-        $process = Start-Process -FilePath $reshadeInstaller -ArgumentList '/silent' -Wait -PassThru
-        Start-Sleep -Seconds 10
-
-        # Check for ReShade installation in Steam path
-        $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
-        # Check for ReShade installation in Epic Games path
-        $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
-
-        $reshadeInstalledSteam = Test-Path $reshadeIniPathSteam
-        $reshadeInstalledEpic = Test-Path $reshadeIniPathEpic
-
-        if ($reshadeInstalledSteam -or $reshadeInstalledEpic) {
-            Add-LogEntry "ReShade installation completed successfully."
-            return $true
-        } else {
-            Add-LogEntry "ReShade installation failed or was interrupted."
-            Show-MessageBox "ReShade installation was interrupted or failed. Please install ReShade to continue."
-            return $false
-        }
+        Start-Process -FilePath $reshadeInstaller -ArgumentList "/install", "/game=$gameDir", "/path=$gameDir", "/preprocessor=0", "/silent" -NoNewWindow -Wait
     } catch {
-        Add-LogEntry "Error during ReShade installation: $_"
-        Show-MessageBox "An error occurred during the ReShade installation. Please try again."
+        Add-LogEntry "Error running ReShade installer: $_"
+        Show-MessageBox "Error running ReShade installer: $_"
         return $false
-    } finally {
-        Remove-Item -Path $reshadeInstaller -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
+
+    # Remove the temporary files after installation is complete
+    try {
+        Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false
+    } catch {
+        Add-LogEntry "Error removing temporary files: $_"
+        Show-MessageBox "Error removing temporary files: $_"
+        return $false
+    }
+
+    Add-LogEntry "ReShade installation completed."
+    return $true
 }
 
 # Function to set the preset path in ReShade.ini
@@ -130,8 +141,14 @@ function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
     }
 
     # Read the contents of ReShade.ini
-    $iniContent = Get-Content -Path $reshadeIniPath -Raw
-    $iniLines = $iniContent -split "`r`n"
+    try {
+        $iniContent = Get-Content -Path $reshadeIniPath -Raw
+        $iniLines = $iniContent -split "`r`n"
+    } catch {
+        Add-LogEntry "Error reading ReShade.ini file: $_"
+        Show-MessageBox "Error reading ReShade.ini file. Please check the file permissions."
+        return $false
+    }
 
     Add-LogEntry "Updating PresetPath in ReShade.ini"
 
@@ -166,7 +183,13 @@ function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
     }
 
     # Write the updated content back to ReShade.ini
-    Set-Content -Path $reshadeIniPath -Value ($iniLines -join "`r`n") -Force
+    try {
+        Set-Content -Path $reshadeIniPath -Value ($iniLines -join "`r`n") -Force
+    } catch {
+        Add-LogEntry "Error writing to ReShade.ini file: $_"
+        Show-MessageBox "Error writing to ReShade.ini file. Please check file permissions."
+        return $false
+    }
 
     Add-LogEntry "Preset path set in ReShade.ini to $presetPath"
     return $true
@@ -415,6 +438,15 @@ $listBox.Add_SelectedIndexChanged({
     }
 })
 
+# Add and configure the progress bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(10, 660)  # Adjust the location as needed
+$progressBar.Size = New-Object System.Drawing.Size(460, 20)
+$progressBar.Minimum = 0
+$progressBar.Maximum = 100
+$progressBar.Value = 0
+$form.Controls.Add($progressBar)
+
 # Add click event handler for the "Install or Change Preset" button
 $buttonInstall.Add_Click({
     Start-LogCapture
@@ -443,7 +475,14 @@ $buttonInstall.Add_Click({
 
     if (-not (Is-ReShadeInstalled $gameDir)) {
         Add-LogEntry "ReShade is not installed. Proceeding with installation."
+        
+        $progressBar.Value = 10
+        $form.Refresh()
+
         $reshadeInstalled = Install-ReShade $gameDir
+
+        $progressBar.Value = 50
+        $form.Refresh()
 
         if (-not $reshadeInstalled) {
             Show-MessageBox "ReShade installation failed. Exiting."
@@ -454,33 +493,51 @@ $buttonInstall.Add_Click({
         Add-LogEntry "ReShade is already installed. Proceeding with preset update only."
     }
 
-    $destinationPath = Join-Path -Path $global:selectedFolder -ChildPath $selectedPreset
+    $progressBar.Value = 70  # Update progress to 70% after installation logic
+    $form.Refresh()
+
+    # Copy preset files
+    $progressBar.Value = 85
+    $form.Refresh()
+
     Copy-Item -Path "$presetDir\$selectedPreset" -Destination $destinationPath -Force
+
+    $progressBar.Value = 95
+    $form.Refresh()
 
     $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath $destinationPath
 
     if ($presetSet) {
         Add-LogEntry "Preset installed successfully!"
         Show-MessageBox "Preset installed successfully!"
+        
+        $progressBar.Value = 100
+        $form.Refresh()
     } else {
         Add-LogEntry "Failed to set the preset path in ReShade.ini."
         Show-MessageBox "Failed to set the preset path in ReShade.ini."
+        
+        $progressBar.Value = 0
+        $form.Refresh()
     }
 
+    # Reset the progress bar after tasks are done
+    $progressBar.Value = 0
+    $form.Refresh()
     Stop-LogCapture
 })
 
 # Add version and developer info label
 $infoLabel = New-Object System.Windows.Forms.Label
-$infoLabel.Location = New-Object System.Drawing.Point(10, 680)
+$infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.0.1 - Developed by Joolace"
+$infoLabel.Text = "v1.0.2 - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $infoLabel.Cursor = [System.Windows.Forms.Cursors]::Hand
 $infoLabel.Add_Click({
-    Start-Process "https://twitch.tv/joolace_"
+    Start-Process "https://github.com/Joolace/dbd-reshade"
 })
 $form.Controls.Add($infoLabel)
 
