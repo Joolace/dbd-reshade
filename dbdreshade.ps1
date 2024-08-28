@@ -14,17 +14,35 @@ function Add-LogEntry($message) {
 # Function to download and update presets from GitHub repository
 function Update-PresetsFromGitHub {
     $repoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/Presets'
+    $presetJsonUrl = 'https://raw.githubusercontent.com/Joolace/dbd-reshade/main/media/presets.json'
     $presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
+    $localJsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
     
     # Make sure the Presets directory exists
     if (-not (Test-Path -Path $presetDir)) {
         New-Item -Path $presetDir -ItemType Directory -Force
     }
+
+    # Make sure the media directory exists
+    $mediaDir = Split-Path -Path $localJsonPath -Parent
+    if (-not (Test-Path -Path $mediaDir)) {
+        New-Item -Path $mediaDir -ItemType Directory -Force
+    }
     
     $headers = @{
         "User-Agent" = "PowerShell Script" # GitHub API requires a User-Agent header
     }
-    
+
+    # Fetch and parse the presets JSON file from GitHub
+    $remotePresetJsonResponse = Invoke-WebRequest -Uri $presetJsonUrl -Headers $headers -UseBasicP
+    $remotePresetJson = $remotePresetJsonResponse.Content | ConvertFrom-Json
+
+    if (-not $remotePresetJson) {
+        Show-MessageBox "Error retrieving presets JSON from GitHub."
+        return $false
+    }
+
+    # Fetch the list of presets from GitHub repository
     $response = Invoke-WebRequest -Uri $repoUrl -Headers $headers -UseBasicP
     $responseJson = $response.Content | ConvertFrom-Json
 
@@ -42,6 +60,7 @@ function Update-PresetsFromGitHub {
         Show-MessageBox "New presets are available for download!"
     }
 
+    # Download new presets
     foreach ($file in $presetFiles) {
         $fileName = $file.name
         $fileUrl = $file.download_url
@@ -59,8 +78,27 @@ function Update-PresetsFromGitHub {
         } catch {
             $errorMessage = $_.Exception.Message
             Add-LogEntry ("Error downloading " + $fileName + ": " + $errorMessage)
-        }            
-    }    
+        }
+    }
+
+    # Check if the local JSON file exists
+    if (Test-Path -Path $localJsonPath) {
+        $localPresetJson = Get-Content -Path $localJsonPath | ConvertFrom-Json
+    } else {
+        $localPresetJson = @()
+    }
+
+    # Compare the remote JSON with the local JSON
+    $remotePresetJsonHash = ($remotePresetJson | ConvertTo-Json -Depth 10).GetHashCode()
+    $localPresetJsonHash = ($localPresetJson | ConvertTo-Json -Depth 10).GetHashCode()
+
+    if ($remotePresetJsonHash -ne $localPresetJsonHash) {
+        # Update local JSON file with the remote one if different
+        Add-LogEntry "Updating local presets.json as it differs from the remote version."
+        $remotePresetJson | ConvertTo-Json -Depth 10 | Set-Content -Path $localJsonPath
+    } else {
+        Add-LogEntry "Local presets.json is already up-to-date."
+    }
 
     Add-LogEntry "Preset update process completed."
     return $true
