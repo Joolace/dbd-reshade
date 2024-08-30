@@ -138,7 +138,7 @@ function Get-GameDirectory {
 }
 
 # Function to check if ReShade is installed in the given game directory
-function Is-ReShadeInstalled($gameDir) {
+function Test-ReShadeInstalled($gameDir) {
     $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
     $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
 
@@ -290,22 +290,22 @@ function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
 
 # Function to start capturing log output
 function Start-LogCapture {
-    $global:logFile = "$env:TEMP\ReShadeInstallerLog.txt"
-    Start-Transcript -Path $global:logFile -Append
+    $script:logFile = "$env:TEMP\ReShadeInstallerLog.txt"
+    Start-Transcript -Path $script:logFile -Append
 }
 
 # Function to stop capturing log output and display it
 function Stop-LogCapture {
     Stop-Transcript
-    if (Test-Path $global:logFile) {
-        $logContent = Get-Content -Path $global:logFile -Raw
+    if (Test-Path $script:logFile) {
+        $logContent = Get-Content -Path $script:logFile -Raw
         Add-LogEntry $logContent
-        Remove-Item -Path $global:logFile -Force
+        Remove-Item -Path $script:logFile -Force
     }
 }
 
 # Function to load preset descriptions from a JSON file
-function Load-PresetDescriptions {
+function Get-PresetDescriptions {
     # Path to the JSON file containing preset descriptions
     $jsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
     
@@ -331,7 +331,7 @@ function Load-PresetDescriptions {
 
 # Function to update preset description in the GUI
 function Update-PresetDescription($presetName) {
-    $descriptions = Load-PresetDescriptions
+    $descriptions = Get-PresetDescriptions
     if ($descriptions -and $descriptions.PSObject.Properties.Match($presetName)) {
         $preset = $descriptions.$presetName
         if ($preset) {
@@ -370,7 +370,7 @@ function Update-PresetDescription($presetName) {
 }
 
 # Function to reload preset list
-function Reload-PresetList {
+function Update-PresetList {
     # Clear the current items in the list box
     $listBox.Items.Clear()
 
@@ -516,22 +516,22 @@ foreach ($preset in $presetFiles) {
 }
 
 # Global variable to store selected folder path
-$global:selectedFolder = ""
+$script:selectedFolder = ""
 
 # Function to open a folder browser dialog and select a folder
-function Browse-Folder {
+function Select-Folder {
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = "Select the folder where you want to install the preset."
     if ($folderBrowser.ShowDialog() -eq 'OK') {
-        $global:selectedFolder = $folderBrowser.SelectedPath
-        Add-LogEntry "Selected folder: $global:selectedFolder"
-        Show-MessageBox "Selected folder: $global:selectedFolder"
+        $script:selectedFolder = $folderBrowser.SelectedPath
+        Add-LogEntry "Selected folder: $script:selectedFolder"
+        Show-MessageBox "Selected folder: $script:selectedFolder"
     }
 }
 
 # Add click event handler for the "Select Folder" button
 $buttonSelectFolder.Add_Click({
-    Browse-Folder
+    Select-Folder
 })
 
 # Add selection changed event handler for the list box
@@ -562,14 +562,14 @@ $buttonInstall.Add_Click({
         return
     }
 
-    if (-not $global:selectedFolder) {
+    if (-not $script:selectedFolder) {
         Show-MessageBox "Please select a folder to install the preset."
         Stop-LogCapture
         return
     }
 
     Add-LogEntry "Selected preset: $selectedPreset"
-    Add-LogEntry "Installation folder: $global:selectedFolder"
+    Add-LogEntry "Installation folder: $script:selectedFolder"
 
     $gameDir = Get-GameDirectory
     if (-not $gameDir) {
@@ -585,7 +585,7 @@ $buttonInstall.Add_Click({
         return
     }
 
-    if (-not (Is-ReShadeInstalled $gameDir)) {
+    if (-not (Test-ReShadeInstalled $gameDir)) {
         Add-LogEntry "ReShade is not installed. Proceeding with installation."
         
         $progressBar.Value = 10
@@ -612,12 +612,12 @@ $buttonInstall.Add_Click({
     $progressBar.Value = 85
     $form.Refresh()
 
-    Copy-Item -Path "$presetDir\$selectedPreset" -Destination $global:selectedFolder -Force
+    Copy-Item -Path "$presetDir\$selectedPreset" -Destination $script:selectedFolder -Force
 
     $progressBar.Value = 95
     $form.Refresh()
 
-    $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath (Join-Path -Path $global:selectedFolder -ChildPath $selectedPreset)
+    $presetSet = Set-PresetPathInReShadeIni -gameDir $gameDir -presetPath (Join-Path -Path $script:selectedFolder -ChildPath $selectedPreset)
 
     if ($presetSet) {
         Add-LogEntry "Preset installed successfully!"
@@ -627,7 +627,7 @@ $buttonInstall.Add_Click({
         $form.Refresh()
 
         # Reload the preset list
-        Reload-PresetList
+        Update-PresetList
     } else {
         Add-LogEntry "Failed to set the preset path in ReShade.ini."
         Show-MessageBox "Failed to set the preset path in ReShade.ini."
