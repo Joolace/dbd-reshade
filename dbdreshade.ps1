@@ -13,95 +13,112 @@ function Add-LogEntry($message) {
 
 # Function to download and update presets from GitHub repository
 function Update-PresetsFromGitHub {
-    $repoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/Presets'
-    $presetJsonUrl = 'https://raw.githubusercontent.com/Joolace/dbd-reshade/main/media/presets.json'
-    $presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
-    $localJsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
-    
-    # Make sure the Presets directory exists
-    if (-not (Test-Path -Path $presetDir)) {
-        New-Item -Path $presetDir -ItemType Directory -Force
-    }
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
 
-    # Make sure the media directory exists
-    $mediaDir = Split-Path -Path $localJsonPath -Parent
-    if (-not (Test-Path -Path $mediaDir)) {
-        New-Item -Path $mediaDir -ItemType Directory -Force
-    }
-    
-    $headers = @{
-        "User-Agent" = "PowerShell Script" # GitHub API requires a User-Agent header
-    }
+    process {
+        if ($PSCmdlet.ShouldProcess("Update presets from GitHub")) {
+            $repoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/Presets'
+            $presetJsonUrl = 'https://raw.githubusercontent.com/Joolace/dbd-reshade/main/media/presets.json'
+            $presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
+            $localJsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
 
-    # Fetch and parse the presets JSON file from GitHub
-    $remotePresetJsonResponse = Invoke-WebRequest -Uri $presetJsonUrl -Headers $headers -UseBasicP
-    $remotePresetJson = $remotePresetJsonResponse.Content | ConvertFrom-Json
+            # Make sure the Presets directory exists
+            if (-not (Test-Path -Path $presetDir)) {
+                New-Item -Path $presetDir -ItemType Directory -Force
+            }
 
-    if (-not $remotePresetJson) {
-        Show-MessageBox "Error retrieving presets JSON from GitHub."
-        return $false
-    }
+            # Make sure the media directory exists
+            $mediaDir = Split-Path -Path $localJsonPath -Parent
+            if (-not (Test-Path -Path $mediaDir)) {
+                New-Item -Path $mediaDir -ItemType Directory -Force
+            }
 
-    # Fetch the list of presets from GitHub repository
-    $response = Invoke-WebRequest -Uri $repoUrl -Headers $headers -UseBasicP
-    $responseJson = $response.Content | ConvertFrom-Json
+            $headers = @{
+                "User-Agent" = "PowerShell Script" # GitHub API requires a User-Agent header
+            }
 
-    if (-not $responseJson) {
-        Show-MessageBox "Error retrieving presets list from GitHub."
-        return $false
-    }
+            # Fetch and parse the presets JSON file from GitHub
+            try {
+                $remotePresetJsonResponse = Invoke-WebRequest -Uri $presetJsonUrl -Headers $headers -UseBasicP
+                $remotePresetJson = $remotePresetJsonResponse.Content | ConvertFrom-Json
+            } catch {
+                Show-MessageBox "Error retrieving presets JSON from GitHub."
+                return $false
+            }
 
-    $presetFiles = $responseJson | Where-Object { $_.name -match '\.ini$' }
-    $existingPresets = Get-ChildItem -Path $presetDir -Filter "*.ini" | Select-Object -ExpandProperty Name
+            if (-not $remotePresetJson) {
+                Show-MessageBox "Error retrieving presets JSON from GitHub."
+                return $false
+            }
 
-    $newPresets = $presetFiles | Where-Object { $_.name -notin $existingPresets }
+            # Fetch the list of presets from GitHub repository
+            try {
+                $response = Invoke-WebRequest -Uri $repoUrl -Headers $headers -UseBasicP
+                $responseJson = $response.Content | ConvertFrom-Json
+            } catch {
+                Show-MessageBox "Error retrieving presets list from GitHub."
+                return $false
+            }
 
-    if ($newPresets) {
-        Show-MessageBox "New presets are available for download!"
-    }
+            if (-not $responseJson) {
+                Show-MessageBox "Error retrieving presets list from GitHub."
+                return $false
+            }
 
-    # Download new presets
-    foreach ($file in $presetFiles) {
-        $fileName = $file.name
-        $fileUrl = $file.download_url
-        $localPath = Join-Path -Path $presetDir -ChildPath $fileName
+            $presetFiles = $responseJson | Where-Object { $_.name -match '\.ini$' }
+            $existingPresets = Get-ChildItem -Path $presetDir -Filter "*.ini" | Select-Object -ExpandProperty Name
 
-        if ($file.name -in $existingPresets) {
-            Add-LogEntry "Preset $fileName already exists. Skipping download."
-            continue
+            $newPresets = $presetFiles | Where-Object { $_.name -notin $existingPresets }
+
+            if ($newPresets) {
+                Show-MessageBox "New presets are available for download!"
+            }
+
+            # Download new presets
+            foreach ($file in $presetFiles) {
+                $fileName = $file.name
+                $fileUrl = $file.download_url
+                $localPath = Join-Path -Path $presetDir -ChildPath $fileName
+
+                if ($file.name -in $existingPresets) {
+                    Add-LogEntry "Preset $fileName already exists. Skipping download."
+                    continue
+                }
+
+                Add-LogEntry "Downloading $fileName from $fileUrl"
+                try {
+                    Invoke-WebRequest -Uri $fileUrl -OutFile $localPath -ErrorAction Stop
+                    Add-LogEntry "$fileName downloaded successfully."
+                } catch {
+                    $errorMessage = $_.Exception.Message
+                    Add-LogEntry ("Error downloading " + $fileName + ": " + $errorMessage)
+                }
+            }
+
+            # Check if the local JSON file exists
+            if (Test-Path -Path $localJsonPath) {
+                $localPresetJson = Get-Content -Path $localJsonPath | ConvertFrom-Json
+            } else {
+                $localPresetJson = @()
+            }
+
+            # Compare the remote JSON with the local JSON
+            $remotePresetJsonHash = ($remotePresetJson | ConvertTo-Json -Depth 10).GetHashCode()
+            $localPresetJsonHash = ($localPresetJson | ConvertTo-Json -Depth 10).GetHashCode()
+
+            if ($remotePresetJsonHash -ne $localPresetJsonHash) {
+                # Update local JSON file with the remote one if different
+                Add-LogEntry "Updating local presets.json as it differs from the remote version."
+                $remotePresetJson | ConvertTo-Json -Depth 10 | Set-Content -Path $localJsonPath
+            } else {
+                Add-LogEntry "Local presets.json is already up-to-date."
+            }
+
+            Add-LogEntry "Preset update process completed."
+            return $true
         }
-
-        Add-LogEntry "Downloading $fileName from $fileUrl"
-        try {
-            Invoke-WebRequest -Uri $fileUrl -OutFile $localPath -ErrorAction Stop
-            Add-LogEntry "$fileName downloaded successfully."
-        } catch {
-            $errorMessage = $_.Exception.Message
-            Add-LogEntry ("Error downloading " + $fileName + ": " + $errorMessage)
-        }
     }
-
-    # Check if the local JSON file exists
-    if (Test-Path -Path $localJsonPath) {
-        $localPresetJson = Get-Content -Path $localJsonPath | ConvertFrom-Json
-    } else {
-        $localPresetJson = @()
-    }
-
-    # Compare the remote JSON with the local JSON
-    $remotePresetJsonHash = ($remotePresetJson | ConvertTo-Json -Depth 10).GetHashCode()
-    $localPresetJsonHash = ($localPresetJson | ConvertTo-Json -Depth 10).GetHashCode()
-
-    if ($remotePresetJsonHash -ne $localPresetJsonHash) {
-        # Update local JSON file with the remote one if different
-        Add-LogEntry "Updating local presets.json as it differs from the remote version."
-        $remotePresetJson | ConvertTo-Json -Depth 10 | Set-Content -Path $localJsonPath
-    } else {
-        Add-LogEntry "Local presets.json is already up-to-date."
-    }
-
-    Add-LogEntry "Preset update process completed."
-    return $true
 }
 
 # Function to retrieve the game installation directory
@@ -218,89 +235,116 @@ function Install-ReShade($gameDir) {
 }
 
 # Function to set the preset path in ReShade.ini
-function Set-PresetPathInReShadeIni($gameDir, $presetPath) {
-    # Define possible paths for ReShade.ini for both Steam and Epic Games installations
-    $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
-    $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
-    
-    # Check which ReShade.ini file exists
-    if (Test-Path $reshadeIniPathSteam) {
-        $reshadeIniPath = $reshadeIniPathSteam
-    } elseif (Test-Path $reshadeIniPathEpic) {
-        $reshadeIniPath = $reshadeIniPathEpic
-    } else {
-        Show-MessageBox "ReShade.ini not found in the game directory."
-        return $false
-    }
+function Set-PresetPathInReShadeIni {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$gameDir,
 
-    # Read the contents of ReShade.ini
-    try {
-        $iniContent = Get-Content -Path $reshadeIniPath -Raw
-        $iniLines = $iniContent -split "`r`n"
-    } catch {
-        Add-LogEntry "Error reading ReShade.ini file: $_"
-        Show-MessageBox "Error reading ReShade.ini file. Please check the file permissions."
-        return $false
-    }
+        [Parameter(Mandatory=$true)]
+        [string]$presetPath
+    )
 
-    Add-LogEntry "Updating PresetPath in ReShade.ini"
+    process {
+        if ($PSCmdlet.ShouldProcess("Set PresetPath in ReShade.ini")) {
+            # Define possible paths for ReShade.ini for both Steam and Epic Games installations
+            $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
+            $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
+            
+            # Check which ReShade.ini file exists
+            if (Test-Path $reshadeIniPathSteam) {
+                $reshadeIniPath = $reshadeIniPathSteam
+            } elseif (Test-Path $reshadeIniPathEpic) {
+                $reshadeIniPath = $reshadeIniPathEpic
+            } else {
+                Show-MessageBox "ReShade.ini not found in the game directory."
+                return $false
+            }
 
-    # Find the [GENERAL] section
-    $generalSectionIndex = $iniLines.IndexOf('[GENERAL]')
-    if ($generalSectionIndex -eq -1) {
-        Add-LogEntry "[GENERAL] section not found in ReShade.ini"
-        Show-MessageBox "[GENERAL] section not found in ReShade.ini"
-        return $false
-    }
+            # Read the contents of ReShade.ini
+            try {
+                $iniContent = Get-Content -Path $reshadeIniPath -Raw
+                $iniLines = $iniContent -split "`r`n"
+            } catch {
+                Add-LogEntry "Error reading ReShade.ini file: $_"
+                Show-MessageBox "Error reading ReShade.ini file. Please check the file permissions."
+                return $false
+            }
 
-    # Initialize a flag to check if PresetPath exists
-    $presetPathFound = $false
+            Add-LogEntry "Updating PresetPath in ReShade.ini"
 
-    # Loop through lines starting from the [GENERAL] section to find or set PresetPath
-    for ($i = $generalSectionIndex + 1; $i -lt $iniLines.Length; $i++) {
-        if ($iniLines[$i] -match '^\[.+\]') {
-            # Break if a new section starts
-            break
+            # Find the [GENERAL] section
+            $generalSectionIndex = $iniLines.IndexOf('[GENERAL]')
+            if ($generalSectionIndex -eq -1) {
+                Add-LogEntry "[GENERAL] section not found in ReShade.ini"
+                Show-MessageBox "[GENERAL] section not found in ReShade.ini"
+                return $false
+            }
+
+            # Initialize a flag to check if PresetPath exists
+            $presetPathFound = $false
+
+            # Loop through lines starting from the [GENERAL] section to find or set PresetPath
+            for ($i = $generalSectionIndex + 1; $i -lt $iniLines.Length; $i++) {
+                if ($iniLines[$i] -match '^\[.+\]') {
+                    # Break if a new section starts
+                    break
+                }
+                if ($iniLines[$i] -match '^PresetPath=') {
+                    # Update the existing PresetPath line
+                    $iniLines[$i] = "PresetPath=$presetPath"
+                    $presetPathFound = $true
+                    break
+                }
+            }
+
+            # If PresetPath was not found, add it just after the [GENERAL] section
+            if (-not $presetPathFound) {
+                $iniLines = $iniLines[0..$generalSectionIndex] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+1)..($iniLines.Length-1)]
+            }
+
+            # Write the updated content back to ReShade.ini
+            try {
+                Set-Content -Path $reshadeIniPath -Value ($iniLines -join "`r`n") -Force
+            } catch {
+                Add-LogEntry "Error writing to ReShade.ini file: $_"
+                Show-MessageBox "Error writing to ReShade.ini file. Please check file permissions."
+                return $false
+            }
+
+            Add-LogEntry "Preset path set in ReShade.ini to $presetPath"
+            return $true
         }
-        if ($iniLines[$i] -match '^PresetPath=') {
-            # Update the existing PresetPath line
-            $iniLines[$i] = "PresetPath=$presetPath"
-            $presetPathFound = $true
-            break
-        }
     }
-
-    # If PresetPath was not found, add it just after the [GENERAL] section
-    if (-not $presetPathFound) {
-        $iniLines = $iniLines[0..$generalSectionIndex] + "PresetPath=$presetPath" + $iniLines[($generalSectionIndex+1)..($iniLines.Length-1)]
-    }
-
-    # Write the updated content back to ReShade.ini
-    try {
-        Set-Content -Path $reshadeIniPath -Value ($iniLines -join "`r`n") -Force
-    } catch {
-        Add-LogEntry "Error writing to ReShade.ini file: $_"
-        Show-MessageBox "Error writing to ReShade.ini file. Please check file permissions."
-        return $false
-    }
-
-    Add-LogEntry "Preset path set in ReShade.ini to $presetPath"
-    return $true
 }
 
 # Function to start capturing log output
 function Start-LogCapture {
-    $script:logFile = "$env:TEMP\ReShadeInstallerLog.txt"
-    Start-Transcript -Path $script:logFile -Append
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    process {
+        if ($PSCmdlet.ShouldProcess("Start capturing log")) {
+            $script:logFile = "$env:TEMP\ReShadeInstallerLog.txt"
+            Start-Transcript -Path $script:logFile -Append
+        }
+    }
 }
 
 # Function to stop capturing log output and display it
 function Stop-LogCapture {
-    Stop-Transcript
-    if (Test-Path $script:logFile) {
-        $logContent = Get-Content -Path $script:logFile -Raw
-        Add-LogEntry $logContent
-        Remove-Item -Path $script:logFile -Force
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
+
+    process {
+        if ($PSCmdlet.ShouldProcess("Stop Log Capture")) {
+            Stop-Transcript
+            if (Test-Path $script:logFile) {
+                $logContent = Get-Content -Path $script:logFile -Raw
+                Add-LogEntry $logContent
+                Remove-Item -Path $script:logFile -Force
+            }
+        }
     }
 }
 
@@ -330,54 +374,71 @@ function Get-PresetDescriptions {
 
 
 # Function to update preset description in the GUI
-function Update-PresetDescription($presetName) {
-    $descriptions = Get-PresetDescriptions
-    if ($descriptions -and $descriptions.PSObject.Properties.Match($presetName)) {
-        $preset = $descriptions.$presetName
-        if ($preset) {
-            $description = $preset.description
-            $videoLink = $preset.videoLink
-            if ($description) {
-                $descriptionLabel.Text = $description
+function Update-PresetDescription {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param (
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+        [string]$PresetName
+    )
+
+    process {
+        if ($PSCmdlet.ShouldProcess("Update description for preset: $PresetName")) {
+            $descriptions = Get-PresetDescriptions
+            if ($descriptions -and $descriptions.PSObject.Properties.Match($PresetName)) {
+                $preset = $descriptions.$PresetName
+                if ($preset) {
+                    $description = $preset.description
+                    $videoLink = $preset.videoLink
+                    if ($description) {
+                        $descriptionLabel.Text = $description
+                    } else {
+                        $descriptionLabel.Text = "No description available."
+                    }
+                    
+                    # Clear any previous links
+                    $descriptionLink.Links.Clear()
+                    
+                    if ($videoLink) {
+                        $descriptionLink.Text = "More Info"
+                        
+                        # Add the link
+                        $linkStart = $descriptionLink.Text.IndexOf("More Info")
+                        $linkLength = $descriptionLink.Text.Length
+                        $descriptionLink.Links.Add($linkStart, $linkLength - $linkStart, $videoLink)
+                        
+                        # Associate the URL with the LinkClicked event
+                        $descriptionLink.Tag = $videoLink
+                    } else {
+                        $descriptionLink.Text = ""
+                    }
+                } else {
+                    $descriptionLabel.Text = "No description available for this preset."
+                    $descriptionLink.Text = ""
+                }
             } else {
-                $descriptionLabel.Text = "No description available."
-            }
-            
-            # Clear any previous links
-            $descriptionLink.Links.Clear()
-            
-            if ($videoLink) {
-                $descriptionLink.Text = "More Info"
-                
-                # Add the link
-                $linkStart = $descriptionLink.Text.IndexOf("More Info")
-                $linkLength = $descriptionLink.Text.Length
-                $descriptionLink.Links.Add($linkStart, $linkLength - $linkStart, $videoLink)
-                
-                # Associate the URL with the LinkClicked event
-                $descriptionLink.Tag = $videoLink
-            } else {
+                $descriptionLabel.Text = "No description available for this preset."
                 $descriptionLink.Text = ""
             }
-        } else {
-            $descriptionLabel.Text = "No description available for this preset."
-            $descriptionLink.Text = ""
         }
-    } else {
-        $descriptionLabel.Text = "No description available for this preset."
-        $descriptionLink.Text = ""
     }
 }
 
 # Function to reload preset list
 function Update-PresetList {
-    # Clear the current items in the list box
-    $listBox.Items.Clear()
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param ()
 
-    # Load preset files into the list box
-    $presetFiles = Get-ChildItem -Path $presetDir -Filter "*.ini"
-    foreach ($preset in $presetFiles) {
-        $listBox.Items.Add($preset.Name)
+    process {
+        if ($PSCmdlet.ShouldProcess("Update Preset List")) {
+            # Clear the current items in the list box
+            $listBox.Items.Clear()
+
+            # Load preset files into the list box
+            $presetFiles = Get-ChildItem -Path $presetDir -Filter "*.ini"
+            foreach ($preset in $presetFiles) {
+                $listBox.Items.Add($preset.Name)
+            }
+        }
     }
 }
 
