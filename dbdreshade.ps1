@@ -515,7 +515,7 @@ foreach ($preset in $presetFiles) {
     $listBox.Items.Add($preset.Name)
 }
 
-# Global variable to store selected folder path
+# Script to store selected folder path
 $script:selectedFolder = ""
 
 # Function to open a folder browser dialog and select a folder
