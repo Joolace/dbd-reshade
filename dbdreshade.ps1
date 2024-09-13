@@ -707,7 +707,7 @@ $buttonInstall.Add_Click({
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.0.4 - Developed by Joolace"
+$infoLabel.Text = "v1.0.5 - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter

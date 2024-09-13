@@ -1,3 +1,4 @@
+
 # Add necessary assemblies for the GUI
 Add-Type -AssemblyName PresentationFramework, System.Windows.Forms, System.Drawing
 
@@ -24,7 +25,7 @@ function ConvertTo-Hashtable {
 # Create the main window
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "DBD Reshade Preset Manager"
-$form.Size = New-Object System.Drawing.Size(500, 500)
+$form.Size = New-Object System.Drawing.Size(500, 550)  # Increased height to accommodate log box
 $form.StartPosition = "CenterScreen"
 $form.BackColor = [System.Drawing.Color]::Black
 
@@ -36,7 +37,7 @@ $form.MaximizeBox = $false
 $logo = New-Object System.Windows.Forms.PictureBox
 $logo.Image = [System.Drawing.Image]::FromFile((Join-Path $PSScriptRoot "dbdreshadepresets_logo.png"))
 $logo.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
-$logo.Size = New-Object System.Drawing.Size(100, 100)
+$logo.Size = New-Object System.Drawing.Size(100, 100)  # Set the logo size
 $form.Controls.Add($logo)
 
 # Event handler to center the logo after form layout
@@ -49,7 +50,7 @@ $labelDesc = New-Object System.Windows.Forms.Label
 $labelDesc.Text = "Description:"
 $labelDesc.ForeColor = [System.Drawing.Color]::White
 $labelDesc.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$labelDesc.Location = New-Object System.Drawing.Point(10, 120)
+$labelDesc.Location = New-Object System.Drawing.Point(10, 120)  # Adjusted position after reducing logo size
 $form.Controls.Add($labelDesc)
 
 $textBoxDesc = New-Object System.Windows.Forms.TextBox
@@ -81,8 +82,8 @@ $buttonSelectIni.Text = "Select .ini"
 $buttonSelectIni.BackColor = [System.Drawing.Color]::White
 $buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
 $buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)
-$buttonSelectIni.Width = $form.ClientSize.Width - 20
+$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)  # Padding of 10 pixels from the left
+$buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSelectIni)
 
 $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -101,8 +102,8 @@ $buttonSavePreset.Text = "Save Preset"
 $buttonSavePreset.BackColor = [System.Drawing.Color]::White
 $buttonSavePreset.ForeColor = [System.Drawing.Color]::Black
 $buttonSavePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 260)
-$buttonSavePreset.Width = $form.ClientSize.Width - 20
+$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 260)  # Padding of 10 pixels from the left
+$buttonSavePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSavePreset)
 
 $buttonSavePreset.Add_Click({
@@ -115,7 +116,7 @@ $buttonSavePreset.Add_Click({
     Add-LogEntry "File Selected: $fileSelected"
 
     if ($fileSelected -and $descriptionValid -and $videoLinkValid) {
-        $presetName = [System.IO.Path]::GetFileName($filePath)
+        $presetName = [System.IO.Path]::GetFileName($filePath)  # Include the extension in the preset name
         $destPath = Join-Path -Path (Join-Path $PSScriptRoot "Presets") -ChildPath "$presetName"
         Copy-Item -Path $filePath -Destination $destPath
 
@@ -169,6 +170,16 @@ $logBox.Size = New-Object System.Drawing.Size($logBoxWidth, $logBoxHeight)
 
 $logBox.ReadOnly = $true
 $form.Controls.Add($logBox)
+
+# Add credits section at the bottom
+$versionLabel = New-Object System.Windows.Forms.Label
+$versionLabel.Size = New-Object System.Drawing.Size(500, 20)
+$versionLabel.Location = New-Object System.Drawing.Point(-5, 480)
+$versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
+$versionLabel.ForeColor = [System.Drawing.Color]::White
+$versionLabel.Text = "v1.0.5 - Developed by Joolace"
+$form.Controls.Add($versionLabel)
 
 # Start the form
 $form.Add_Shown({$form.Activate()})
