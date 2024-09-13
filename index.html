@@ -27,8 +27,8 @@
     <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-    <!-- Lightbox CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
+    <!-- GLightbox CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -191,7 +191,7 @@
         
         .screenshots-gallery img {
             display: block;
-            width: 100%;
+            width: 150px;
             height: auto;
         }
     </style>
@@ -216,26 +216,26 @@
         <section>
             <h2>Screenshots</h2>
             <div class="screenshots-gallery">
-                <a href="./screenshots/bootscreen.png" data-lightbox="dbd-gallery" data-title="Boot Screen">
-                    <img src="./screenshots/bootscreen.png" alt="Boot Screen" width="200">
+                <a href="./screenshots/bootscreen.png" class="glightbox" data-gallery="dbd-gallery" data-title="Boot Screen">
+                    <img src="./screenshots/bootscreen.png" alt="Boot Screen" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadeboot.png" data-lightbox="dbd-gallery" data-title="ReShade Boot">
-                    <img src="./screenshots/dbdreshadeboot.png" alt="ReShade Boot" width="200">
+                <a href="./screenshots/dbdreshadeboot.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Boot">
+                    <img src="./screenshots/dbdreshadeboot.png" alt="ReShade Boot" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadepresetboot.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Boot">
-                    <img src="./screenshots/dbdreshadepresetboot.png" alt="ReShade Preset Boot" width="200">
+                <a href="./screenshots/dbdreshadepresetboot.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Preset Boot">
+                    <img src="./screenshots/dbdreshadepresetboot.png" alt="ReShade Preset Boot" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadepresetinstalled.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Installed">
-                    <img src="./screenshots/dbdreshadepresetinstalled.png" alt="ReShade Preset Installed" width="200">
+                <a href="./screenshots/dbdreshadepresetinstalled.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Preset Installed">
+                    <img src="./screenshots/dbdreshadepresetinstalled.png" alt="ReShade Preset Installed" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadepresetsaved.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Saved">
-                    <img src="./screenshots/dbdreshadepresetsaved.png" alt="ReShade Preset Saved" width="200">
+                <a href="./screenshots/dbdreshadepresetsaved.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Preset Saved">
+                    <img src="./screenshots/dbdreshadepresetsaved.png" alt="ReShade Preset Saved" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadepresetsavedsuccess.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Save Success">
-                    <img src="./screenshots/dbdreshadepresetsavedsuccess.png" alt="ReShade Preset Save Success" width="200">
+                <a href="./screenshots/dbdreshadepresetsavedsuccess.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Preset Save Success">
+                    <img src="./screenshots/dbdreshadepresetsavedsuccess.png" alt="ReShade Preset Save Success" width="150">
                 </a>
-                <a href="./screenshots/dbdreshadeselectpreset.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Selection">
-                    <img src="./screenshots/dbdreshadeselectpreset.png" alt="ReShade Preset Selection" width="200">
+                <a href="./screenshots/dbdreshadeselectpreset.png" class="glightbox" data-gallery="dbd-gallery" data-title="ReShade Preset Selection">
+                    <img src="./screenshots/dbdreshadeselectpreset.png" alt="ReShade Preset Selection" width="150">
                 </a>
             </div>
         </section>
@@ -360,8 +360,14 @@
         </div>
     </footer>
 
-    <!-- Lightbox JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <!-- GLightbox JS -->
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <script>
+        const lightbox = GLightbox({
+            touchNavigation: true,
+            loop: true,
+        });
+    </script>
 
 </body>
 
