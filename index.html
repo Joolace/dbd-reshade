@@ -27,6 +27,9 @@
     <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
+    <!-- Lightbox CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -167,6 +170,30 @@
                 font-size: 2em;
             }
         }
+        
+        .screenshots-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .screenshots-gallery a {
+            display: inline-block;
+            border: 1px solid #333;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .screenshots-gallery a:hover {
+            transform: scale(1.05);
+        }
+        
+        .screenshots-gallery img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 
@@ -188,27 +215,28 @@
 
         <section>
             <h2>Screenshots</h2>
-            <div class="screenshots">
-                <h3>Boot Screen</h3>
-                <img src="./screenshots/bootscreen.png" alt="Boot Screen" width="600">
-
-                <h3>ReShade Boot</h3>
-                <img src="./screenshots/dbdreshadeboot.png" alt="ReShade Boot" width="600">
-
-                <h3>ReShade Preset Boot</h3>
-                <img src="./screenshots/dbdreshadepresetboot.png" alt="ReShade Preset Boot" width="600">
-
-                <h3>ReShade Preset Installed</h3>
-                <img src="./screenshots/dbdreshadepresetinstalled.png" alt="ReShade Preset Installed" width="600">
-
-                <h3>ReShade Preset Saved</h3>
-                <img src="./screenshots/dbdreshadepresetsaved.png" alt="ReShade Preset Saved" width="600">
-
-                <h3>ReShade Preset Save Success</h3>
-                <img src="./screenshots/dbdreshadepresetsavedsuccess.png" alt="ReShade Preset Save Success" width="600">
-
-                <h3>ReShade Preset Selection</h3>
-                <img src="./screenshots/dbdreshadeselectpreset.png" alt="ReShade Preset Selection" width="600">
+            <div class="screenshots-gallery">
+                <a href="./screenshots/bootscreen.png" data-lightbox="dbd-gallery" data-title="Boot Screen">
+                    <img src="./screenshots/bootscreen.png" alt="Boot Screen" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadeboot.png" data-lightbox="dbd-gallery" data-title="ReShade Boot">
+                    <img src="./screenshots/dbdreshadeboot.png" alt="ReShade Boot" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadepresetboot.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Boot">
+                    <img src="./screenshots/dbdreshadepresetboot.png" alt="ReShade Preset Boot" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadepresetinstalled.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Installed">
+                    <img src="./screenshots/dbdreshadepresetinstalled.png" alt="ReShade Preset Installed" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadepresetsaved.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Saved">
+                    <img src="./screenshots/dbdreshadepresetsaved.png" alt="ReShade Preset Saved" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadepresetsavedsuccess.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Save Success">
+                    <img src="./screenshots/dbdreshadepresetsavedsuccess.png" alt="ReShade Preset Save Success" width="200">
+                </a>
+                <a href="./screenshots/dbdreshadeselectpreset.png" data-lightbox="dbd-gallery" data-title="ReShade Preset Selection">
+                    <img src="./screenshots/dbdreshadeselectpreset.png" alt="ReShade Preset Selection" width="200">
+                </a>
             </div>
         </section>
 
@@ -331,6 +359,9 @@
             <a href="https://www.youtube.com/@Joolace" target="_blank"><i class="fab fa-youtube"></i></a>
         </div>
     </footer>
+
+    <!-- Lightbox JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 
 </body>
 
