@@ -58,7 +58,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 3. **Run the Script**:
     Open PowerShell as Administrator and execute the script:
     ```powershell
-    .\ReShadeInstaller.ps1
+    .\dbdreshadeboot.ps1
     ```
 
 ## Usage
