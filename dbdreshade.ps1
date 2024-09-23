@@ -394,6 +394,16 @@ function Update-PresetDescription {
                     } else {
                         $descriptionLabel.Text = "No description available."
                     }
+
+                    # Check if video link is valid
+                    try {
+                        Invoke-WebRequest -Uri $videoLink -Method Head -ErrorAction Stop
+                    } catch {
+                        # If the link is invalid, ensure "More Info" remains hidden
+                        $descriptionLink.Text = ""
+                        Add-LogEntry "Error: The video link is invalid. It will be hidden."
+                        return
+                    }
                     
                     # Clear any previous links
                     $descriptionLink.Links.Clear()
@@ -537,6 +547,8 @@ $descriptionLink.Add_LinkClicked({
         Start-Process $url
     }
 })
+$descriptionLink.Links.Clear()
+$descriptionLink.Text = ""
 $form.Controls.Add($descriptionLink)
 
 # Add and configure the "Select Folder" button
