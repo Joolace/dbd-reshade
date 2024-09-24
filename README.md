@@ -3,10 +3,10 @@
 ![Project Logo](https://raw.githubusercontent.com/Joolace/dbd-reshade/main/dbdreshade_logo.png)
 
 ## Overview
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3)](https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![CodeFactor](https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge)](https://www.codefactor.io/repository/github/joolace/dbd-reshade) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Joolace_dbd-reshade&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Joolace_dbd-reshade) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) [issue tracker](https://github.com/Joolace/dbd-reshade/issues) su GitHub.
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3)](https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![CodeFactor](https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge)](https://www.codefactor.io/repository/github/joolace/dbd-reshade) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Joolace_dbd-reshade&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Joolace_dbd-reshade) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) [![GitHub issues by-label bug](https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs)](https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
 The **ReShade Installer for Dead by Daylight** is a PowerShell script designed to simplify the installation and configuration of ReShade for the game *Dead by Daylight*. This tool automates the process of downloading and installing ReShade, setting up the preset files, and configuring the necessary settings.
-
+3
 ## Screenshots
 
 ### 1. Boot Screen
