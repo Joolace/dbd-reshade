@@ -1,4 +1,53 @@
-# Add necessary assembly for creating message boxes
+
+# Import Windows Forms to create the form and components
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+# Create the main form with a black background and disable resizing
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "ReShade Installer - Main Menu"
+$form.Size = New-Object System.Drawing.Size(400, 500)  # Adjust size to accommodate icons
+$form.BackColor = [System.Drawing.Color]::Black
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
+$form.MinimizeBox = $false
+
+# Load Montserrat Regular font
+$fontFamily = New-Object System.Drawing.Text.PrivateFontCollection
+$fontFamily.AddFontFile("$PSScriptRoot\media\Montserrat-Regular.ttf")
+$montserratRegularFont = New-Object System.Drawing.Font($fontFamily.Families[0], 12)
+
+# Add the dbdreshade logo at the top, maintaining the aspect ratio and increasing size
+$logoPictureBox = New-Object System.Windows.Forms.PictureBox
+$logoPictureBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom  # Use 'Zoom' to maintain the aspect ratio
+$logoPictureBox.Size = New-Object System.Drawing.Size(350, 80)  # Increased size for the logo
+$logoPictureBox.Location = New-Object System.Drawing.Point(20, 10)
+$logoPictureBox.Image = [System.Drawing.Image]::FromFile("$PSScriptRoot\dbdreshade_logo.png")
+$form.Controls.Add($logoPictureBox)
+
+# Create a button to open dbdreshade.ps1 with white background, black text, and regular font
+$button1 = New-Object System.Windows.Forms.Button
+$button1.Size = New-Object System.Drawing.Size(300, 40)
+$button1.Location = New-Object System.Drawing.Point(50, 110)  # Center horizontally
+$button1.Text = "Open ReShade Installer"
+$button1.Font = $montserratRegularFont
+$button1.BackColor = [System.Drawing.Color]::White
+$button1.ForeColor = [System.Drawing.Color]::Black
+$form.Controls.Add($button1)
+
+# Create a button to open dbdreshadepresets.ps1 with white background, black text, and regular font
+$button2 = New-Object System.Windows.Forms.Button
+$button2.Size = New-Object System.Drawing.Size(300, 40)
+$button2.Location = New-Object System.Drawing.Point(50, 160)  # Center horizontally
+$button2.Text = "Open Presets Manager"
+$button2.Font = $montserratRegularFont
+$button2.BackColor = [System.Drawing.Color]::White
+$button2.ForeColor = [System.Drawing.Color]::Black
+$form.Controls.Add($button2)
+
+# Code from dbdreshade.ps1 for ReShade installer
+function Invoke-ReShadeInstaller {
+    # Add necessary assembly for creating message boxes
 Add-Type -AssemblyName PresentationFramework
 
 # Function to display a message box with a given message
@@ -731,3 +780,306 @@ $form.Controls.Add($infoLabel)
 
 $form.Add_Shown({$form.Activate()})
 [void]$form.ShowDialog()
+}
+
+# Code from dbdreshadepresets.ps1 for Presets Manager
+function Invoke-PresetManager {
+    
+# Add necessary assemblies for the GUI
+Add-Type -AssemblyName PresentationFramework, System.Windows.Forms, System.Drawing
+
+# Function to show a message box
+function Show-MessageBox($message) {
+    [System.Windows.MessageBox]::Show($message)
+}
+
+# Function to add a log entry
+function Add-LogEntry($message) {
+    $logBox.AppendText("$message`r`n")
+}
+
+# Function to convert a PSCustomObject to a Hashtable
+function ConvertTo-Hashtable {
+    param($object)
+    $hashtable = @{}
+    $object.PSObject.Properties | ForEach-Object {
+        $hashtable[$_.Name] = $_.Value
+    }
+    return $hashtable
+}
+
+# Create the main window
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "DBD Reshade Preset Manager"
+$form.Size = New-Object System.Drawing.Size(500, 550)  # Increased height to accommodate log box
+$form.StartPosition = "CenterScreen"
+$form.BackColor = [System.Drawing.Color]::Black
+
+# Prevent resizing and maximizing
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
+
+# Add the logo (smaller size and centered)
+$logo = New-Object System.Windows.Forms.PictureBox
+$logo.Image = [System.Drawing.Image]::FromFile((Join-Path $PSScriptRoot "dbdreshadepresets_logo.png"))
+$logo.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+$logo.Size = New-Object System.Drawing.Size(100, 100)  # Set the logo size
+$form.Controls.Add($logo)
+
+# Event handler to center the logo after form layout
+$form.Add_Shown({
+    $logo.Left = [math]::Round(($form.ClientSize.Width - $logo.Width) / 2)
+})
+
+# Label and TextBox for the description
+$labelDesc = New-Object System.Windows.Forms.Label
+$labelDesc.Text = "Description:"
+$labelDesc.ForeColor = [System.Drawing.Color]::White
+$labelDesc.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$labelDesc.Location = New-Object System.Drawing.Point(10, 120)  # Adjusted position after reducing logo size
+$form.Controls.Add($labelDesc)
+
+$textBoxDesc = New-Object System.Windows.Forms.TextBox
+$textBoxDesc.Location = New-Object System.Drawing.Point(150, 120)
+$textBoxDesc.Size = New-Object System.Drawing.Size(300, 20)
+$textBoxDesc.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$form.Controls.Add($textBoxDesc)
+
+# Label and TextBox for the video link
+$labelVideo = New-Object System.Windows.Forms.Label
+$labelVideo.Text = "Video Link:"
+$labelVideo.ForeColor = [System.Drawing.Color]::White
+$labelVideo.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$labelVideo.Location = New-Object System.Drawing.Point(10, 160)
+$form.Controls.Add($labelVideo)
+
+$textBoxVideo = New-Object System.Windows.Forms.TextBox
+$textBoxVideo.Location = New-Object System.Drawing.Point(150, 160)
+$textBoxVideo.Size = New-Object System.Drawing.Size(300, 20)
+$textBoxVideo.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$form.Controls.Add($textBoxVideo)
+
+# Declare filePath as a global variable
+$filePath = ""
+
+# Button to select the .ini file with proper padding and full width
+$buttonSelectIni = New-Object System.Windows.Forms.Button
+$buttonSelectIni.Text = "Select .ini"
+$buttonSelectIni.BackColor = [System.Drawing.Color]::White
+$buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
+$buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)  # Padding of 10 pixels from the left
+$buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
+$form.Controls.Add($buttonSelectIni)
+
+$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialog.Filter = "INI Files (*.ini)|*.ini"
+
+# Initialize globally
+$script:filePath = ""
+$script:fileSelected = $false
+
+$buttonSelectIni.Add_Click({
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $script:filePath = $openFileDialog.FileName
+        Add-LogEntry "Selected .ini file: $script:filePath"  # Log file path to verify
+
+        # Ensure the file path is valid and exists
+        if ($script:filePath -ne "" -and [System.IO.File]::Exists($script:filePath)) {
+            Show-MessageBox "File selected: $script:filePath"
+            $script:fileSelected = $true
+        } else {
+            Show-MessageBox "No valid file selected"
+            $script:fileSelected = $false
+        }
+
+        Add-LogEntry "File Selected status: $script:fileSelected"  # Log file selection status
+    }
+})
+
+# Button to save the preset with proper padding and full width
+$buttonSavePreset = New-Object System.Windows.Forms.Button
+$buttonSavePreset.Text = "Save Preset"
+$buttonSavePreset.BackColor = [System.Drawing.Color]::White
+$buttonSavePreset.ForeColor = [System.Drawing.Color]::Black
+$buttonSavePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 260)  # Padding of 10 pixels from the left
+$buttonSavePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
+$form.Controls.Add($buttonSavePreset)
+
+$buttonSavePreset.Add_Click({
+    # Validate that the description, video link, and file path are correctly filled
+    $descriptionValid = $textBoxDesc.Text.Trim() -ne ""
+    $videoLinkValid = $textBoxVideo.Text.Trim() -ne ""
+    $fileSelected = $script:filePath -ne ""  # Use the globally scoped file path
+
+    # Log validation status for debugging
+    Add-LogEntry "Description Valid: $descriptionValid"
+    Add-LogEntry "Video Link Valid: $videoLinkValid"
+    Add-LogEntry "File Selected: $fileSelected"
+
+    if ($fileSelected -and $descriptionValid -and $videoLinkValid) {
+        # Prepare to save the preset
+        $presetName = [System.IO.Path]::GetFileName($script:filePath)  # Get the preset name from the file
+        $destPath = Join-Path -Path (Join-Path $PSScriptRoot "Presets") -ChildPath "$presetName"
+        
+        # Copy the .ini file to the Presets directory
+        Copy-Item -Path $script:filePath -Destination $destPath
+
+        # Path to the JSON file that stores the presets data
+        $jsonFilePath = Join-Path $PSScriptRoot "media\presets.json"
+        $jsonData = @{}
+
+        try {
+            # Attempt to read and parse existing JSON data
+            $existingJsonData = Get-Content -Path $jsonFilePath -Raw | ConvertFrom-Json
+            if ($existingJsonData -is [System.Collections.Hashtable]) {
+                $jsonData = $existingJsonData
+            } elseif ($existingJsonData -is [PSCustomObject]) {
+                $jsonData = ConvertTo-Hashtable -object $existingJsonData
+            }
+        } catch {
+            Add-LogEntry "Error reading existing JSON data: $_"
+            Add-LogEntry "Initializing new JSON data."
+        }
+
+        # Create a new preset entry with description and video link
+        $newPreset = @{
+            "description" = $textBoxDesc.Text
+            "videoLink"   = $textBoxVideo.Text
+        }
+
+        # Add the new preset to the JSON data
+        $jsonData[$presetName] = $newPreset
+
+        # Save the updated JSON data back to the file
+        $jsonData | ConvertTo-Json -Depth 4 | Set-Content -Path $jsonFilePath
+        
+        # Display success message and log it
+        Show-MessageBox "Preset saved successfully!"
+        Add-LogEntry "Preset $presetName saved successfully."
+    } else {
+        # If any field is invalid, show error
+        Show-MessageBox "Please fill out all fields."
+        Add-LogEntry "Error: Missing fields."
+    }
+})
+
+# Add the log box at the bottom
+$logBox = New-Object System.Windows.Forms.TextBox
+$logBox.Multiline = $true
+$logBox.ScrollBars = "Vertical"
+$logBox.BackColor = [System.Drawing.Color]::Black
+$logBox.ForeColor = [System.Drawing.Color]::White
+$logBox.Font = New-Object System.Drawing.Font("Montserrat", 8)
+$logBox.Location = New-Object System.Drawing.Point(10, 320)
+
+# Correctly calculate the width for the log box with padding
+$logBoxWidth = $form.ClientSize.Width - 20
+$logBoxHeight = 150
+$logBox.Size = New-Object System.Drawing.Size($logBoxWidth, $logBoxHeight)
+
+$logBox.ReadOnly = $true
+$form.Controls.Add($logBox)
+
+# Add credits section at the bottom
+$versionLabel = New-Object System.Windows.Forms.Label
+$versionLabel.Size = New-Object System.Drawing.Size(500, 20)
+$versionLabel.Location = New-Object System.Drawing.Point(-5, 480)
+$versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
+$versionLabel.ForeColor = [System.Drawing.Color]::White
+$versionLabel.Text = "v1.0.5 - Developed by Joolace"
+$form.Controls.Add($versionLabel)
+
+# Start the form
+$form.Add_Shown({$form.Activate()})
+[void]$form.ShowDialog()
+
+}
+
+# Add click event to button1 to run dbdreshade.ps1
+$button1.Add_Click({
+    Invoke-ReShadeInstaller
+})
+
+# Add click event to button2 to run dbdreshadepresets.ps1
+$button2.Add_Click({
+    Invoke-PresetManager
+})
+
+# Add version label at the bottom
+$versionLabel = New-Object System.Windows.Forms.Label
+$versionLabel.Size = New-Object System.Drawing.Size(400, 20)
+$versionLabel.Location = New-Object System.Drawing.Point(0, 380)
+$versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$versionLabel.Font = New-Object System.Drawing.Font($fontFamily.Families[0], 8)
+$versionLabel.ForeColor = [System.Drawing.Color]::White
+$versionLabel.Text = "v1.0.5 - Developed by Joolace"
+$form.Controls.Add($versionLabel)
+
+# Centered positioning for the social icons
+$formWidth = $form.ClientSize.Width  # Get the form width
+$totalIconsWidth = 96  # Three icons, each 32px wide
+$iconSpacing = 40  # Space between icons
+
+# Calculate starting position to center icons
+$startXPosition = ($formWidth - $totalIconsWidth - 2 * $iconSpacing) / 2
+
+# Add Discord icon link
+$discordIcon = New-Object System.Windows.Forms.PictureBox
+$discordIcon.Size = New-Object System.Drawing.Size(32, 32)
+$discordIcon.Location = New-Object System.Drawing.Point($startXPosition, 320)  # Centered
+$discordIcon.Image = [System.Drawing.Image]::FromFile("$PSScriptRoot\media\discord.png")
+$discordIcon.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+$discordIcon.Cursor = [System.Windows.Forms.Cursors]::Hand
+$discordIcon.Add_Click({ Start-Process "https://discord.gg/mC7Eabu3QW" })
+$form.Controls.Add($discordIcon)
+
+# Add GitHub icon link
+$githubIconXPosition = $startXPosition + $iconSpacing + 32
+$githubIcon = New-Object System.Windows.Forms.PictureBox
+$githubIcon.Size = New-Object System.Drawing.Size(32, 32)
+$githubIcon.Location = New-Object System.Drawing.Point($githubIconXPosition, 320)  # Centered
+$githubIcon.Image = [System.Drawing.Image]::FromFile("$PSScriptRoot\media\github.png")
+$githubIcon.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+$githubIcon.Cursor = [System.Windows.Forms.Cursors]::Hand
+$githubIcon.Add_Click({ Start-Process "https://github.com/Joolace/dbd-reshade" })
+$form.Controls.Add($githubIcon)
+
+# Add Instagram icon link
+$instagramIconXPosition = $githubIconXPosition + $iconSpacing + 32
+$instagramIcon = New-Object System.Windows.Forms.PictureBox
+$instagramIcon.Size = New-Object System.Drawing.Size(32, 32)
+$instagramIcon.Location = New-Object System.Drawing.Point($instagramIconXPosition, 320)  # Centered
+$instagramIcon.Image = [System.Drawing.Image]::FromFile("$PSScriptRoot\media\instagram.png")
+$instagramIcon.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+$instagramIcon.Cursor = [System.Windows.Forms.Cursors]::Hand
+$instagramIcon.Add_Click({ Start-Process "https://www.instagram.com/joolace" })
+$form.Controls.Add($instagramIcon)
+
+# Show the form
+$form.Add_Shown({$form.Activate()})
+[void]$form.ShowDialog()
+
+# Button to select the .ini file with proper padding and full width
+$buttonSelectIni = New-Object System.Windows.Forms.Button
+$buttonSelectIni.Text = "Select .ini"
+$buttonSelectIni.BackColor = [System.Drawing.Color]::White
+$buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
+$buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)  # Padding of 10 pixels from the left
+$buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
+$form.Controls.Add($buttonSelectIni)
+
+$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialog.Filter = "INI Files (*.ini)|*.ini"
+
+$buttonSelectIni.Add_Click({
+    $result = $openFileDialog.ShowDialog()
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        $filePath = $openFileDialog.FileName
+        $logBox.AppendText("Selected .ini file: $filePath`r`n")
+        Add-LogEntry "Selected .ini file: $filePath"
+    }
+})
