@@ -18,42 +18,42 @@ $currentVersion = "1.1.1"
 
 # Compare the current version with the latest version
 if ($currentVersion -ne $latestVersion) {
-    # Define a simple GUI window
-    Add-Type -AssemblyName PresentationFramework
+    # Create a form window
+    $form = New-Object Windows.Forms.Form
+    $form.Text = "Update Available"
+    $form.Size = New-Object Drawing.Size(400,200)
+    $form.StartPosition = "CenterScreen"
 
-    $window = New-Object System.Windows.Window
-    $window.Title = "Update Available"
-    $window.Width = 400
-    $window.Height = 200
-    $window.WindowStartupLocation = "CenterScreen"
-    $window.ResizeMode = "NoResize"
+    # Create a label to show update message
+    $label = New-Object Windows.Forms.Label
+    $label.Text = "A new version $latestVersion is available. Would you like to update?"
+    $label.AutoSize = $true
+    $label.Location = New-Object Drawing.Point(10,20)
+    $form.Controls.Add($label)
 
-    $stackPanel = New-Object System.Windows.Controls.StackPanel
-    $window.Content = $stackPanel
+    # Create another label to show the current version
+    $infoLabel = New-Object Windows.Forms.Label
+    $infoLabel.Text = "$currentVersion - Developed by Joolace"
+    $infoLabel.AutoSize = $true
+    $infoLabel.Location = New-Object Drawing.Point(10,50)
+    $form.Controls.Add($infoLabel)
 
-    $textBlock = New-Object System.Windows.Controls.TextBlock
-    $textBlock.Text = "A new version $latestVersion is available. Would you like to update?"
-    $textBlock.Margin = "10,10,10,10"
-    $textBlock.HorizontalAlignment = "Center"
-    $stackPanel.Children.Add($textBlock)
-
-    # Create a button to open the browser and go to the release URL
-    $button = New-Object System.Windows.Controls.Button
-    $button.Content = "Go to Download"
-    $button.Width = 150
-    $button.Height = 40
-    $button.Margin = "10"
-    $button.HorizontalAlignment = "Center"
+    # Create a button to open the browser
+    $button = New-Object Windows.Forms.Button
+    $button.Text = "Go to Download"
+    $button.Size = New-Object Drawing.Size(100,40)
+    $button.Location = New-Object Drawing.Point(150,100)
     $button.Add_Click({
         # Open the release URL in the default browser
         Start-Process $releaseUrl
-        $window.Close()
+        $form.Close()
     })
-    $stackPanel.Children.Add($button)
+    $form.Controls.Add($button)
 
-    $window.ShowDialog() | Out-Null
+    # Show the form
+    $form.ShowDialog()
 } else {
-    Write-Host "You already have the latest version: $currentVersion."
+    [System.Windows.Forms.MessageBox]::Show("You already have the latest version: $currentVersion")
 }
 
 # Create the main form with a black background and disable resizing
