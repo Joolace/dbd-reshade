@@ -1,4 +1,3 @@
-
 # Import Windows Forms to create the form and components
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -788,6 +787,10 @@ function Invoke-PresetManager {
 # Add necessary assemblies for the GUI
 Add-Type -AssemblyName PresentationFramework, System.Windows.Forms, System.Drawing
 
+# Presets Directory
+$presetDirectory = "$PSScriptRoot\Presets"
+$presets = Get-ChildItem -Path $presetDirectory -Filter *.ini
+
 # Function to show a message box
 function Show-MessageBox($message) {
     [System.Windows.MessageBox]::Show($message)
@@ -808,10 +811,33 @@ function ConvertTo-Hashtable {
     return $hashtable
 }
 
+# Function to update the preset list with ShouldProcess support
+function Update-PresetList {
+    [CmdletBinding(SupportsShouldProcess=$true)]  # Add SupportsShouldProcess attribute
+    param()
+
+    # Check if the action should proceed
+    if ($PSCmdlet.ShouldProcess("Updating preset list")) {
+        # Get the preset directory path
+        $presetDirectory = Join-Path $PSScriptRoot "Presets"
+
+        # Clear the ListBox items to refresh the list
+        $listBox.Items.Clear()
+
+        # Fetch all preset files from the directory
+        $presets = Get-ChildItem -Path $presetDirectory -Filter *.ini
+
+        # Loop through each preset and add it to the ListBox
+        foreach ($preset in $presets) {
+            $listBox.Items.Add($preset.Name)
+        }
+    }
+}
+
 # Create the main window
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "DBD Reshade Preset Manager"
-$form.Size = New-Object System.Drawing.Size(500, 550)  # Increased height to accommodate log box
+$form.Size = New-Object System.Drawing.Size(500, 680)  # Increased height to accommodate log box
 $form.StartPosition = "CenterScreen"
 $form.BackColor = [System.Drawing.Color]::Black
 
@@ -830,6 +856,16 @@ $form.Controls.Add($logo)
 $form.Add_Shown({
     $logo.Left = [math]::Round(($form.ClientSize.Width - $logo.Width) / 2)
 })
+
+# ListBox for presets (moved under the logo)
+$listBox = New-Object System.Windows.Forms.ListBox
+$listBox.Size = New-Object System.Drawing.Size(463, 100)
+$listBox.Location = New-Object System.Drawing.Point(10, 200)
+$listBox.Font = $montserratRegularFont
+foreach ($preset in $presets) {
+    $listBox.Items.Add($preset.Name)
+}
+$form.Controls.Add($listBox)
 
 # Label and TextBox for the description
 $labelDesc = New-Object System.Windows.Forms.Label
@@ -868,7 +904,7 @@ $buttonSelectIni.Text = "Select .ini"
 $buttonSelectIni.BackColor = [System.Drawing.Color]::White
 $buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
 $buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)  # Padding of 10 pixels from the left
+$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 480)  # Padding of 10 pixels from the left
 $buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSelectIni)
 
@@ -903,7 +939,7 @@ $buttonSavePreset.Text = "Save Preset"
 $buttonSavePreset.BackColor = [System.Drawing.Color]::White
 $buttonSavePreset.ForeColor = [System.Drawing.Color]::Black
 $buttonSavePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 260)  # Padding of 10 pixels from the left
+$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 520)  # Padding of 10 pixels from the left
 $buttonSavePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSavePreset)
 
@@ -954,6 +990,9 @@ $buttonSavePreset.Add_Click({
 
         # Save the updated JSON data back to the file
         $jsonData | ConvertTo-Json -Depth 4 | Set-Content -Path $jsonFilePath
+
+        # Update the preset list after saving the preset (without clearing existing ones)
+        Update-PresetList
         
         # Display success message and log it
         Show-MessageBox "Preset saved successfully!"
@@ -965,6 +1004,28 @@ $buttonSavePreset.Add_Click({
     }
 })
 
+# Button to delete the selected preset (last button)
+$buttonDeletePreset = New-Object System.Windows.Forms.Button
+$buttonDeletePreset.Text = "Delete Selected Preset"
+$buttonDeletePreset.BackColor = [System.Drawing.Color]::Red
+$buttonDeletePreset.ForeColor = [System.Drawing.Color]::White
+$buttonDeletePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$buttonDeletePreset.Location = New-Object System.Drawing.Point(10, 560)  # Below save preset button
+$buttonDeletePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
+$form.Controls.Add($buttonDeletePreset)
+
+# Event handler for delete button (delete the selected preset)
+$buttonDeletePreset.Add_Click({
+    if ($listBox.SelectedItem) {
+        $selectedPreset = $listBox.SelectedItem
+        Remove-Item "$presetDirectory\$selectedPreset"
+        $listBox.Items.Remove($selectedPreset)
+        [System.Windows.Forms.MessageBox]::Show("Preset deleted.")
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("Please select a preset to delete.")
+    }
+})
+
 # Add the log box at the bottom
 $logBox = New-Object System.Windows.Forms.TextBox
 $logBox.Multiline = $true
@@ -972,7 +1033,7 @@ $logBox.ScrollBars = "Vertical"
 $logBox.BackColor = [System.Drawing.Color]::Black
 $logBox.ForeColor = [System.Drawing.Color]::White
 $logBox.Font = New-Object System.Drawing.Font("Montserrat", 8)
-$logBox.Location = New-Object System.Drawing.Point(10, 320)
+$logBox.Location = New-Object System.Drawing.Point(10, 310)
 
 # Correctly calculate the width for the log box with padding
 $logBoxWidth = $form.ClientSize.Width - 20
@@ -985,7 +1046,7 @@ $form.Controls.Add($logBox)
 # Add credits section at the bottom
 $versionLabel = New-Object System.Windows.Forms.Label
 $versionLabel.Size = New-Object System.Drawing.Size(500, 20)
-$versionLabel.Location = New-Object System.Drawing.Point(-5, 480)
+$versionLabel.Location = New-Object System.Drawing.Point(-5, 600)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
