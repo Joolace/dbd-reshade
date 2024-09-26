@@ -1,6 +1,60 @@
+
 # Import Windows Forms to create the form and components
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+# URL of the repository to check releases
+$repoUrl = "https://api.github.com/repos/Joolace/dbd-reshade/releases/latest"
+
+# Make a request to GitHub API to get the latest release
+$response = Invoke-RestMethod -Uri $repoUrl -Headers @{"User-Agent"="Powershell Script"}
+
+# Get the version number of the latest release
+$latestVersion = $response.tag_name
+$releaseUrl = $response.html_url
+
+# Current installed version (replace this with the actual current version)
+$currentVersion = "1.1.1"
+
+# Compare the current version with the latest version
+if ($currentVersion -ne $latestVersion) {
+    # Define a simple GUI window
+    Add-Type -AssemblyName PresentationFramework
+
+    $window = New-Object System.Windows.Window
+    $window.Title = "Update Available"
+    $window.Width = 400
+    $window.Height = 200
+    $window.WindowStartupLocation = "CenterScreen"
+    $window.ResizeMode = "NoResize"
+
+    $stackPanel = New-Object System.Windows.Controls.StackPanel
+    $window.Content = $stackPanel
+
+    $textBlock = New-Object System.Windows.Controls.TextBlock
+    $textBlock.Text = "A new version $latestVersion is available. Would you like to update?"
+    $textBlock.Margin = "10,10,10,10"
+    $textBlock.HorizontalAlignment = "Center"
+    $stackPanel.Children.Add($textBlock)
+
+    # Create a button to open the browser and go to the release URL
+    $button = New-Object System.Windows.Controls.Button
+    $button.Content = "Go to Download"
+    $button.Width = 150
+    $button.Height = 40
+    $button.Margin = "10"
+    $button.HorizontalAlignment = "Center"
+    $button.Add_Click({
+        # Open the release URL in the default browser
+        Start-Process $releaseUrl
+        $window.Close()
+    })
+    $stackPanel.Children.Add($button)
+
+    $window.ShowDialog() | Out-Null
+} else {
+    Write-Host "You already have the latest version: $currentVersion."
+}
 
 # Create the main form with a black background and disable resizing
 $form = New-Object System.Windows.Forms.Form
@@ -767,7 +821,7 @@ $buttonInstall.Add_Click({
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.1.1 - Developed by Joolace"
+$infoLabel.Text = "v$currentVersion - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
@@ -1050,7 +1104,7 @@ $versionLabel.Location = New-Object System.Drawing.Point(-5, 600)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
-$versionLabel.Text = "v1.1.1 - Developed by Joolace"
+$versionLabel.Text = "v$currentVersion - Developed by Joolace"
 $form.Controls.Add($versionLabel)
 
 # Start the form
@@ -1076,7 +1130,7 @@ $versionLabel.Location = New-Object System.Drawing.Point(0, 380)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font($fontFamily.Families[0], 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
-$versionLabel.Text = "v1.1.1 - Developed by Joolace"
+$versionLabel.Text = "v$currentVersion - Developed by Joolace"
 $form.Controls.Add($versionLabel)
 
 # Centered positioning for the social icons
