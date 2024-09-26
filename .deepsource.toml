@@ -1,23 +1,4 @@
 version = 1
 
 [[analyzers]]
-name = "javascript"
-
-  [analyzers.meta]
-  environment = [
-    "browser",
-    "jquery",
-    "nodejs",
-    "mongo",
-    "cypress",
-    "jest",
-    "mocha",
-    "jasmine",
-    "vitest"
-  ]
-
-[[analyzers]]
 name = "shell"
-
-[[analyzers]]
-name = "test-coverage"
