@@ -767,7 +767,7 @@ $buttonInstall.Add_Click({
 $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
-$infoLabel.Text = "v1.1.0 - Developed by Joolace"
+$infoLabel.Text = "v1.1.1 - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
 $infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
@@ -1050,7 +1050,7 @@ $versionLabel.Location = New-Object System.Drawing.Point(-5, 600)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
-$versionLabel.Text = "v1.1.0 - Developed by Joolace"
+$versionLabel.Text = "v1.1.1 - Developed by Joolace"
 $form.Controls.Add($versionLabel)
 
 # Start the form
@@ -1076,7 +1076,7 @@ $versionLabel.Location = New-Object System.Drawing.Point(0, 380)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font($fontFamily.Families[0], 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
-$versionLabel.Text = "v1.1.0 - Developed by Joolace"
+$versionLabel.Text = "v1.1.1 - Developed by Joolace"
 $form.Controls.Add($versionLabel)
 
 # Centered positioning for the social icons
