@@ -1176,25 +1176,3 @@ $form.Controls.Add($instagramIcon)
 # Show the form
 $form.Add_Shown({$form.Activate()})
 [void]$form.ShowDialog()
-
-# Button to select the .ini file with proper padding and full width
-$buttonSelectIni = New-Object System.Windows.Forms.Button
-$buttonSelectIni.Text = "Select .ini"
-$buttonSelectIni.BackColor = [System.Drawing.Color]::White
-$buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
-$buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 200)  # Padding of 10 pixels from the left
-$buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
-$form.Controls.Add($buttonSelectIni)
-
-$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-$openFileDialog.Filter = "INI Files (*.ini)|*.ini"
-
-$buttonSelectIni.Add_Click({
-    $result = $openFileDialog.ShowDialog()
-    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-        $filePath = $openFileDialog.FileName
-        $logBox.AppendText("Selected .ini file: $filePath`r`n")
-        Add-LogEntry "Selected .ini file: $filePath"
-    }
-})
