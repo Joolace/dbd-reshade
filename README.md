@@ -102,14 +102,6 @@ A special thanks to the creators of the following presets for *Dead by Daylight*
 
 Please refer to the respective preset files in the [Presets directory](https://github.com/Joolace/dbd-reshade/tree/main/Presets) for detailed credits and information.
 
-## Special Thanks
-
-- A huge thanks to [steve02081504](https://github.com/steve02081504/ps12exe) for providing the tool `ps12exe` which was used to create the executable file for this project.
-
-## Important Notice About Antivirus Detection
-
-Some antivirus programs may flag the executable created by this tool as a potential virus. This is primarily due to the fact that in the past, tools like `ps12exe` have been misused by others to create malware. Rest assured, this file is safe if downloaded from this official repository. Always use caution and make sure to download from trusted sources.
-
 ## Contributing
 
 Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.
