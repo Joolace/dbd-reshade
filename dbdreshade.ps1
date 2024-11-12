@@ -14,7 +14,7 @@ $latestVersion = $response.tag_name
 $releaseUrl = $response.html_url
 
 # Current installed version (replace this with the actual current version)
-$currentVersion = "1.1.2"
+$currentVersion = "1.1.3"
 
 # Compare the current version with the latest version
 if ($currentVersion -ne $latestVersion) {
