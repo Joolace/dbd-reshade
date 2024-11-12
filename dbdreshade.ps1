@@ -23,12 +23,14 @@ if ($currentVersion -ne $latestVersion) {
     $form.Text = "Update Available"
     $form.Size = New-Object Drawing.Size(400,200)
     $form.StartPosition = "CenterScreen"
+    $form.TopMost = $true
 
     # Create a label to show update message
     $label = New-Object Windows.Forms.Label
     $label.Text = "A new version $latestVersion is available. Would you like to update?"
     $label.AutoSize = $true
     $label.Location = New-Object Drawing.Point(10,20)
+    $label.BringToFront()
     $form.Controls.Add($label)
 
     # Create another label to show the current version
