@@ -225,15 +225,28 @@ function Update-PresetsFromGitHub {
     }
 }
 
-# Function to retrieve the game installation directory
 function Get-GameDirectory {
+    # Try to get the Steam installation path
+    try {
+        Add-LogEntry "Checking for Steam installation..."
+        $steamGamePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 381210' -ErrorAction SilentlyContinue).InstallLocation
+        if ($steamGamePath) {
+            Add-LogEntry "Steam installation found: $steamGamePath"
+            return $steamGamePath
+        } else {
+            Add-LogEntry "Steam installation not found or not registered."
+        }
+    } catch {
+        Add-LogEntry "Error checking Steam installation: $_"
+    }
+
     # Define the path to the Epic Games manifests directory
     $epicGamesManifestPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
-    
+
     # Check if the manifest directory exists
     if (-Not (Test-Path -Path $epicGamesManifestPath)) {
-        # If the directory does not exist, display a message and exit
-        Show-MessageBox "Epic Games manifest directory not found."
+        Add-LogEntry "Epic Games manifest directory not found."
+        Show-MessageBox "Unable to find the Dead by Daylight installation."
         return $null
     }
 
@@ -248,7 +261,7 @@ function Get-GameDirectory {
 
             # Check if the InstallLocation contains "DeadByDaylight"
             if ($manifestContent.InstallLocation -like "*DeadByDaylight*") {
-                # Return the installation path if found
+                Add-LogEntry "Epic Games installation found: $($manifestContent.InstallLocation)"
                 return $manifestContent.InstallLocation
             }
         } catch {
@@ -258,10 +271,10 @@ function Get-GameDirectory {
     }
 
     # If no valid installation path is found, display a message and return null
+    Add-LogEntry "Unable to find the Dead by Daylight installation."
     Show-MessageBox "Unable to find the Dead by Daylight installation."
     return $null
 }
-
 
 # Function to check if ReShade is installed in the given game directory
 function Test-ReShadeInstalled($gameDir) {
