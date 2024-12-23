@@ -227,36 +227,41 @@ function Update-PresetsFromGitHub {
 
 # Function to retrieve the game installation directory
 function Get-GameDirectory {
-    # Try to get the Steam installation path
-    $steamGamePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 381210' -ErrorAction SilentlyContinue).InstallLocation
+    # Define the path to the Epic Games manifests directory
+    $epicGamesManifestPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
     
-    # If Steam path is found, return it
-    if ($steamGamePath) {
-        return $steamGamePath
+    # Check if the manifest directory exists
+    if (-Not (Test-Path -Path $epicGamesManifestPath)) {
+        # If the directory does not exist, display a message and exit
+        Show-MessageBox "Epic Games manifest directory not found."
+        return $null
     }
 
-    # Try to get the Epic Games installation path
-    $epicGamesLauncherPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
-    
-    if (Test-Path $epicGamesLauncherPath) {
-        # Loop through all the manifest files
-        $manifests = Get-ChildItem -Path $epicGamesLauncherPath -Filter *.item -ErrorAction SilentlyContinue
-        foreach ($manifest in $manifests) {
-            try {
-                $manifestContent = Get-Content -Path $manifest.FullName -Raw | ConvertFrom-Json
-                if ($manifestContent.AppName -eq "DeadByDaylight") {
-                    return $manifestContent.InstallLocation
-                }
-            } catch {
-                Add-LogEntry "Error reading manifest file $($manifest.FullName): $_"
+    # Retrieve all `.item` files in the manifest directory
+    $manifests = Get-ChildItem -Path $epicGamesManifestPath -Filter *.item -ErrorAction SilentlyContinue
+
+    # Loop through each manifest file
+    foreach ($manifest in $manifests) {
+        try {
+            # Read the content of the manifest file and convert it from JSON
+            $manifestContent = Get-Content -Path $manifest.FullName -Raw | ConvertFrom-Json
+
+            # Check if the InstallLocation contains "DeadByDaylight"
+            if ($manifestContent.InstallLocation -like "*DeadByDaylight*") {
+                # Return the installation path if found
+                return $manifestContent.InstallLocation
             }
+        } catch {
+            # Log any errors while processing the manifest file
+            Add-LogEntry "Error processing manifest file: $($manifest.FullName) - $_"
         }
     }
 
-    # If neither path is found, show a message and return $null
+    # If no valid installation path is found, display a message and return null
     Show-MessageBox "Unable to find the Dead by Daylight installation."
     return $null
 }
+
 
 # Function to check if ReShade is installed in the given game directory
 function Test-ReShadeInstalled($gameDir) {
