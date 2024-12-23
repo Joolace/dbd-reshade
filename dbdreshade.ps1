@@ -225,6 +225,7 @@ function Update-PresetsFromGitHub {
     }
 }
 
+# Function to retrieve the game installation directory
 function Get-GameDirectory {
     # Try to get the Steam installation path
     try {
