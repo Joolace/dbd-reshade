@@ -73,6 +73,10 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 
 5. **Log Output**: The GUI includes a log box to display real-time log information during installation.
 
+## Video tutorial
+
+[Watch the video](https://www.youtube.com/watch?v=OUUZ9shTAnk)
+
 ## Troubleshooting
 
 - **Error Retrieving ReShade URL**: Ensure you have an active internet connection and the URL to ReShade is accessible.
