@@ -75,7 +75,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 
 ## Video tutorial
 
-[![Watch now!](https://i9.ytimg.com/vi/OUUZ9shTAnk/maxresdefault.jpg?v=676b21fa&sqp=CPzDrLsG&rs=AOn4CLA0UUBdtzoSQT16phiGu0_pyB_qrQ)](https://www.youtube.com/watch?v=OUUZ9shTAnk)
+[![Watch now!](https://i.ytimg.com/vi/OUUZ9shTAnk/sddefault.jpg)](https://www.youtube.com/watch?v=OUUZ9shTAnk)
 
 ## Troubleshooting
 
