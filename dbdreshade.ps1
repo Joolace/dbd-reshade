@@ -495,8 +495,10 @@ function Get-PresetDescriptions {
     }
 }
 
+# Base path for preview images relative to the script's location
+$BaseImagePath = Join-Path -Path $PSScriptRoot -ChildPath "media\preview-preset"
 
-# Function to update preset description in the GUI
+# Function to update the preset description and preview image in the GUI
 function Update-PresetDescription {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param (
@@ -506,55 +508,75 @@ function Update-PresetDescription {
 
     process {
         if ($PSCmdlet.ShouldProcess("Update description for preset: $PresetName")) {
+            # Retrieve the preset descriptions from the JSON file
             $descriptions = Get-PresetDescriptions
             if ($descriptions -and $descriptions.PSObject.Properties.Match($PresetName)) {
                 $preset = $descriptions.$PresetName
                 if ($preset) {
+                    # Update the description label
                     $description = $preset.description
                     $videoLink = $preset.videoLink
+                    $imagePreview = $preset.'preset-preview'
+
                     if ($description) {
                         $descriptionLabel.Text = $description
                     } else {
                         $descriptionLabel.Text = "No description available."
                     }
 
-                    # Check if video link is valid
+                    # Validate and update the video link
                     try {
                         Invoke-WebRequest -Uri $videoLink -Method Head -ErrorAction Stop
                     } catch {
-                        # If the link is invalid, ensure "More Info" remains hidden
+                        # If the video link is invalid, clear the link label
                         $descriptionLink.Text = ""
                         Add-LogEntry "Error: The video link is invalid. It will be hidden."
                         return
                     }
-                    
-                    # Clear any previous links
+
+                    # Clear any existing links in the link label
                     $descriptionLink.Links.Clear()
-                    
                     if ($videoLink) {
                         $descriptionLink.Text = "More Info"
-                        
-                        # Add the link
                         $linkStart = $descriptionLink.Text.IndexOf("More Info")
                         $linkLength = $descriptionLink.Text.Length
                         $descriptionLink.Links.Add($linkStart, $linkLength - $linkStart, $videoLink)
-                        
-                        # Associate the URL with the LinkClicked event
                         $descriptionLink.Tag = $videoLink
                     } else {
                         $descriptionLink.Text = ""
                     }
+
+                    # Update the preview image in the PictureBox
+                    if ($imagePreview) {
+                        # Combine the base path with the preview image file name
+                        $imagePath = Join-Path -Path $BaseImagePath -ChildPath $imagePreview
+                        try {
+                            $pictureBox.ImageLocation = $imagePath
+                        } catch {
+                            # If the image cannot be loaded, clear the PictureBox
+                            $pictureBox.Image = $null
+                            Add-LogEntry "Error: Could not load image preview for preset: $PresetName"
+                        }
+                    } else {
+                        # If no image preview is available, clear the PictureBox
+                        $pictureBox.Image = $null
+                    }
                 } else {
+                    # If the preset does not exist, clear the labels and PictureBox
                     $descriptionLabel.Text = "No description available for this preset."
                     $descriptionLink.Text = ""
+                    $pictureBox.Image = $null
                 }
             } else {
+                # If no matching preset is found, clear the labels and PictureBox
                 $descriptionLabel.Text = "No description available for this preset."
                 $descriptionLink.Text = ""
+                $pictureBox.Image = $null
             }
         }
     }
 }
+
 
 # Function to reload preset list
 function Update-PresetList {
@@ -670,13 +692,95 @@ $descriptionLink.Add_LinkClicked({
         Start-Process $url
     }
 })
+
 $descriptionLink.Links.Clear()
 $descriptionLink.Text = ""
 $form.Controls.Add($descriptionLink)
 
+# Create the PictureBox for displaying the image
+$pictureBox = New-Object System.Windows.Forms.PictureBox
+$pictureBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Normal
+$form.Controls.Add($pictureBox)
+
+# Create a Label for the text above the PictureBox
+$imageLabel = New-Object System.Windows.Forms.Label
+$imageLabel.Text = "Preset preview (click on the image)" # Replace with your desired text
+$imageLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
+$imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
+$imageLabel.Font = New-Object System.Drawing.Font("Arial", 8, [System.Drawing.FontStyle]::Bold)
+$imageLabel.BringToFront()
+$form.Controls.Add($imageLabel)
+
+# Function to update PictureBox size with full width and position the label
+function Update-PictureBoxSize {
+    # Set PictureBox to full width
+    $pictureBox.Width = $form.ClientSize.Width # Full width of the form
+    $pictureBox.Height = 85 # Fixed height (adjust as needed)
+    $pictureBox.Location = New-Object System.Drawing.Point(
+        0, # Align to the left edge (start at X = 0)
+        365 # Fixed vertical position
+    )
+
+    # Position the label above the PictureBox
+    $imageLabel.Width = $form.ClientSize.Width
+    $imageLabel.Height = 20
+    $imageLabel.Location = New-Object System.Drawing.Point(0, 365)  # Updated location
+    $imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
+    $imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
+    $imageLabel.BringToFront()
+}
+
+# Function to display the image in fullscreen when clicked
+function Show-FullscreenImage {
+    # Create a new form for fullscreen
+    $fullscreenForm = New-Object System.Windows.Forms.Form
+    $fullscreenForm.WindowState = [System.Windows.Forms.FormWindowState]::Maximized
+    $fullscreenForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
+    $fullscreenForm.BackColor = [System.Drawing.Color]::Black
+    $fullscreenForm.TopMost = $true
+
+    # Create a PictureBox for the fullscreen image
+    $fullscreenPictureBox = New-Object System.Windows.Forms.PictureBox
+    $fullscreenPictureBox.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $fullscreenPictureBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::StretchImage
+    $fullscreenPictureBox.Image = $pictureBox.Image
+
+    # Add the PictureBox to the fullscreen form
+    $fullscreenForm.Controls.Add($fullscreenPictureBox)
+
+    # Create a ToolTip to show a message to the user
+    $toolTip = New-Object System.Windows.Forms.ToolTip
+    # Assign the tooltip to the PictureBox in the fullscreen form
+    $toolTip.SetToolTip($fullscreenPictureBox, "Press the ESC key to exit")
+
+    # Close the fullscreen form when the user presses the Escape key
+    $fullscreenForm.Add_KeyDown({
+        if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Escape) {
+            $fullscreenForm.Close()
+        }
+    })
+
+    # Show the fullscreen form
+    $fullscreenForm.ShowDialog()
+}
+
+# Attach the click event to the PictureBox
+$pictureBox.Add_Click({
+    Show-FullscreenImage
+})
+
+# Initial sizing of the PictureBox and label
+Update-PictureBoxSize
+
+# Adjust the PictureBox and label size dynamically when the form is resized
+$form.Add_SizeChanged({
+    Update-PictureBoxSize
+})
+
 # Add and configure the "Select Folder" button
 $buttonSelectFolder = New-Object System.Windows.Forms.Button
-$buttonSelectFolder.Location = New-Object System.Drawing.Point(10, 370)  # Adjusted location
+$buttonSelectFolder.Location = New-Object System.Drawing.Point(10, 460)  # Adjusted location
 $buttonSelectFolder.Size = New-Object System.Drawing.Size(460,30)
 $buttonSelectFolder.Text = "Select Folder"
 $buttonSelectFolder.BackColor = [System.Drawing.Color]::White
@@ -686,7 +790,7 @@ $form.Controls.Add($buttonSelectFolder)
 
 # Add and configure the "Install or Change Preset" button
 $buttonInstall = New-Object System.Windows.Forms.Button
-$buttonInstall.Location = New-Object System.Drawing.Point(10, 410)  # Adjusted location
+$buttonInstall.Location = New-Object System.Drawing.Point(10, 500)  # Adjusted location
 $buttonInstall.Size = New-Object System.Drawing.Size(460,30)
 $buttonInstall.Text = "Install or Change Preset"
 $buttonInstall.BackColor = [System.Drawing.Color]::White
@@ -698,8 +802,8 @@ $form.Controls.Add($buttonInstall)
 $logBox = New-Object System.Windows.Forms.TextBox
 $logBox.Multiline = $true
 $logBox.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-$logBox.Location = New-Object System.Drawing.Point(10, 450)  # Updated location
-$logBox.Size = New-Object System.Drawing.Size(460, 200)
+$logBox.Location = New-Object System.Drawing.Point(10, 550)  # Updated location
+$logBox.Size = New-Object System.Drawing.Size(460, 100)
 $logBox.Font = $font
 $logBox.BackColor = [System.Drawing.Color]::Black
 $logBox.ForeColor = [System.Drawing.Color]::White
