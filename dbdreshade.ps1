@@ -714,22 +714,28 @@ $form.Controls.Add($imageLabel)
 
 # Function to update PictureBox size with full width and position the label
 function Update-PictureBoxSize {
-    # Set PictureBox to full width
-    $pictureBox.Width = $form.ClientSize.Width # Full width of the form
-    $pictureBox.Height = 85 # Fixed height (adjust as needed)
-    $pictureBox.Location = New-Object System.Drawing.Point(
-        0, # Align to the left edge (start at X = 0)
-        365 # Fixed vertical position
-    )
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
 
-    # Position the label above the PictureBox
-    $imageLabel.Width = $form.ClientSize.Width
-    $imageLabel.Height = 20
-    $imageLabel.Location = New-Object System.Drawing.Point(0, 365)  # Updated location
-    $imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
-    $imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
-    $imageLabel.BringToFront()
+    if ($PSCmdlet.ShouldProcess("Update PictureBox Size")) {
+        # Set PictureBox to full width
+        $pictureBox.Width = $form.ClientSize.Width # Full width of the form
+        $pictureBox.Height = 85 # Fixed height (adjust as needed)
+        $pictureBox.Location = New-Object System.Drawing.Point(
+            0, # Align to the left edge (start at X = 0)
+            365 # Fixed vertical position
+        )
+
+        # Position the label above the PictureBox
+        $imageLabel.Width = $form.ClientSize.Width
+        $imageLabel.Height = 20
+        $imageLabel.Location = New-Object System.Drawing.Point(0, 365)  # Updated location
+        $imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
+        $imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
+        $imageLabel.BringToFront()
+    }
 }
+
 
 # Function to display the image in fullscreen when clicked
 function Show-FullscreenImage {
