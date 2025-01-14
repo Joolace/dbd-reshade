@@ -678,5 +678,10 @@
         "description": "Experience Dead by Daylight with more realistic visuals and vibrants.",
         "videoLink": "https://www.youtube.com/watch?v=y-G3qZB0AS0",
         "preset-preview": ""
+    },
+    "KL_Undefeated.ini": {
+        "description": "Latest Knightlight preset. All maps.",
+        "videoLink": "https://www.twitch.tv/knightlight",
+        "preset-preview": ""
     }
 }
