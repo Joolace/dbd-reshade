@@ -45,7 +45,7 @@ echo                                    IHHHHHHHIIJJJJKKKKLLLLMMMMNNQ
 echo                                        KJJIIIJJJKKKKLLLLMNO                                        
 echo.
 echo ================================
-echo Version: 1.1.4
+echo Version: 1.2.0alpha
 echo ================================
 echo.
 powershell.exe -ExecutionPolicy Bypass -File "%~dp0dbdreshade.ps1"
