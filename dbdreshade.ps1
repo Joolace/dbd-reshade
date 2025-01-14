@@ -67,7 +67,7 @@ $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
 
-# Importa la funzione AddFontResource dalla libreria gdi32.dll
+# Import the AddFontResource function from the gdi32.dll library
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -78,19 +78,19 @@ public class FontLoader {
 }
 "@
 
-# Definisci il percorso del file font
+# Define the font file path
 $fontFilePath = "$PSScriptRoot\media\Montserrat-Regular.ttf"
 
-# Controlla se il file esiste
+# Check if the font file exists
 if (Test-Path $fontFilePath) {
-    # Carica il font nel sistema
+    # Load the font into the system
     [FontLoader]::AddFontResource($fontFilePath)
 
-    # Ora puoi usare il font per i controlli
+    # Now you can use the font for controls
     $montserratRegularFont = New-Object System.Drawing.Font("Montserrat", 12)
 } else {
     Write-Output "Font file not found. Using Arial as fallback."
-    # Se il font non è trovato, usa Arial come fallback
+    # If the font is not found, use Arial as a fallback
     $montserratRegularFont = New-Object System.Drawing.Font("Arial", 12)
 }
 
