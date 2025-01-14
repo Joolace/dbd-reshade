@@ -1136,7 +1136,7 @@ $buttonSelectIni.Text = "Select .ini"
 $buttonSelectIni.BackColor = [System.Drawing.Color]::White
 $buttonSelectIni.ForeColor = [System.Drawing.Color]::Black
 $buttonSelectIni.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 480)  # Padding of 10 pixels from the left
+$buttonSelectIni.Location = New-Object System.Drawing.Point(10, 520)  # Padding of 10 pixels from the left
 $buttonSelectIni.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSelectIni)
 
@@ -1165,13 +1165,43 @@ $buttonSelectIni.Add_Click({
     }
 })
 
-# Button to save the preset with proper padding and full width
+# Button to select screenshot for preview
+$buttonSelectScreenshot = New-Object System.Windows.Forms.Button
+$buttonSelectScreenshot.Text = "Select Screenshot"
+$buttonSelectScreenshot.BackColor = [System.Drawing.Color]::White
+$buttonSelectScreenshot.ForeColor = [System.Drawing.Color]::Black
+$buttonSelectScreenshot.Font = New-Object System.Drawing.Font("Montserrat", 10)
+$buttonSelectScreenshot.Location = New-Object System.Drawing.Point(10, 490)  # Padding of 10 pixels from the left
+$buttonSelectScreenshot.Width = $form.ClientSize.Width - 20  # Full width minus padding
+$form.Controls.Add($buttonSelectScreenshot)
+
+$openFileDialogScreenshot = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialogScreenshot.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif"
+
+$script:screenshotPath = ""
+
+# Handle screenshot selection
+$buttonSelectScreenshot.Add_Click({
+    if ($openFileDialogScreenshot.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $script:screenshotPath = $openFileDialogScreenshot.FileName
+        Add-LogEntry "Selected screenshot: $script:screenshotPath"  # Log file path to verify
+
+        # Ensure the file path is valid and exists
+        if ($script:screenshotPath -ne "" -and [System.IO.File]::Exists($script:screenshotPath)) {
+            Show-MessageBox "Screenshot selected: $script:screenshotPath"
+        } else {
+            Show-MessageBox "No valid screenshot selected"
+        }
+    }
+})
+
+# Button to save the preset and update JSON
 $buttonSavePreset = New-Object System.Windows.Forms.Button
 $buttonSavePreset.Text = "Save Preset"
 $buttonSavePreset.BackColor = [System.Drawing.Color]::White
 $buttonSavePreset.ForeColor = [System.Drawing.Color]::Black
 $buttonSavePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 520)  # Padding of 10 pixels from the left
+$buttonSavePreset.Location = New-Object System.Drawing.Point(10, 550)  # Padding of 10 pixels from the left
 $buttonSavePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonSavePreset)
 
@@ -1180,13 +1210,14 @@ $buttonSavePreset.Add_Click({
     $descriptionValid = $textBoxDesc.Text.Trim() -ne ""
     $videoLinkValid = $textBoxVideo.Text.Trim() -ne ""
     $fileSelected = $script:filePath -ne ""  # Use the globally scoped file path
+    $screenshotSelected = $script:screenshotPath -ne ""  # Ensure screenshot is selected
 
-    # Log validation status for debugging
     Add-LogEntry "Description Valid: $descriptionValid"
     Add-LogEntry "Video Link Valid: $videoLinkValid"
     Add-LogEntry "File Selected: $fileSelected"
+    Add-LogEntry "Screenshot Selected: $screenshotSelected"
 
-    if ($fileSelected -and $descriptionValid -and $videoLinkValid) {
+    if ($fileSelected -and $descriptionValid -and $videoLinkValid -and $screenshotSelected) {
         # Prepare to save the preset
         $presetName = [System.IO.Path]::GetFileName($script:filePath)  # Get the preset name from the file
         $destPath = Join-Path -Path (Join-Path $PSScriptRoot "Presets") -ChildPath "$presetName"
@@ -1211,11 +1242,27 @@ $buttonSavePreset.Add_Click({
             Add-LogEntry "Initializing new JSON data."
         }
 
-        # Create a new preset entry with description and video link
+        # Create a new preset entry with description, video link, and preview image
         $newPreset = @{
             "description" = $textBoxDesc.Text
             "videoLink"   = $textBoxVideo.Text
+            "preset-preview" = [System.IO.Path]::GetFileName($script:screenshotPath)  # Set the preview image path
         }
+
+        # Assicurati che la cartella preview-preset esista
+        $previewPresetDir = Join-Path -Path $PSScriptRoot "media\preview-preset"
+        if (-not (Test-Path -Path $previewPresetDir)) {
+        New-Item -Path $previewPresetDir -ItemType Directory -Force
+        }
+
+        # Ottieni il nome del file dell'immagine selezionata
+        $imageFileName = [System.IO.Path]::GetFileName($script:screenshotPath)
+
+        # Crea il percorso completo di destinazione nella cartella preview-preset
+        $destScreenshotPath = Join-Path -Path $previewPresetDir -ChildPath $imageFileName
+
+        # Copia l'immagine nella cartella preview-preset
+        Copy-Item -Path $script:screenshotPath -Destination $destScreenshotPath
 
         # Add the new preset to the JSON data
         $jsonData[$presetName] = $newPreset
@@ -1242,7 +1289,7 @@ $buttonDeletePreset.Text = "Delete Selected Preset"
 $buttonDeletePreset.BackColor = [System.Drawing.Color]::Red
 $buttonDeletePreset.ForeColor = [System.Drawing.Color]::White
 $buttonDeletePreset.Font = New-Object System.Drawing.Font("Montserrat", 10)
-$buttonDeletePreset.Location = New-Object System.Drawing.Point(10, 560)  # Below save preset button
+$buttonDeletePreset.Location = New-Object System.Drawing.Point(10, 580)  # Below save preset button
 $buttonDeletePreset.Width = $form.ClientSize.Width - 20  # Full width minus padding
 $form.Controls.Add($buttonDeletePreset)
 
@@ -1269,7 +1316,7 @@ $logBox.Location = New-Object System.Drawing.Point(10, 310)
 
 # Correctly calculate the width for the log box with padding
 $logBoxWidth = $form.ClientSize.Width - 20
-$logBoxHeight = 150
+$logBoxHeight = 160
 $logBox.Size = New-Object System.Drawing.Size($logBoxWidth, $logBoxHeight)
 
 $logBox.ReadOnly = $true
@@ -1278,7 +1325,7 @@ $form.Controls.Add($logBox)
 # Add credits section at the bottom
 $versionLabel = New-Object System.Windows.Forms.Label
 $versionLabel.Size = New-Object System.Drawing.Size(500, 20)
-$versionLabel.Location = New-Object System.Drawing.Point(-5, 600)
+$versionLabel.Location = New-Object System.Drawing.Point(-5, 610)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font("Montserrat", 8)
 $versionLabel.ForeColor = [System.Drawing.Color]::White
