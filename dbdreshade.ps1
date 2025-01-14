@@ -115,29 +115,31 @@ function Add-LogEntry($message) {
     $logBox.AppendText("$message`r`n")
 }
 
-# Function to download and update presets from GitHub repository
-function Update-PresetsFromGitHub {
+# Function to download and update presets and preview images from GitHub repository
+function Update-PresetsAndImagesFromGitHub {
     [CmdletBinding(SupportsShouldProcess=$true)]
     param ()
 
     process {
-        if ($PSCmdlet.ShouldProcess("Update presets from GitHub")) {
+        if ($PSCmdlet.ShouldProcess("Update presets and images from GitHub")) {
+            # URLs and paths
             $repoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/Presets'
             $presetJsonUrl = 'https://raw.githubusercontent.com/Joolace/dbd-reshade/main/media/presets.json'
+            $imageRepoUrl = 'https://api.github.com/repos/Joolace/dbd-reshade/contents/media/preview-preset'
             $presetDir = Join-Path -Path $PSScriptRoot -ChildPath "Presets"
+            $imageDir = Join-Path -Path $PSScriptRoot -ChildPath "media\preview-preset"
             $localJsonPath = Join-Path -Path $PSScriptRoot -ChildPath "media\presets.json"
 
-            # Make sure the Presets directory exists
+            # Ensure the Presets and Images directories exist
             if (-not (Test-Path -Path $presetDir)) {
                 New-Item -Path $presetDir -ItemType Directory -Force
             }
 
-            # Make sure the media directory exists
-            $mediaDir = Split-Path -Path $localJsonPath -Parent
-            if (-not (Test-Path -Path $mediaDir)) {
-                New-Item -Path $mediaDir -ItemType Directory -Force
+            if (-not (Test-Path -Path $imageDir)) {
+                New-Item -Path $imageDir -ItemType Directory -Force
             }
 
+            # Headers for GitHub API
             $headers = @{
                 "User-Agent" = "PowerShell Script" # GitHub API requires a User-Agent header
             }
@@ -156,7 +158,7 @@ function Update-PresetsFromGitHub {
                 return $false
             }
 
-            # Fetch the list of presets from GitHub repository
+            # Fetch the list of preset files from GitHub repository
             try {
                 $response = Invoke-WebRequest -Uri $repoUrl -Headers $headers -UseBasicP
                 $responseJson = $response.Content | ConvertFrom-Json
@@ -170,9 +172,23 @@ function Update-PresetsFromGitHub {
                 return $false
             }
 
+            # Fetch the list of image files from GitHub repository
+            try {
+                $imageResponse = Invoke-WebRequest -Uri $imageRepoUrl -Headers $headers -UseBasicP
+                $imageResponseJson = $imageResponse.Content | ConvertFrom-Json
+            } catch {
+                Show-MessageBox "Error retrieving preview images from GitHub."
+                return $false
+            }
+
+            if (-not $imageResponseJson) {
+                Show-MessageBox "Error retrieving preview images list from GitHub."
+                return $false
+            }
+
+            # Download new preset files
             $presetFiles = $responseJson | Where-Object { $_.name -match '\.ini$' }
             $existingPresets = Get-ChildItem -Path $presetDir -Filter "*.ini" | Select-Object -ExpandProperty Name
-
             $newPresets = $presetFiles | Where-Object { $_.name -notin $existingPresets }
 
             if ($newPresets) {
@@ -200,6 +216,36 @@ function Update-PresetsFromGitHub {
                 }
             }
 
+            # Download new preview images
+            $imageFiles = $imageResponseJson | Where-Object { $_.name -match '\.(jpg|jpeg|png|gif)$' }
+            $existingImages = Get-ChildItem -Path $imageDir | Select-Object -ExpandProperty Name
+            $newImages = $imageFiles | Where-Object { $_.name -notin $existingImages }
+
+            if ($newImages) {
+                Show-MessageBox "New preview images are available for download!"
+            }
+
+            # Download new images
+            foreach ($image in $imageFiles) {
+                $imageName = $image.name
+                $imageUrl = $image.download_url
+                $localImagePath = Join-Path -Path $imageDir -ChildPath $imageName
+
+                if ($image.name -in $existingImages) {
+                    Add-LogEntry "Image $imageName already exists. Skipping download."
+                    continue
+                }
+
+                Add-LogEntry "Downloading $imageName from $imageUrl"
+                try {
+                    Invoke-WebRequest -Uri $imageUrl -OutFile $localImagePath -ErrorAction Stop
+                    Add-LogEntry "$imageName downloaded successfully."
+                } catch {
+                    $errorMessage = $_.Exception.Message
+                    Add-LogEntry ("Error downloading " + $imageName + ": " + $errorMessage)
+                }
+            }
+
             # Check if the local JSON file exists
             if (Test-Path -Path $localJsonPath) {
                 $localPresetJson = Get-Content -Path $localJsonPath | ConvertFrom-Json
@@ -219,11 +265,12 @@ function Update-PresetsFromGitHub {
                 Add-LogEntry "Local presets.json is already up-to-date."
             }
 
-            Add-LogEntry "Preset update process completed."
+            Add-LogEntry "Presets and preview images update process completed."
             return $true
         }
     }
 }
+
 
 # Function to retrieve the game installation directory
 function Get-GameDirectory {
@@ -884,7 +931,7 @@ $buttonInstall.Add_Click({
     }
 
     # Update presets from GitHub before proceeding
-    $updatePresets = Update-PresetsFromGitHub
+    $updatePresets = Update-PresetsAndImagesFromGitHub
     if (-not $updatePresets) {
         Show-MessageBox "Failed to update presets from GitHub. Exiting."
         Stop-LogCapture
