@@ -67,10 +67,32 @@ $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
 
-# Load Montserrat Regular font
-$fontFamily = New-Object System.Drawing.Text.PrivateFontCollection
-$fontFamily.AddFontFile("$PSScriptRoot\media\Montserrat-Regular.ttf")
-$montserratRegularFont = New-Object System.Drawing.Font($fontFamily.Families[0], 12)
+# Importa la funzione AddFontResource dalla libreria gdi32.dll
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public class FontLoader {
+    [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+    public static extern int AddFontResource(string lpFileName);
+}
+"@
+
+# Definisci il percorso del file font
+$fontFilePath = "$PSScriptRoot\media\Montserrat-Regular.ttf"
+
+# Controlla se il file esiste
+if (Test-Path $fontFilePath) {
+    # Carica il font nel sistema
+    [FontLoader]::AddFontResource($fontFilePath)
+
+    # Ora puoi usare il font per i controlli
+    $montserratRegularFont = New-Object System.Drawing.Font("Montserrat", 12)
+} else {
+    Write-Host "Font file not found. Using Arial as fallback."
+    # Se il font non è trovato, usa Arial come fallback
+    $montserratRegularFont = New-Object System.Drawing.Font("Arial", 12)
+}
 
 # Add the dbdreshade logo at the top, maintaining the aspect ratio and increasing size
 $logoPictureBox = New-Object System.Windows.Forms.PictureBox
@@ -678,7 +700,7 @@ $fontPath = Join-Path -Path $mediaDir -ChildPath "Montserrat-Regular.ttf"
 if (Test-Path -Path $fontPath) {
     $fontCollection = New-Object System.Drawing.Text.PrivateFontCollection
     $fontCollection.AddFontFile($fontPath)
-    $font = New-Object System.Drawing.Font($fontCollection.Families[0], 10, [System.Drawing.FontStyle]::Regular)
+    $font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 10, [System.Drawing.FontStyle]::Regular)
 } else {
     Show-MessageBox "Montserrat font not found in the media folder: $fontPath"
     exit
@@ -705,7 +727,7 @@ $label.Location = New-Object System.Drawing.Point(10,120)
 $label.Size = New-Object System.Drawing.Size(460,30)
 $label.Text = "Please select a preset and install it to the game."
 $label.ForeColor = [System.Drawing.Color]::White
-$label.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$label.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
 $label.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $form.Controls.Add($label)
 
@@ -721,7 +743,7 @@ $descriptionLabel = New-Object System.Windows.Forms.Label
 $descriptionLabel.Location = New-Object System.Drawing.Point(10, 280)  # Updated location
 $descriptionLabel.Size = New-Object System.Drawing.Size(460,60)  # Adjusted size
 $descriptionLabel.ForeColor = [System.Drawing.Color]::White
-$descriptionLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$descriptionLabel.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $descriptionLabel.TextAlign = [System.Drawing.ContentAlignment]::TopLeft
 $descriptionLabel.AutoSize = $false
 $form.Controls.Add($descriptionLabel)
@@ -732,7 +754,7 @@ $descriptionLink.Location = New-Object System.Drawing.Point(10, 340)  # Updated 
 $descriptionLink.Size = New-Object System.Drawing.Size(460,20)  # Adjusted size
 $descriptionLink.LinkColor = [System.Drawing.Color]::LightBlue
 $descriptionLink.VisitedLinkColor = [System.Drawing.Color]::LightPink
-$descriptionLink.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$descriptionLink.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 10, [System.Drawing.FontStyle]::Regular)
 $descriptionLink.Add_LinkClicked({
     $url = $descriptionLink.Tag
     if ($url) {
@@ -755,7 +777,7 @@ $imageLabel.Text = "Preset preview (click on the image)" # Replace with your des
 $imageLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
 $imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
-$imageLabel.Font = New-Object System.Drawing.Font("Arial", 8, [System.Drawing.FontStyle]::Bold)
+$imageLabel.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 8, [System.Drawing.FontStyle]::Bold)
 $imageLabel.BringToFront()
 $form.Controls.Add($imageLabel)
 
@@ -838,7 +860,7 @@ $buttonSelectFolder.Size = New-Object System.Drawing.Size(460,30)
 $buttonSelectFolder.Text = "Select Folder"
 $buttonSelectFolder.BackColor = [System.Drawing.Color]::White
 $buttonSelectFolder.ForeColor = [System.Drawing.Color]::Black
-$buttonSelectFolder.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$buttonSelectFolder.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
 $form.Controls.Add($buttonSelectFolder)
 
 # Add and configure the "Install or Change Preset" button
@@ -848,7 +870,7 @@ $buttonInstall.Size = New-Object System.Drawing.Size(460,30)
 $buttonInstall.Text = "Install or Change Preset"
 $buttonInstall.BackColor = [System.Drawing.Color]::White
 $buttonInstall.ForeColor = [System.Drawing.Color]::Black
-$buttonInstall.Font = New-Object System.Drawing.Font($font.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
+$buttonInstall.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 10, [System.Drawing.FontStyle]::Bold)
 $form.Controls.Add($buttonInstall)
 
 # Add and configure the log box for displaying logs
@@ -1001,7 +1023,7 @@ $infoLabel.Location = New-Object System.Drawing.Point(10, 687)
 $infoLabel.Size = New-Object System.Drawing.Size(460, 20)
 $infoLabel.Text = "v$currentVersion - Developed by Joolace"
 $infoLabel.ForeColor = [System.Drawing.Color]::White
-$infoLabel.Font = New-Object System.Drawing.Font($font.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
+$infoLabel.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 8, [System.Drawing.FontStyle]::Regular)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $infoLabel.Cursor = [System.Windows.Forms.Cursors]::Hand
 $infoLabel.Add_Click({
@@ -1353,7 +1375,7 @@ $versionLabel = New-Object System.Windows.Forms.Label
 $versionLabel.Size = New-Object System.Drawing.Size(400, 20)
 $versionLabel.Location = New-Object System.Drawing.Point(0, 380)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-$versionLabel.Font = New-Object System.Drawing.Font($fontFamily.Families[0], 8)
+$versionLabel.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 8)  
 $versionLabel.ForeColor = [System.Drawing.Color]::White
 $versionLabel.Text = "v$currentVersion - Developed by Joolace"
 $form.Controls.Add($versionLabel)
