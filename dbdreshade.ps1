@@ -89,7 +89,7 @@ if (Test-Path $fontFilePath) {
     # Ora puoi usare il font per i controlli
     $montserratRegularFont = New-Object System.Drawing.Font("Montserrat", 12)
 } else {
-    Write-Host "Font file not found. Using Arial as fallback."
+    Write-Output "Font file not found. Using Arial as fallback."
     # Se il font non è trovato, usa Arial come fallback
     $montserratRegularFont = New-Object System.Drawing.Font("Arial", 12)
 }
