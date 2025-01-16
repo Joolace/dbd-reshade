@@ -57,7 +57,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
    Navigate to the [Releases](https://github.com/Joolace/dbd-reshade/releases) section of the repository and download the latest version.
 
 2. **Download the Zip File**:
-   Download the file named `DBDReshade-v.X.X.X.zip`.
+   Download the file named `DBDReshade-vX.X.X.zip`.
 
 3. **Extract the Files**:
    Extract the contents of the zip file to a folder of your choice.
