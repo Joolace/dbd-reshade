@@ -678,6 +678,7 @@ $form.BackColor = [System.Drawing.Color]::Black
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
+$form.KeyPreview = $true
 
 # Paths to media and presets directories
 $mediaDir = Join-Path -Path $PSScriptRoot -ChildPath "media"
@@ -766,6 +767,7 @@ $descriptionLink.Links.Clear()
 $descriptionLink.Text = ""
 $form.Controls.Add($descriptionLink)
 
+
 # Create the PictureBox for displaying the image
 $pictureBox = New-Object System.Windows.Forms.PictureBox
 $pictureBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Normal
@@ -773,7 +775,7 @@ $form.Controls.Add($pictureBox)
 
 # Create a Label for the text above the PictureBox
 $imageLabel = New-Object System.Windows.Forms.Label
-$imageLabel.Text = "Preset preview (click on the image)" # Replace with your desired text
+$imageLabel.Text = "Preset preview (click on the image or press space)" # Replace with your desired text
 $imageLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $imageLabel.BackColor = [System.Drawing.Color]::Transparent # Optional: Transparent background
 $imageLabel.ForeColor = [System.Drawing.Color]::White # Text color
@@ -843,6 +845,13 @@ function Show-FullscreenImage {
 # Attach the click event to the PictureBox
 $pictureBox.Add_Click({
     Show-FullscreenImage
+})
+
+# Evento "KeyDown" a livello di form per aprire fullscreen premendo barra spaziatrice
+$form.Add_KeyDown({
+    if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Space) {
+        Show-FullscreenImage
+    }
 })
 
 # Initial sizing of the PictureBox and label
