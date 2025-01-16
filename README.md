@@ -9,26 +9,14 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 3
 ## Screenshots
 
-### 1. Boot Screen
-![Boot Screen](./screenshots/bootscreen.png)
+### 1. Main Menu
+![Main Menu](./screenshots/bootscreen.png)
 
-### 2. ReShade Boot
-![ReShade Boot](./screenshots/dbdreshadeboot.png)
+### 2. DBD Reshade
+![DBD Reshade](./screenshots/dbdreshade.png)
 
-### 3. ReShade Preset Boot
-![ReShade Preset Boot](./screenshots/dbdreshadepresetboot.png)
-
-### 4. ReShade Preset Installed
-![ReShade Preset Installed](./screenshots/dbdreshadepresetinstalled.png)
-
-### 5. ReShade Preset Saved
-![ReShade Preset Saved](./screenshots/dbdreshadepresetsaved.png)
-
-### 6. ReShade Preset Save Success
-![ReShade Preset Save Success](./screenshots/dbdreshadepresetsavedsuccess.png)
-
-### 7. ReShade Preset Selection
-![ReShade Preset Selection](./screenshots/dbdreshadeselectpreset.png)
+### 3. DBD Presets Manager
+![DBD Reshade Presets Manager](./screenshots/dbdreshadepresetmanager.png)
 
 ## Features
 
