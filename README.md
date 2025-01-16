@@ -75,6 +75,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 
 - **Responsibility**: I do not assume any responsibility for bans or other consequences resulting from the use of this tool. Use it at your own risk.
 - **False Positives**: The executable file may be flagged as a false positive by some antivirus programs. Ensure that you download the file from the official repository and use it with caution.
+- **Size**: From v1.2.0 the size has increased significantly because preset previews have been added. The previews are in 2K (JPG) to show the user how the game will look when using that particular preset at the best quality.
 
 ## Credits
 
