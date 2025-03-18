@@ -75,7 +75,7 @@
         }
         
         header {
-            background: #000;
+            background: transparent;
             color: #fff;
             padding: 20px;
             text-align: center;
@@ -96,7 +96,7 @@
             padding: 20px;
             max-width: 900px;
             margin: 20px auto;
-            background: #111;
+            background: #11111170;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
         }
@@ -142,13 +142,28 @@
             display: block;
             margin: 5px 0;
         }
+
+        ::selection{
+            background-color: white;
+            color: black;
+        }
         
         footer {
             text-align: center;
             padding: 20px 10px;
-            background: #000;
+            background: transparent;
             color: #fff;
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer p{
+            font-size: 0.8rem;
+            max-width: 900px;
         }
         
         .social-icons {
@@ -250,7 +265,10 @@
 </head>
 
 <body>
-
+    <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
+        <source src="./media/video-background.webm" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WV6FRF33"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -269,7 +287,6 @@
             <a href="https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3" /></a>
             <a href="https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug"><img src="https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs" alt="GitHub issues by-label bug"></a>
             <a href="https://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"></a>
-            <a href="https://app.deepsource.com/gh/Joolace/dbd-reshade/" target="_blank" rel="noopener"><img alt="DeepSource" title="DeepSource" src="https://app.deepsource.com/gh/Joolace/dbd-reshade.svg/?label=code+coverage&show_trend=true&token=35IVmOwzbF1HoSmqHcUTnKes" /></a>
             <a href="https://app.deepsource.com/gh/Joolace/dbd-reshade/" target="_blank" rel="noopener"><img alt="DeepSource" title="DeepSource" src="https://app.deepsource.com/gh/Joolace/dbd-reshade.svg/?label=active+issues&show_trend=true&token=35IVmOwzbF1HoSmqHcUTnKes" /></a>
             <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and
                 installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
@@ -410,7 +427,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Joolace. All rights reserved.</p>
+        <p>&copy; 2025 Joolace. All rights reserved. This program is not affiliated with, endorsed, sponsored, or approved in any way by Behaviour Interactive Inc. or the creators of Dead by Daylight. All trademarks, trade names, and related content of Dead by Daylight are the property of their respective owners. This program is created solely for educational purposes and to enhance user experience. By using this program, you acknowledge and agree to do so at your own risk. © 2025 Joolace. All rights reserved.</p>
         <div class="social-icons">
             <a href="https://discord.gg/RB85R838K9" target="_blank"><i class="fab fa-discord"></i></a>
             <a href="https://www.instagram.com/joolace" target="_blank"><i class="fab fa-instagram"></i></a>
