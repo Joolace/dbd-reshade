@@ -182,7 +182,7 @@
         }
         
         .disclaimer {
-            background: #222;
+            background: #11111170;
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
@@ -195,7 +195,7 @@
         }
         
         .discord-section {
-            background: #222;
+            background: #11111170;
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
@@ -214,6 +214,47 @@
         .discord-section a.button:hover {
             background: #5a6eaa;
         }
+        
+        #submit-preset {
+            background: #11111170;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #444;
+            text-align: left;
+        }
+
+        #presetForm {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        #presetForm textarea {
+            width: 100%;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #111;
+            color: white;
+        }
+        #presetForm button {
+            background: #1e90ff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Open Sans', sans-serif;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        
+        #presetForm button:hover {
+            background: #0a74da;
+        }
+
         
         @media screen and (max-width: 767px) {
             header h1 {
@@ -415,6 +456,31 @@
             <h2>Join Our Discord</h2>
             <p>Join our Discord server to stay updated on the latest news, updates, and to get support from our community and the developers. Whether you have questions or just want to chat with fellow users, our Discord is the place to be!</p>
             <a href="https://discord.gg/RB85R838K9" class="button" target="_blank">Join the Discord Server</a>
+        </section>
+
+        <section id="submit-preset">
+            <h2>Submit Your Preset</h2>
+            <form id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST" enctype="multipart/form-data">
+                <label for="username">Your username</label>
+                <textarea id="username" name="username" required></textarea>
+        
+                <label for="description">Preset description</label>
+                <textarea id="description" name="description" required></textarea>
+        
+                <label for="screenshot">Screenshot preset</label>
+                <input type="file" id="screenshot" name="screenshot" accept="image/*" required>
+        
+                <label for="presetFile">File .ini</label>
+                <input type="file" id="presetFile" name="presetFile" accept=".ini" required>
+        
+                <label>
+                    <input type="checkbox" id="terms" required>
+                    By clicking here, I state that I have read and understood the <a href="#">terms and conditions</a>.
+                </label>
+        
+                <button type="submit" class="button">Submit</button>
+            </form>
+            <p id="responseMessage" style="display:none; color:lightgreen;"></p>
         </section>
 
         <section>
