@@ -14,7 +14,7 @@ $latestVersion = $response.tag_name
 $releaseUrl = $response.html_url
 
 # Current installed version (replace this with the actual current version)
-$currentVersion = "1.2.0"
+$currentVersion = "1.3.0"
 
 # Compare the current version with the latest version
 if ($currentVersion -ne $latestVersion) {
@@ -24,6 +24,9 @@ if ($currentVersion -ne $latestVersion) {
     $form.Size = New-Object Drawing.Size(400,200)
     $form.StartPosition = "CenterScreen"
     $form.TopMost = $true
+    $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
 
     # Create a label to show update message
     $label = New-Object Windows.Forms.Label
@@ -121,6 +124,141 @@ $button2.Font = $montserratRegularFont
 $button2.BackColor = [System.Drawing.Color]::White
 $button2.ForeColor = [System.Drawing.Color]::Black
 $form.Controls.Add($button2)
+
+# Create a button to open dbdreshadepresets.ps1 with white background, black text, and regular font
+$button3 = New-Object System.Windows.Forms.Button
+$button3.Size = New-Object System.Drawing.Size(300, 40)
+$button3.Location = New-Object System.Drawing.Point(50, 210)  # Center horizontally
+$button3.Text = "Copy All Presets"
+$button3.Font = $montserratRegularFont
+$button3.BackColor = [System.Drawing.Color]::White
+$button3.ForeColor = [System.Drawing.Color]::Black
+$form.Controls.Add($button3)
+
+# Add a Click event to the button to open a new window for preset selection
+# Declare a script-wide variable to store the destination folder
+Set-Variable -Name destinationFolder -Value "" -Scope Script
+
+# Add a Click event to the button to open a new window for preset selection
+$button3.Add_Click({
+
+    # Create a new form for selecting presets
+    $presetForm = New-Object System.Windows.Forms.Form
+    $presetForm.Text = "Select Presets to Copy"
+    $presetForm.Size = New-Object System.Drawing.Size(400, 400)
+    $presetForm.StartPosition = "CenterScreen"
+    $presetForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $presetForm.MaximizeBox = $false
+    $presetForm.MinimizeBox = $false
+
+    # Create a CheckedListBox to display available presets
+    $presetListBox = New-Object System.Windows.Forms.CheckedListBox
+    $presetListBox.Size = New-Object System.Drawing.Size(350, 250)
+    $presetListBox.Location = New-Object System.Drawing.Point(20, 20)
+
+    # Get all preset (.ini) files from the "Presets" folder
+    $presetFolder = "$PSScriptRoot\Presets"
+    if (Test-Path $presetFolder) {
+        $presetFiles = Get-ChildItem -Path $presetFolder -Filter "*.ini"
+        foreach ($file in $presetFiles) {
+            $presetListBox.Items.Add($file.Name)
+        }
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("Presets folder not found!", "Error", "OK", "Error")
+        return
+    }
+
+    # Create a button to allow the user to select the destination folder
+    $destinationButton = New-Object System.Windows.Forms.Button
+    $destinationButton.Text = "Select Destination"
+    $destinationButton.Size = New-Object System.Drawing.Size(150, 30)
+    $destinationButton.Location = New-Object System.Drawing.Point(20, 280)
+
+    # Create a button to copy selected presets to the chosen destination
+    $copyButton = New-Object System.Windows.Forms.Button
+    $copyButton.Text = "Copy Selected Presets"
+    $copyButton.Size = New-Object System.Drawing.Size(350, 30)
+    $copyButton.Location = New-Object System.Drawing.Point(20, 320)
+    $copyButton.Enabled = $false  # Initially disabled until a destination folder is selected
+
+    # Event handler for the "Select Destination" button
+    $destinationButton.Add_Click({
+        $folderDialog = New-Object System.Windows.Forms.FolderBrowserDialog
+        if ($folderDialog.ShowDialog() -eq "OK") {
+            Set-Variable -Name destinationFolder -Value $folderDialog.SelectedPath -Scope Script
+            $copyButton.Enabled = $true  # Enable the "Copy" button after selecting a destination
+        }
+    })
+
+    # Event handler for the "Copy Selected Presets" button
+    $copyButton.Add_Click({
+        if ($destinationFolder -eq "") {
+            [System.Windows.Forms.MessageBox]::Show("Please select a destination folder.", "Warning", "OK", "Warning")
+            return
+        }
+
+        # Get selected presets from the CheckedListBox
+        $selectedPresets = $presetListBox.CheckedItems
+        if ($selectedPresets.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show("No presets selected!", "Warning", "OK", "Warning")
+            return
+        }
+
+        # Copy each selected preset to the chosen destination folder
+        foreach ($preset in $selectedPresets) {
+            $sourceFile = "$presetFolder\$preset"
+            $destinationFile = "$destinationFolder\$preset"
+
+            Copy-Item -Path $sourceFile -Destination $destinationFile -Force
+        }
+
+        [System.Windows.Forms.MessageBox]::Show("Selected presets copied successfully!", "Success", "OK", "Information")
+        $presetForm.Close()  # Close the preset selection form after copying
+    })
+
+    # Create a "Select All" button to check/uncheck all presets
+    $selectAllButton = New-Object System.Windows.Forms.Button
+    $selectAllButton.Text = "Select All"
+    $selectAllButton.Size = New-Object System.Drawing.Size(150, 30)
+    $selectAllButton.Location = New-Object System.Drawing.Point(220, 280)
+
+    # Event handler for "Select All" button
+    $selectAllButton.Add_Click({
+        $allChecked = $true
+
+        # Check if at least one item is unchecked
+        for ($i = 0; $i -lt $presetListBox.Items.Count; $i++) {
+            if (-not $presetListBox.GetItemChecked($i)) {
+                $allChecked = $false
+                break
+            }
+        }
+
+        # Toggle between selecting all and deselecting all
+        for ($i = 0; $i -lt $presetListBox.Items.Count; $i++) {
+            $presetListBox.SetItemChecked($i, -not $allChecked)
+        }
+
+        # Update button text
+        if ($allChecked) {
+            $selectAllButton.Text = "Select All"
+        } else {
+            $selectAllButton.Text = "Deselect All"
+        }
+    })
+
+    # Add the new "Select All" button to the form
+    $presetForm.Controls.Add($selectAllButton)
+
+
+    # Add controls to the form
+    $presetForm.Controls.Add($presetListBox)
+    $presetForm.Controls.Add($destinationButton)
+    $presetForm.Controls.Add($copyButton)
+
+    # Show the form as a modal dialog
+    $presetForm.ShowDialog()
+})
 
 # Code from dbdreshade.ps1 for ReShade installer
 function Invoke-ReShadeInstaller {
