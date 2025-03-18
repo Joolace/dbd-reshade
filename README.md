@@ -19,7 +19,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 ![DBD Reshade Presets Manager](./screenshots/dbdreshadepresetmanager.png)
 
 ### 4. DBD Copy All Presets
-![DBD Reshade Presets Manager](./screenshots/dbdpcopypresets.png)
+![DBD Reshade Presets Manager](./screenshots/dbdcopypresets.png)
 
 ## Features
 
