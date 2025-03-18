@@ -27,6 +27,7 @@ The **ReShade Installer for Dead by Daylight** is a PowerShell script designed t
 - **ReShade Installation**: Downloads and installs ReShade if not already present.
 - **Preset Management**: Allows users to select and apply ReShade presets.
 - **GUI Interface**: Provides a user-friendly graphical interface for managing presets and installation.
+- **Copy All Presets**: Copy the presets you prefer, you can copy all presets or copy the ones you want.
 
 ## Requirements
 
