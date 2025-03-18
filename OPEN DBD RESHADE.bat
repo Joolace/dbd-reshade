@@ -44,8 +44,14 @@ echo                         AAA   GGGGGGGGGGHGHIIJJJJKKKKLLLLMMMMMNNNNOO
 echo                                    IHHHHHHHIIJJJJKKKKLLLLMMMMNNQ                                   
 echo                                        KJJIIIJJJKKKKLLLLMNO                                        
 echo.
-echo ================================
-echo Version: 1.2.0
-echo ================================
+echo =================================================================================================
+echo DBBReshade - Version: 1.3.0
+echo Developed by Joolace. under GNU GENERAL PUBLIC LICENSE V3.
+echo This program is not affiliated with, endorsed, sponsored, or approved in any way by Behaviour 
+echo Interactive Inc. or the creators of Dead by Daylight. All trademarks, trade names, and related 
+echo content of Dead by Daylight are the property of their respective owners. This program is created 
+echo solely for educational purposes and to enhance user experience. By using this program, you 
+echo acknowledge and agree to do so at your own risk. © 2025 Joolace. All rights reserved.
+echo =================================================================================================
 echo.
 powershell.exe -ExecutionPolicy Bypass -File "%~dp0dbdreshade.ps1"
