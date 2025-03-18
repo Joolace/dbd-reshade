@@ -365,173 +365,40 @@
 
     <main>
         <section>
-            <h2>Overview</h2>
-            <a href="https://sonarcloud.io/summary/new_code?id=Joolace_dbd-reshade"><img src="https://sonarcloud.io/api/project_badges/measure?project=Joolace_dbd-reshade&metric=alert_status" alt="Sonarcloud" /></a>
-            <a href="https://www.codefactor.io/repository/github/joolace/dbd-reshade"><img src="https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge" alt="CodeFactor" /></a>
-            <a href="https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3" /></a>
-            <a href="https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug"><img src="https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs" alt="GitHub issues by-label bug"></a>
-            <a href="https://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"></a>
-            <a href="https://app.deepsource.com/gh/Joolace/dbd-reshade/" target="_blank" rel="noopener"><img alt="DeepSource" title="DeepSource" src="https://app.deepsource.com/gh/Joolace/dbd-reshade.svg/?label=active+issues&show_trend=true&token=35IVmOwzbF1HoSmqHcUTnKes" /></a>
-            <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and
-                installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
-        </section>
-
-        <section>
-            <h2>Screenshots</h2>
-            <div class="screenshots-gallery">
-                <a href="./screenshots/bootscreen.png" class="glightbox" data-gallery="dbd-gallery" data-title="Main Menu">
-                    <img src="./screenshots/bootscreen.png" alt="Main Menu" width="150">
-                </a>
-                <a href="./screenshots/dbdreshade.png" class="glightbox" data-gallery="dbd-gallery" data-title="Main Menu">
-                    <img src="./screenshots/dbdreshade.png" alt="Main Menu" width="150">
-                </a>
-                <a href="./screenshots/dbdreshadepresetmanager.png" class="glightbox" data-gallery="dbd-gallery" data-title="DBD Presets Manager">
-                    <img src="./screenshots/dbdreshadepresetmanager.png" alt="DBD Presets Manager" width="150">
-                </a>
-            </div>
-        </section>
-
-        <section>
-            <h2>Features</h2>
-            <ul>
-                <li><strong>Automatic Detection</strong>: Finds the Dead by Daylight installation directory from both Steam and Epic Games.</li>
-                <li><strong>ReShade Installation</strong>: Downloads and installs ReShade if not already present.</li>
-                <li><strong>Preset Management</strong>: Allows users to select and apply ReShade presets.</li>
-                <li><strong>GUI Interface</strong>: Provides a user-friendly graphical interface for managing presets and installation.</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>Requirements</h2>
-            <ul>
-                <li><strong>PowerShell</strong>: This script is designed to run on PowerShell (Windows only).</li>
-                <li><strong>.NET Framework</strong>: Required for Windows Forms.</li>
-                <li><strong>Dead by Daylight</strong>: The game must be installed either via Steam or Epic Games.</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>Installation</h2>
-            <ol>
-                <li><strong>Clone the Repository</strong>:
-                    <pre><code>git clone https://github.com/Joolace/dbd-reshade.git</code></pre>
-                </li>
-                <li><strong>Navigate to the Script Directory</strong>:
-                    <pre><code>cd dbd-reshade</code></pre>
-                </li>
-                <li><strong>Run the Script</strong>: Open PowerShell as Administrator and execute the script:
-                    <pre><code>.\dbdreshade.ps1</code></pre>
-                </li>
-            </ol>
-        </section>
-
-        <section>
-            <h2>Usage</h2>
-            <ol>
-                <li><strong>Launch the GUI</strong>: When you run the script, a GUI window will appear.</li>
-                <li><strong>Select a Preset</strong>: Choose a preset from the list in the GUI.</li>
-                <li><strong>Select Installation Folder</strong>: Click on the "Select Folder" button to choose the destination folder for the preset.</li>
-                <li><strong>Install or Change Preset</strong>: Click on the "Install or Change Preset" button to apply the selected preset.</li>
-                <li><strong>Log Output</strong>: The GUI includes a log box to display real-time log information during installation.</li>
-            </ol>
-        </section>
-
-        <section>
-            <h2>Video Tutorial</h2>
-            <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/OUUZ9shTAnk?si=epbiKzab2waks3n1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"
-                    allowfullscreen>
-                </iframe>
-            </div>
-        </section>
-
-        <section>
-            <h2>Troubleshooting</h2>
-            <ul>
-                <li><strong>Error Retrieving ReShade URL</strong>: Ensure you have an active internet connection and the URL to ReShade is accessible.</li>
-                <li><strong>ReShade Installation Failure</strong>: Make sure you have sufficient permissions and the game directory is correctly identified.</li>
-                <li><strong>Missing Presets or Media</strong>: Verify that the <code>presets</code> and <code>media</code> directories are present in the same location as the script.</li>
-            </ul>
-        </section>
-
-        <section>
-            <h2>Download</h2>
-            <p>To get started with the ReShade Installer for Dead by Daylight, download the latest version from the link below:</p>
-            <a href="https://github.com/Joolace/dbd-reshade/releases" class="button" download>Download</a>
-            <p>This executable has been verified on <a href="https://www.virustotal.com/gui/file/89463becc372fe34526aacb14749c928da3a6d3ac7acb9ab66e48eb2fd3b3299" target="_blank" rel="noopener">VirusTotal</a>. If your antivirus detects it as a virus, it's
-                likely a false positive. The code is open-source and can be reviewed <a href="https://github.com/Joolace/dbd-reshade" target="_blank" rel="noopener">here</a>.</p>
-        </section>
-
-        <section>
-            <h2>Credits</h2>
-            <p>A special thanks to the creators of the following presets for <em>Dead by Daylight</em>, which are included in this repository:</p>
-            <ul class="credits">
-                <li><strong>STX</strong>: <a href="https://github.com/steaxss/STEAXS-FILTER-PACK" target="_blank">steaxss</a></li>
-                <li><strong>April</strong>: <a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE" target="_blank">april</a></li>
-                <li><strong>Aroz</strong>: <a href="https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s" target="_blank">Aroz</a></li>
-                <li><strong>Azef</strong>: <a href="https://www.youtube.com/watch?v=FUelIy0sGOk" target="_blank">azef</a></li>
-                <li><strong>Faelayis</strong>: <a href="https://github.com/Faelayis/dbd-reshade" target="_blank">Faelayis</a></li>
-                <li><strong>Henz</strong>: <a href="https://discord.com/invite/HxjbEKuvZY" target="_blank">Henz</a></li>
-                <li><strong>KnightLight</strong>: <a href="https://www.twitch.tv/knightlight" target="_blank">KnightLight</a></li>
-                <li><strong>Koda</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">Koda</a></li>
-                <li><strong>MomoSeventh</strong>: <a href="https://www.twitch.tv/momoseventh/" target="_blank">MomoSeventh</a></li>
-                <li><strong>NUGGETZ</strong>: <a href="https://www.youtube.com/watch?v=Qs28LJTro70" target="_blank">NUGGETZ</a></li>
-            </ul>
-            <p>Please refer to the respective preset files in the <a href="https://github.com/Joolace/dbd-reshade/tree/main/Presets" target="_blank" rel="noopener">Presets directory</a> for detailed credits and information.</p>
-        </section>
-
-        <section>
-            <h2>Contributing</h2>
-            <p>Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.</p>
-        </section>
-
-        <section>
-            <h2>License</h2>
-            <p>This project is licensed under the GNU General Public License (GPL) - see the <a href="LICENSE" target="_blank">LICENSE</a> file for details.</p>
-        </section>
-
-        <section class="disclaimer">
-            <h2>Disclaimer</h2>
-            <p>This software is provided "as-is" without warranty of any kind. The authors are not responsible for any damages, issues or bans that may arise from the use of this software. Use it at your own risk.</p>
-        </section>
-
-        <section class="discord-section">
-            <h2>Join Our Discord</h2>
-            <p>Join our Discord server to stay updated on the latest news, updates, and to get support from our community and the developers. Whether you have questions or just want to chat with fellow users, our Discord is the place to be!</p>
-            <a href="https://discord.gg/RB85R838K9" class="button" target="_blank">Join the Discord Server</a>
-        </section>
-
-        <section id="submit-preset">
-            <h2>Submit Your Preset</h2>
-            <form id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST" enctype="multipart/form-data">
-                <label for="username">Your username</label>
-                <textarea id="username" name="username" required></textarea>
+            <h2>Terms and conditions</h2>
+            <p><strong>Upload and Publication</strong></p>
+            <p>
+                The files submitted, including the screenshot and .ini file, will be uploaded to the associated public GitHub repository.
+                The files will be publicly accessible and visible online.
+            </p>
         
-                <label for="description">Preset description</label>
-                <textarea id="description" name="description" required></textarea>
+            <p><strong>Modification and Use by Third Parties</strong></p>
+            <p>
+                The submitted files may be modified, redistributed, and monetized by third parties without your further consent or approval.
+            </p>
         
-                <label for="screenshot">Screenshot preset (Paste the link, Google Drive, Mega, Mediafire etc. 2560x1440 format.)</label>
-                <textarea id="screenshot" name="screenshot" required></textarea>
+            <p><strong>Intellectual Property Rights</strong></p>
+            <p>
+                By submitting files, you confirm that you own all rights to the submitted content or have the necessary authorization to share them publicly.
+                You agree to grant an irrevocable, worldwide, non-exclusive, royalty-free license for the use, modification, distribution, and monetization of the submitted files.
+            </p>
         
-                <label for="presetFile">File .ini (Paste the link, Google Drive, Mega, Mediafire etc.)</label>
-                <textarea id="presetfile" name="presetfile" required></textarea>
+            <p><strong>Liability</strong></p>
+            <p>
+                We are not responsible for the use of submitted files by third parties, nor for any copyright infringements or other legal issues arising from the submission of files.
+            </p>
         
-                <label>
-                    <input type="checkbox" id="terms" required>
-                    By clicking here, I state that I have read and understood the <a href="#">terms and conditions</a>.
-                </label>
+            <p><strong>Privacy and Personal Data</strong></p>
+            <p>
+                We do not collect personal information beyond what is strictly necessary for submitting the form.
+                File submission is voluntary, and you agree that submitted content cannot be removed once published.
+            </p>
         
-                <button type="submit" class="button">Submit</button>
-            </form>
-            <p id="responseMessage" style="display:none; color:lightgreen;"></p>
+            <p><strong>Changes to the Terms</strong></p>
+            <p>
+                We reserve the right to modify these Terms and Conditions at any time. You are encouraged to review them periodically.
+            </p>
         </section>
-
-        <section>
-            <h2>Contact</h2>
-            <ul>
-                <li><strong>Twitch</strong>: <a href="https://twitch.tv/joolace_" target="_blank">Joolace_</a></li>
-                <li><strong>GitHub</strong>: <a href="https://github.com/Joolace" target="_blank">Joolace</a></li>
-            </ul>
         </section>
     </main>
 
