@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReShade Installer for Dead by Daylight</title>
 
+    <script>
+        window.addEventListener("load", function() {
+            let preloader = document.getElementById("preloader");
+            preloader.classList.add("hidden");
+            setTimeout(() => {
+                preloader.style.display = "none";
+            }, 500); // Attendi 0.5s per completare il fade-out prima di rimuovere il preloader
+        });
+    </script>
+
     <!-- Cookie Script -->
     <script type="text/javascript" charset="UTF-8" src="//cdn.cookie-script.com/s/fd3c2521d51143bba00b59efdcbe5fc0.js"></script>
 
@@ -255,6 +265,36 @@
             background: #0a74da;
         }
 
+        #preloader {
+             position: fixed;
+             width: 100%;
+             height: 100%;
+             background: #000;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             z-index: 9999;
+             transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+            
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         
         @media screen and (max-width: 767px) {
             header h1 {
@@ -306,6 +346,10 @@
 </head>
 
 <body>
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+    
     <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
         <source src="./media/video-background.webm" type="video/mp4">
         Your browser does not support the video tag.
