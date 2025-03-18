@@ -349,7 +349,7 @@
         <div class="spinner"></div>
     </div>
     
-    <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
+    <video id="background-video" autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
         <source src="./media/video-background.webm" type="video/mp4">
         Your browser does not support the video tag.
     </video>
@@ -420,6 +420,15 @@
             loop: true,
         });
     </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var video = document.getElementById("background-video");
+        video.play().catch(error => {
+           console.log("Autoplay blocked, waiting for user interaction.");
+       });
+   });
+   </script>
 
 </body>
 
