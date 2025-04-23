@@ -27,11 +27,16 @@ public class FolderSelectDialog {
     }
     public string FileName { get { return _fileName; } }
 
-    public FolderSelectDialog(string defaultPath=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), string title="Select a folder", string message=""){
-        InitialDirectory = defaultPath;
-        Title = title;
-        Message = message;
+    public FolderSelectDialog(string defaultPath, string title = "Select a folder", string message = "")
+    {
+    if (string.IsNullOrEmpty(defaultPath)) {
+        defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
+    InitialDirectory = defaultPath;
+    Title = title;
+    Message = message;
+    }
+
     
     public bool Show() { return Show(IntPtr.Zero); }
 
