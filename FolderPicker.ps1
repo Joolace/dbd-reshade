@@ -27,7 +27,7 @@ public class FolderSelectDialog {
     }
     public string FileName { get { return _fileName; } }
 
-    public FolderSelectDialog(string defaultPath="MyComputer", string title="Select a folder", string message=""){
+    public FolderSelectDialog(string defaultPath=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), string title="Select a folder", string message=""){
         InitialDirectory = defaultPath;
         Title = title;
         Message = message;
