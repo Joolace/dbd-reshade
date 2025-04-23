@@ -1,7 +1,15 @@
-
 # Import Windows Forms to create the form and components
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+# Import Get-Folder function from FolderPicker.ps1
+$folderPicker = Join-Path $PSScriptRoot 'FolderPicker.ps1'  
+if (Test-Path $folderPicker) {  
+    . $folderPicker  
+} else {
+    [System.Windows.Forms.MessageBox]::Show("Missing dependency: FolderPicker.ps1")  
+    return 
+}
 
 # URL of the repository to check releases
 $repoUrl = "https://api.github.com/repos/Joolace/dbd-reshade/releases/latest"
@@ -183,9 +191,9 @@ $button3.Add_Click({
 
     # Event handler for the "Select Destination" button
     $destinationButton.Add_Click({
-        $folderDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-        if ($folderDialog.ShowDialog() -eq "OK") {
-            Set-Variable -Name destinationFolder -Value $folderDialog.SelectedPath -Scope Script
+        $selectedPath = Get-Folder -DefaultPath ([Environment]::GetFolderPath('UserProfile')) -Title "Select Destination Folder" -Message "Please select a destination folder for the presets." 
+        if ($selectedPath) {
+            Set-Variable -Name destinationFolder -Value $selectedPath -Scope Script
             $copyButton.Enabled = $true  # Enable the "Copy" button after selecting a destination
         }
     })
@@ -1042,10 +1050,9 @@ $script:selectedFolder = ""
 
 # Function to open a folder browser dialog and select a folder
 function Select-Folder {
-    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-    $folderBrowser.Description = "Select the folder where you want to install the preset."
-    if ($folderBrowser.ShowDialog() -eq 'OK') {
-        $script:selectedFolder = $folderBrowser.SelectedPath
+    $selectedPath = Get-Folder -DefaultPath ([Environment]::GetFolderPath('UserProfile')) -Title "Select Destination Folder" -Message "Please select a destination folder for the presets." 
+    if ($selectedPath) {
+        $script:selectedFolder = $selectedPath
         Add-LogEntry "Selected folder: $script:selectedFolder"
         Show-MessageBox "Selected folder: $script:selectedFolder"
     }
