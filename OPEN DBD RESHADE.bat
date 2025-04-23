@@ -45,7 +45,7 @@ echo                                    IHHHHHHHIIJJJJKKKKLLLLMMMMNNQ
 echo                                        KJJIIIJJJKKKKLLLLMNO                                        
 echo.
 echo =================================================================================================
-echo DBBReshade - Version: 1.3.0
+echo DBBReshade - Version: 1.3.1
 echo Developed by Joolace. under GNU GENERAL PUBLIC LICENSE V3.
 echo This program is not affiliated with, endorsed, sponsored, or approved in any way by Behaviour 
 echo Interactive Inc. or the creators of Dead by Daylight. All trademarks, trade names, and related 
