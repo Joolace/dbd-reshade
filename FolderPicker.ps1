@@ -151,5 +151,8 @@ function Get-Folder {
 		[string]$Title = "Select a Folder",
 		[string]$Message = ""
 	)
-	return ([FolderSelectDialog]::new($DefaultPath, $Title, $Message)).getPath()
+	$dlg = [FolderSelectDialog]::new($DefaultPath, $Title, $Message)
+	$path = $dlg.getPath()
+	if ([string]::IsNullOrWhiteSpace($path)) { return $null }
+	return $path
 }
