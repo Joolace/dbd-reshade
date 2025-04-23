@@ -143,7 +143,7 @@ public class FolderSelectDialog {
     }
 }
 '@
-Add-Type -Language CSharp -TypeDefinition $folderPickerSource -ReferencedAssemblies ("System.Windows.Forms", "System.ComponentModel.Primitives")
+Add-Type -Language CSharp -TypeDefinition $folderPickerSource -ReferencedAssemblies ("System.Windows.Forms")
 
 function Get-Folder {
 	param(
