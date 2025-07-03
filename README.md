@@ -6,6 +6,12 @@
 Here you can find the DBDReshade launcher repository. This launcher allows you to install my tool on your Windows 10/11 PC. Requires .NET Framework 4.8 or higher. 
 https://github.com/Joolace/DBDReshadeLauncher
 
+## D3Daylight
+D3Daylight is a companion viewer built to preview Dead by Daylight map screenshots in high resolution using Direct3D 11 rendering.
+It allows you to quickly test and adjust your ReShade filters without launching the game.
+Supports smooth image navigation with arrow keys, preserving original aspect ratios for accurate visual tuning.
+https://github.com/Joolace/D3Daylight
+
 ## Overview
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3)](https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![CodeFactor](https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge)](https://www.codefactor.io/repository/github/joolace/dbd-reshade) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) [![GitHub issues by-label bug](https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs)](https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
