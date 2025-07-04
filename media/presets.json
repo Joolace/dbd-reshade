@@ -683,5 +683,15 @@
         "description": "Latest Knightlight preset. All maps.",
         "videoLink": "https://discord.gg/N8eExDuVUe",
         "preset-preview": "KL_Undefeated.jpg"
+    },
+    "0.KL_Stream.ini": {
+        "description": "Latest Knightlight preset. All maps. (Used in streaming)",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "0.KL_Stream.png"
+    },
+    "end.ini": {
+        "description": "Latest Knightlight preset. All maps. (Similar to 0.KL_Stream.ini)",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "end.png"
     }
 }
