@@ -22,7 +22,7 @@ $latestVersion = $response.tag_name
 $releaseUrl = $response.html_url
 
 # Current installed version (replace this with the actual current version)
-$currentVersion = "1.3.1"
+$currentVersion = "1.4.1"
 
 # Compare the current version with the latest version
 if ($currentVersion -ne $latestVersion) {
@@ -1527,7 +1527,7 @@ $button2.Add_Click({
 # Add version label at the bottom
 $versionLabel = New-Object System.Windows.Forms.Label
 $versionLabel.Size = New-Object System.Drawing.Size(400, 20)
-$versionLabel.Location = New-Object System.Drawing.Point(0, 380)
+$versionLabel.Location = New-Object System.Drawing.Point(-9, 380)
 $versionLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $versionLabel.Font = New-Object System.Drawing.Font($montserratRegularFont.FontFamily, 8)  
 $versionLabel.ForeColor = [System.Drawing.Color]::White
