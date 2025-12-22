@@ -2,6 +2,62 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+function Select-DBDInstallationDialog {
+    param(
+        [Parameter(Mandatory=$true)]
+        [array]$installations
+    )
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Select Dead by Daylight version"
+    $form.StartPosition = "CenterScreen"
+    $form.Size = New-Object System.Drawing.Size(740, 320)
+    $form.FormBorderStyle = "FixedDialog"
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.TopMost = $true
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.AutoSize = $true
+    $label.Text = "Installation/s detected. Choose which one to configure:"
+    $label.Location = New-Object System.Drawing.Point(12, 12)
+    $form.Controls.Add($label)
+
+    $list = New-Object System.Windows.Forms.ListBox
+    $list.Location = New-Object System.Drawing.Point(12, 40)
+    $list.Size = New-Object System.Drawing.Size(700, 180)
+    $list.HorizontalScrollbar = $true
+    $form.Controls.Add($list)
+
+    foreach ($inst in $installations) {
+        $display = "$($inst.Store) - $($inst.Path)"
+        [void]$list.Items.Add($display)
+    }
+
+    if ($list.Items.Count -gt 0) { $list.SelectedIndex = 0 }
+
+    $btnOk = New-Object System.Windows.Forms.Button
+    $btnOk.Text = "OK"
+    $btnOk.Location = New-Object System.Drawing.Point(556, 235)
+    $btnOk.DialogResult = [System.Windows.Forms.DialogResult]::OK
+    $form.AcceptButton = $btnOk
+    $form.Controls.Add($btnOk)
+
+    $btnCancel = New-Object System.Windows.Forms.Button
+    $btnCancel.Text = "Cancel"
+    $btnCancel.Location = New-Object System.Drawing.Point(637, 235)
+    $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+    $form.CancelButton = $btnCancel
+    $form.Controls.Add($btnCancel)
+
+    $result = $form.ShowDialog()
+
+    if ($result -ne [System.Windows.Forms.DialogResult]::OK) { return $null }
+    if ($list.SelectedIndex -lt 0) { return $null }
+
+    return $installations[$list.SelectedIndex]
+}
+
 # Import Get-Folder function from FolderPicker.ps1
 $folderPicker = Join-Path $PSScriptRoot 'FolderPicker.ps1'  
 if (Test-Path $folderPicker) {  
@@ -441,61 +497,118 @@ function Update-PresetsAndImagesFromGitHub {
     }
 }
 
+function Get-GameInstallations {
+    $appId = 381210
+    $found = @()
+
+    # --- Steam: chiavi uninstall (64/32) ---
+    $uninstallKeys = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App $appId",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App $appId"
+    )
+
+    foreach ($k in $uninstallKeys) {
+        $p = (Get-ItemProperty $k -ErrorAction SilentlyContinue).InstallLocation
+        if ($p -and (Test-Path $p)) {
+            $found += [pscustomobject]@{ Store="Steam"; Path=$p }
+            break
+        }
+    }
+
+    # --- Steam: fallback libraryfolders/appmanifest (se non trovato sopra) ---
+    if (-not ($found | Where-Object Store -eq "Steam")) {
+        try {
+            $steamPath = (Get-ItemProperty "HKCU:\Software\Valve\Steam" -ErrorAction SilentlyContinue).SteamPath
+            if ($steamPath -and (Test-Path $steamPath)) {
+                $steamPath = $steamPath -replace '/', '\'
+                $vdf = Join-Path $steamPath "steamapps\libraryfolders.vdf"
+                if (Test-Path $vdf) {
+                    $content = Get-Content $vdf -Raw -ErrorAction SilentlyContinue
+                    $libPaths = [regex]::Matches($content, '"path"\s*"([^"]+)"') | ForEach-Object {
+                        ($_.Groups[1].Value -replace '\\\\','\') -replace '/', '\'
+                    }
+
+                    foreach ($lib in $libPaths) {
+                        $manifest = Join-Path $lib ("steamapps\appmanifest_{0}.acf" -f $appId)
+                        if (Test-Path $manifest) {
+                            $acf = Get-Content $manifest -Raw -ErrorAction SilentlyContinue
+                            $m = [regex]::Match($acf, '"installdir"\s*"([^"]+)"')
+                            if ($m.Success) {
+                                $installdir = $m.Groups[1].Value
+                                $gamePath = Join-Path $lib ("steamapps\common\{0}" -f $installdir)
+                                if (Test-Path $gamePath) {
+                                    $found += [pscustomobject]@{ Store="Steam"; Path=$gamePath }
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {}
+    }
+
+    # --- Epic: manifest ---
+    $epicGamesManifestPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
+    if (Test-Path $epicGamesManifestPath) {
+        $manifests = Get-ChildItem -Path $epicGamesManifestPath -Filter *.item -ErrorAction SilentlyContinue
+        foreach ($manifest in $manifests) {
+            try {
+                $json = Get-Content -Path $manifest.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
+                if ($json.DisplayName -match "Dead by Daylight") {
+                    $installLocation = $json.InstallLocation
+                    if ($installLocation -and (Test-Path $installLocation)) {
+                        $found += [pscustomobject]@{ Store="Epic"; Path=$installLocation }
+                        break
+                    }
+                }
+            } catch {}
+        }
+    }
+
+    # de-dup su Path (nel dubbio)
+    $found = $found | Sort-Object Path -Unique
+    return ,$found
+}
+
+
 
 # Function to retrieve the game installation directory
 function Get-GameDirectory {
-    # Try to get the Steam installation path
-    try {
-        Add-LogEntry "Checking for Steam installation..."
-        $steamGamePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 381210' -ErrorAction SilentlyContinue).InstallLocation
-        if ($steamGamePath) {
-            Add-LogEntry "Steam installation found: $steamGamePath"
-            return $steamGamePath
-        } else {
-            Add-LogEntry "Steam installation not found or not registered."
-        }
-    } catch {
-        Add-LogEntry "Error checking Steam installation: $_"
-    }
+    $installs = Get-GameInstallations
 
-    # Define the path to the Epic Games manifests directory
-    $epicGamesManifestPath = "C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
-
-    # Check if the manifest directory exists
-    if (-Not (Test-Path -Path $epicGamesManifestPath)) {
-        Add-LogEntry "Epic Games manifest directory not found."
+    if (-not $installs -or $installs.Count -eq 0) {
+        Add-LogEntry "Dead by Daylight installation not found (Steam/Epic)."
         Show-MessageBox "Unable to find the Dead by Daylight installation."
         return $null
     }
 
-    # Retrieve all `.item` files in the manifest directory
-    $manifests = Get-ChildItem -Path $epicGamesManifestPath -Filter *.item -ErrorAction SilentlyContinue
-
-    # Loop through each manifest file
-    foreach ($manifest in $manifests) {
-        try {
-            # Read the content of the manifest file and convert it from JSON
-            $manifestContent = Get-Content -Path $manifest.FullName -Raw | ConvertFrom-Json
-
-            # Check if the InstallLocation contains "DeadByDaylight"
-            if ($manifestContent.InstallLocation -like "*DeadByDaylight*") {
-                Add-LogEntry "Epic Games installation found: $($manifestContent.InstallLocation)"
-                return $manifestContent.InstallLocation
-            }
-        } catch {
-            # Log any errors while processing the manifest file
-            Add-LogEntry "Error processing manifest file: $($manifest.FullName) - $_"
-        }
+    if ($installs.Count -eq 1) {
+        $script:SelectedStore = $installs[0].Store
+        Add-LogEntry "Using installation: $($installs[0].Store) - $($installs[0].Path)"
+        return $installs[0].Path
     }
 
-    # If no valid installation path is found, display a message and return null
-    Add-LogEntry "Unable to find the Dead by Daylight installation."
-    Show-MessageBox "Unable to find the Dead by Daylight installation."
-    return $null
+    $choice = Select-DBDInstallationDialog -installations $installs
+    if (-not $choice) {
+        Add-LogEntry "User cancelled installation selection."
+        return $null
+    }
+
+    $script:SelectedStore = $choice.Store
+    Add-LogEntry "User selected installation: $($choice.Store) - $($choice.Path)"
+    return $choice.Path
 }
+
+
 
 # Function to check if ReShade is installed in the given game directory
 function Test-ReShadeInstalled($gameDir) {
+        if ([string]::IsNullOrWhiteSpace($gameDir)) {
+        Add-LogEntry "Test-ReShadeInstalled: gameDir is null/empty."
+        return $false
+    }
+
     $reshadeIniPathSteam = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\Win64\ReShade.ini"
     $reshadeIniPathEpic = Join-Path -Path $gameDir -ChildPath "DeadByDaylight\Binaries\EGS\ReShade.ini"
 
