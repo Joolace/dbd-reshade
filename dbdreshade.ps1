@@ -24,6 +24,8 @@ $releaseUrl = $response.html_url
 # Current installed version (replace this with the actual current version)
 $currentVersion = "1.4.1"
 
+$PSDefaultParameterValues['Invoke-WebRequest:UseBasicParsing'] = $true
+
 # Compare the current version with the latest version
 if ($currentVersion -ne $latestVersion) {
     # Create a form window
