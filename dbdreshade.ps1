@@ -22,7 +22,7 @@ $latestVersion = $response.tag_name
 $releaseUrl = $response.html_url
 
 # Current installed version (replace this with the actual current version)
-$currentVersion = "1.4.1"
+$currentVersion = "1.4.2"
 
 $PSDefaultParameterValues['Invoke-WebRequest:UseBasicParsing'] = $true
 
