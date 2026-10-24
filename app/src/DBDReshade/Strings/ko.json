@@ -190,5 +190,10 @@
   "App.Error": "문제가 발생했습니다:\n\n{0}\n\n자세한 내용은 로그에 기록되었습니다: {1}",
   "Inst.Status.CheckingEffects": "프리셋 효과 확인 중…",
   "Inst.Status.Effects": "효과 다운로드 중: {0}…",
-  "Inst.EffectsMissing": "프리셋이 사용하는 다음 효과는 ReShade 공식 효과 패키지에 없어 설치되지 않았습니다:\n\n{0}\n\n프리셋은 작동하지만 이 효과는 빠집니다."
+  "Inst.EffectsMissing": "프리셋이 사용하는 다음 효과는 ReShade 공식 효과 패키지에 없어 설치되지 않았습니다:\n\n{0}\n\n프리셋은 작동하지만 이 효과는 빠집니다.",
+  "Inst.CloseGame": "설치하기 전에 Dead by Daylight를 종료하세요.\n\n게임이 실행 중이면 ReShade 파일이 사용 중이며, 게임 종료 시 ReShade가 변경 사항을 되돌립니다.",
+  "Inst.Status.CheckingReShade": "ReShade 업데이트 확인 중…",
+  "Inst.ReShadeUpdate": "새 버전의 ReShade가 있습니다.\n\n설치됨: {0}\n최신: {1}\n\n지금 업데이트할까요? 설정, 프리셋, 효과는 유지됩니다.",
+  "Inst.Status.UpdatingReShade": "ReShade를 {0}(으)로 업데이트 중…",
+  "Inst.ReShadeOkVersion": "ReShade {0} 설치됨"
 }

@@ -33,6 +33,9 @@ public sealed class MapPreviewService
     private static string ViewerExe => Path.Combine(AppPaths.ViewerDirectory, ExeName);
     private static string ViewerIni => Path.Combine(AppPaths.ViewerDirectory, "ReShade.ini");
 
+    private static bool IsViewerRunning =>
+        Process.GetProcessesByName(Path.GetFileNameWithoutExtension(ExeName)).Length > 0;
+
     public static bool IsReShadeInstalled => File.Exists(Path.Combine(AppPaths.ViewerDirectory, "dxgi.dll"));
 
     /// <summary>
@@ -67,6 +70,19 @@ public sealed class MapPreviewService
         {
             _log.Info("Installing ReShade for the map preview…");
             await _reshade.InstallForExecutableAsync(ViewerExe, new System.Progress<double>(p => progress?.Report(p * 0.4)), ct);
+        }
+        else if (!IsViewerRunning)
+        {
+            // Keep the preview's ReShade as current as the game's, without asking: it's the app's own copy.
+            try
+            {
+                if (await _reshade.CheckForUpdateAsync(AppPaths.ViewerDirectory, ct) is { } update)
+                    await _reshade.UpdateAsync(ViewerExe, update.Url, new System.Progress<double>(p => progress?.Report(p * 0.4)), ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _log.Warning($"Could not update the map preview's ReShade: {ex.Message}");
+            }
         }
         progress?.Report(0.4);
 
@@ -143,7 +159,7 @@ public sealed class MapPreviewService
         var baseDir = AppContext.BaseDirectory;
 
         // A preview that's still open keeps its exe locked: reuse the copy we have.
-        if (File.Exists(ViewerExe) && Process.GetProcessesByName(Path.GetFileNameWithoutExtension(ExeName)).Length > 0)
+        if (File.Exists(ViewerExe) && IsViewerRunning)
             return;
 
         // Published single-file exe: one file. Debug build from Visual Studio: exe + DBDReshade.dll + dependencies.
@@ -190,10 +206,10 @@ public sealed class MapPreviewService
 
         if (ownEffects is { } all)
         {
-            // ShaderService already added .\reshade-shaders\… to the search paths: use only the viewer's own
-            // folders, so the same effect is never found twice (an earlier version pointed at the game's).
-            IniFile.SetValue(ViewerIni, "GENERAL", "EffectSearchPaths", @".\reshade-shaders\Shaders\**");
-            IniFile.SetValue(ViewerIni, "GENERAL", "TextureSearchPaths", @".\reshade-shaders\Textures\**");
+            // Only the viewer's own folders (an earlier version pointed at the game's), so no effect is found twice.
+            IniFile.SetValue(ViewerIni, "GENERAL", "EffectSearchPaths", "");
+            IniFile.SetValue(ViewerIni, "GENERAL", "TextureSearchPaths", "");
+            ShaderService.EnsureSearchPaths(AppPaths.ViewerDirectory, ViewerIni);
             _log.Info($"Map preview preset: {Path.GetFileName(presetFile)}{(editable ? " (editor)" : "")}");
             return all;
         }

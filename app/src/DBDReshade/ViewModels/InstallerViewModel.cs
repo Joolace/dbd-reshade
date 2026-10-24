@@ -269,7 +269,10 @@ public sealed partial class InstallerViewModel : ObservableObject
         }
 
         IsReShadeInstalled = _reshade.IsInstalled(SelectedInstallation);
-        ReShadeStatus = Loc.Get(IsReShadeInstalled ? "Inst.ReShadeOk" : "Inst.ReShadeMissing");
+        var version = ReShadeService.GetInstalledVersion(SelectedInstallation.BinariesDirectory);
+        ReShadeStatus = !IsReShadeInstalled ? Loc.Get("Inst.ReShadeMissing")
+            : version is null ? Loc.Get("Inst.ReShadeOk")
+            : Loc.Format("Inst.ReShadeOkVersion", version);
 
         var current = _reshade.GetCurrentPresetPath(SelectedInstallation);
         CurrentPresetName = string.IsNullOrWhiteSpace(current) ? null : Path.GetFileNameWithoutExtension(current);
@@ -334,6 +337,13 @@ public sealed partial class InstallerViewModel : ObservableObject
         var game = SelectedInstallation!;
         var destinationFolder = DestinationFolder!;
 
+        // With the game open ReShade's files are in use, and ReShade would overwrite ReShade.ini on exit.
+        if (ReShadeService.IsGameRunning(game))
+        {
+            Dialogs.Warning(Loc.Get("Inst.CloseGame"));
+            return;
+        }
+
         IsBusy = true;
         ProgressValue = 0;
         _log.Info($"Installing preset {preset.DisplayName} on {game.DisplayName}");
@@ -348,7 +358,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             }
             else
             {
-                _log.Info("ReShade is already installed: checking the preset's effects.");
+                await OfferReShadeUpdateAsync(game);
             }
             ProgressValue = 40;
 
@@ -360,8 +370,11 @@ public sealed partial class InstallerViewModel : ObservableObject
                 if (p.PackageName.Length > 0) StatusText = Loc.Format("Inst.Status.Effects", p.PackageName);
                 ProgressValue = 40 + 45 * (p.Index + p.Fraction) / Math.Max(1, p.Count);
             });
-            var missingEffects = await _shaders.EnsureForPresetAsync(
-                game.BinariesDirectory, game.ReShadeIniPath, preset.FilePath, effectsProgress);
+            // Effects for the whole library, so changing preset from ReShade's overlay in game works too.
+            var presetFiles = _repository.Presets.Select(p => p.FilePath).Append(preset.FilePath).Distinct();
+            var missingEffects = await _shaders.EnsureForPresetsAsync(
+                game.BinariesDirectory, game.ReShadeIniPath, presetFiles, effectsProgress);
+            var missingHere = missingEffects.Intersect(ShaderService.EffectFilesOf(preset.FilePath), StringComparer.OrdinalIgnoreCase).ToList();
             ProgressValue = 85;
 
             StatusText = Loc.Get("Inst.Status.Copying");
@@ -377,8 +390,8 @@ public sealed partial class InstallerViewModel : ObservableObject
 
             _log.Success($"Preset {preset.DisplayName} installed!");
             Dialogs.Info(Loc.Format("Inst.Done", preset.DisplayName));
-            if (missingEffects.Count > 0)
-                Dialogs.Warning(Loc.Format("Inst.EffectsMissing", string.Join(", ", missingEffects)));
+            if (missingHere.Count > 0)
+                Dialogs.Warning(Loc.Format("Inst.EffectsMissing", string.Join(", ", missingHere)));
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -397,5 +410,33 @@ public sealed partial class InstallerViewModel : ObservableObject
             StatusText = null;
             ProgressValue = 0;
         }
+    }
+
+    /// <summary>If reshade.me has a newer ReShade than the game's, asks and updates it (settings are kept).</summary>
+    private async Task OfferReShadeUpdateAsync(GameInstallation game)
+    {
+        StatusText = Loc.Get("Inst.Status.CheckingReShade");
+        (Version Installed, Version Latest, string Url)? update;
+        try
+        {
+            update = await _reshade.CheckForUpdateAsync(game.BinariesDirectory);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning($"Could not check for a ReShade update: {ex.Message}");
+            return; // offline or reshade.me changed: keep the installed version
+        }
+
+        if (update is not { } u)
+        {
+            _log.Info("ReShade is installed and up to date.");
+            return;
+        }
+
+        _log.Info($"ReShade {u.Latest} is available (installed: {u.Installed}).");
+        if (!Dialogs.Confirm(Loc.Format("Inst.ReShadeUpdate", u.Installed, u.Latest))) return;
+
+        StatusText = Loc.Format("Inst.Status.UpdatingReShade", u.Latest);
+        await _reshade.UpdateAsync(game.GameExecutable!, u.Url, new System.Progress<double>(p => ProgressValue = 5 + p * 35));
     }
 }

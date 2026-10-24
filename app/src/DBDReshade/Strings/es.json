@@ -190,5 +190,10 @@
   "App.Error": "Algo salió mal:\n\n{0}\n\nLos detalles están en el registro en {1}",
   "Inst.Status.CheckingEffects": "Comprobando los efectos del preset…",
   "Inst.Status.Effects": "Descargando efectos: {0}…",
-  "Inst.EffectsMissing": "Estos efectos que usa el preset no están en los paquetes oficiales de ReShade, así que no se instalaron:\n\n{0}\n\nEl preset funciona, pero sin ellos."
+  "Inst.EffectsMissing": "Estos efectos que usa el preset no están en los paquetes oficiales de ReShade, así que no se instalaron:\n\n{0}\n\nEl preset funciona, pero sin ellos.",
+  "Inst.CloseGame": "Cierra Dead by Daylight antes de instalar.\n\nCon el juego abierto, los archivos de ReShade están en uso y ReShade desharía los cambios al cerrar el juego.",
+  "Inst.Status.CheckingReShade": "Buscando actualizaciones de ReShade…",
+  "Inst.ReShadeUpdate": "Hay una nueva versión de ReShade.\n\nInstalada: {0}\nÚltima: {1}\n\n¿Actualizar ahora? Se conservan tus ajustes, presets y efectos.",
+  "Inst.Status.UpdatingReShade": "Actualizando ReShade a {0}…",
+  "Inst.ReShadeOkVersion": "ReShade {0} instalado"
 }

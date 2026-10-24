@@ -46,38 +46,51 @@ public sealed partial class ShaderService
     public ShaderService(LogService log) => _log = log;
 
     /// <summary>
-    /// Makes sure every effect <paramref name="presetFile"/> uses is installed next to <paramref name="exeFolder"/>
+    /// Makes sure every effect the given presets use is installed next to <paramref name="exeFolder"/>
     /// (the game's binaries folder, or the map preview's folder) and that ReShade.ini looks there.
+    /// For the game this is called with the whole library, so switching preset from ReShade's own
+    /// overlay works too, not only for the preset just installed.
     /// </summary>
-    /// <returns>Effect files the preset uses that no official package provides (they stay missing).</returns>
-    public async Task<IReadOnlyList<string>> EnsureForPresetAsync(string exeFolder, string reshadeIni, string presetFile,
-        IProgress<ShaderProgress>? progress = null, CancellationToken ct = default)
+    /// <returns>Effect files the presets use that are still missing afterwards (not in any official package).</returns>
+    public async Task<IReadOnlyList<string>> EnsureForPresetsAsync(string exeFolder, string reshadeIni,
+        IEnumerable<string> presetFiles, IProgress<ShaderProgress>? progress = null, CancellationToken ct = default)
     {
         var packages = await GetPackagesAsync(ct);
         var installed = InstalledEffects(exeFolder);
-        var needed = EffectFilesOf(presetFile);
+        var needed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var preset in presetFiles) needed.UnionWith(EffectFilesOf(preset));
 
-        var unknown = new List<string>();
         var toInstall = new List<EffectPackage>();
         foreach (var fx in needed.Where(fx => !installed.Contains(fx)))
         {
             var package = packages.FirstOrDefault(p => p.EffectFiles.Contains(fx))
                           ?? (KnownExtras.TryGetValue(fx, out var name) ? packages.FirstOrDefault(p => p.Name == name) : null);
-            if (package is null) unknown.Add(fx);
-            else if (!toInstall.Contains(package)) toInstall.Add(package);
+            if (package is not null && !toInstall.Contains(package)) toInstall.Add(package);
         }
 
-        // ReShade's "Required" package (DisplayDepth, UIMask…) always comes along, like in its own setup.
+        // ReShade's "Required" package (ReShade.fxh, which every effect includes, DisplayDepth, UIMask…)
+        // always comes along, like in its own setup.
         foreach (var required in packages.Where(p => p.Required && !p.EffectFiles.Any(installed.Contains)))
             if (!toInstall.Contains(required)) toInstall.Insert(0, required);
+        if (!File.Exists(Path.Combine(exeFolder, EffectsFolder, "ReShade.fxh")))
+            foreach (var required in packages.Where(p => p.Required))
+                if (!toInstall.Contains(required)) toInstall.Insert(0, required);
 
         await InstallAsync(toInstall, exeFolder, progress, ct);
-        EnsureSearchPaths(reshadeIni);
+        EnsureSearchPaths(exeFolder, reshadeIni);
 
-        if (unknown.Count > 0)
-            _log.Warning($"Effects not in ReShade's package list (not installed): {string.Join(", ", unknown)}");
-        return unknown;
+        // Check what's really there now, rather than trusting the package list.
+        installed = InstalledEffects(exeFolder);
+        var missing = needed.Where(fx => !installed.Contains(fx)).OrderBy(fx => fx).ToList();
+        _log.Info($"Effects: {installed.Count} installed in {Path.Combine(exeFolder, EffectsFolder)}");
+        if (missing.Count > 0)
+            _log.Warning($"Effects not available in ReShade's official packages: {string.Join(", ", missing)}");
+        return missing;
     }
+
+    public Task<IReadOnlyList<string>> EnsureForPresetAsync(string exeFolder, string reshadeIni, string presetFile,
+        IProgress<ShaderProgress>? progress = null, CancellationToken ct = default) =>
+        EnsureForPresetsAsync(exeFolder, reshadeIni, new[] { presetFile }, progress, ct);
 
     /// <summary>A broad set of effects for creating presets from scratch in the editor.</summary>
     public async Task EnsureEditorSetAsync(string exeFolder, string reshadeIni,
@@ -92,7 +105,7 @@ public sealed partial class ShaderService
             .ToList();
 
         await InstallAsync(toInstall, exeFolder, progress, ct);
-        EnsureSearchPaths(reshadeIni);
+        EnsureSearchPaths(exeFolder, reshadeIni);
     }
 
     /// <summary>The .fx files named in a preset's "Techniques=Name@File.fx,…" line.</summary>
@@ -262,22 +275,42 @@ public sealed partial class ShaderService
         name.EndsWith(".fx", StringComparison.OrdinalIgnoreCase)
         || name.EndsWith(".fxh", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Adds the reshade-shaders folders to ReShade.ini's search paths if they're missing.</summary>
-    private static void EnsureSearchPaths(string reshadeIni)
+    /// <summary>
+    /// Points ReShade.ini at the reshade-shaders folders, as full paths: ReShade then finds them whatever
+    /// folder it considers its own. Other folders already listed are kept; entries for these same folders
+    /// written another way (".\reshade-shaders\Shaders", without "**"…) are replaced, so no effect is loaded twice.
+    /// </summary>
+    public static void EnsureSearchPaths(string exeFolder, string reshadeIni)
     {
-        AddSearchPath(reshadeIni, "EffectSearchPaths", @".\" + EffectsFolder + @"\**");
-        AddSearchPath(reshadeIni, "TextureSearchPaths", @".\" + TexturesFolder + @"\**");
+        SetSearchPath(reshadeIni, exeFolder, "EffectSearchPaths", Path.Combine(exeFolder, EffectsFolder));
+        SetSearchPath(reshadeIni, exeFolder, "TextureSearchPaths", Path.Combine(exeFolder, TexturesFolder));
     }
 
-    private static void AddSearchPath(string ini, string key, string path)
+    private static void SetSearchPath(string ini, string exeFolder, string key, string folder)
     {
-        var current = IniFile.GetValue(ini, "GENERAL", key) ?? "";
-        var paths = current.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-        var normalized = path.TrimEnd('*', '\\');
-        if (paths.Any(p => p.TrimEnd('*', '\\').Equals(normalized, StringComparison.OrdinalIgnoreCase))) return;
+        var target = Path.GetFullPath(folder).TrimEnd('\\');
+        var paths = (IniFile.GetValue(ini, "GENERAL", key) ?? "")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(p => !SameFolder(p, exeFolder, target))
+            .ToList();
 
-        paths.Add(path);
+        paths.Insert(0, target + @"\**");
         IniFile.SetValue(ini, "GENERAL", key, string.Join(",", paths));
+    }
+
+    private static bool SameFolder(string entry, string baseFolder, string target)
+    {
+        try
+        {
+            var folder = entry.Trim('"').TrimEnd('*').TrimEnd('\\', '/');
+            if (folder.Length == 0) return false;
+            var full = Path.GetFullPath(Path.IsPathRooted(folder) ? folder : Path.Combine(baseFolder, folder));
+            return string.Equals(full.TrimEnd('\\'), target, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false; // not a valid path: leave it alone
+        }
     }
 
     [GeneratedRegex(@"^\[[^\]]+\]\s*$", RegexOptions.Multiline)]

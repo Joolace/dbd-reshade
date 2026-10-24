@@ -190,5 +190,10 @@
   "App.Error": "出错了：\n\n{0}\n\n详细信息已写入日志：{1}",
   "Inst.Status.CheckingEffects": "正在检查预设的效果…",
   "Inst.Status.Effects": "正在下载效果：{0}…",
-  "Inst.EffectsMissing": "预设使用的以下效果不在 ReShade 官方效果包中，因此未安装：\n\n{0}\n\n预设仍可使用，但不包含这些效果。"
+  "Inst.EffectsMissing": "预设使用的以下效果不在 ReShade 官方效果包中，因此未安装：\n\n{0}\n\n预设仍可使用，但不包含这些效果。",
+  "Inst.CloseGame": "请先关闭 Dead by Daylight 再安装。\n\n游戏运行时 ReShade 的文件正在使用中，且 ReShade 会在游戏关闭时撤销更改。",
+  "Inst.Status.CheckingReShade": "正在检查 ReShade 更新…",
+  "Inst.ReShadeUpdate": "有新版本的 ReShade 可用。\n\n已安装：{0}\n最新：{1}\n\n现在更新吗？你的设置、预设和效果都会保留。",
+  "Inst.Status.UpdatingReShade": "正在将 ReShade 更新到 {0}…",
+  "Inst.ReShadeOkVersion": "已安装 ReShade {0}"
 }
