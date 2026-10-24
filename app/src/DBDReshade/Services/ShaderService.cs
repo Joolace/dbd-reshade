@@ -26,11 +26,16 @@ public sealed partial class ShaderService
     private const string EffectsFolder = @"reshade-shaders\Shaders";
     private const string TexturesFolder = @"reshade-shaders\Textures";
 
-    /// <summary>Files presets use under an old or extra name that the package list doesn't mention.</summary>
-    private static readonly Dictionary<string, string> KnownExtras = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>
+    /// Effects some older presets still list that their authors have since removed. None of them changes
+    /// the image, so they're not reported as missing:
+    /// SuperDepth3D_VR+.fx (Depth3D, merged into SuperDepth3D.fx in Feb 2025; presets only use its "Information" page),
+    /// computeGravity.fx (CobraFX, replaced by Gravity.fx in Nov 2023, which those presets list too),
+    /// FastFourierTransform.fx (Insane-Shaders developer test removed in 2023; its technique is "DoNothing").
+    /// </summary>
+    private static readonly HashSet<string> RetiredEffects = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["SuperDepth3D_VR+.fx"] = "Depth3D by BlueSkyDefender",
-        ["ComputeGravity.fx"] = "CobraFX by SirCobra",
+        "SuperDepth3D_VR+.fx", "computeGravity.fx", "FastFourierTransform.fx",
     };
 
     /// <summary>What the preset editor offers: the packages the official presets use, plus qUINT.</summary>
@@ -59,12 +64,12 @@ public sealed partial class ShaderService
         var installed = InstalledEffects(exeFolder);
         var needed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var preset in presetFiles) needed.UnionWith(EffectFilesOf(preset));
+        needed.ExceptWith(RetiredEffects);
 
         var toInstall = new List<EffectPackage>();
         foreach (var fx in needed.Where(fx => !installed.Contains(fx)))
         {
-            var package = packages.FirstOrDefault(p => p.EffectFiles.Contains(fx))
-                          ?? (KnownExtras.TryGetValue(fx, out var name) ? packages.FirstOrDefault(p => p.Name == name) : null);
+            var package = packages.FirstOrDefault(p => p.EffectFiles.Contains(fx));
             if (package is not null && !toInstall.Contains(package)) toInstall.Add(package);
         }
 
