@@ -102,10 +102,12 @@ public sealed partial class MainViewModel : ObservableObject
         if (AppInfo.IsTestBranch)
             _log.Warning($"Test mode: presets, translations and maps are read from the GitHub branch \"{AppInfo.GitHubBranch}\".");
 
-        await Task.WhenAll(CheckForUpdateAsync(), SyncPresetsQuietlyAsync(), SyncTranslationsQuietlyAsync());
+        // The update check already ran (or is still running) behind the start-up screen.
+        await Task.WhenAll(SyncPresetsQuietlyAsync(), SyncTranslationsQuietlyAsync());
     }
 
-    private async Task CheckForUpdateAsync()
+    /// <summary>Started by the start-up screen; sets <see cref="AvailableUpdate"/> when a newer release exists.</summary>
+    public async Task CheckForUpdateAsync()
     {
         try
         {

@@ -11,7 +11,13 @@ public partial class App : Application
 {
     private LogService? _log;
 
-    protected override void OnStartup(StartupEventArgs e)
+    /// <summary>The start-up screen stays at least this long, so it never just flickers.</summary>
+    private static readonly TimeSpan SplashMinimum = TimeSpan.FromMilliseconds(1200);
+
+    /// <summary>The update check may delay the start this long at most (e.g. when offline).</summary>
+    private static readonly TimeSpan UpdateCheckLimit = TimeSpan.FromSeconds(3);
+
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandledException;
@@ -28,6 +34,12 @@ public partial class App : Application
         Loc.Initialize();
         Loc.Apply(settings.Current.Language ?? Loc.DefaultCode);
 
+        // Start-up screen first, then build everything behind it.
+        var shownAt = DateTime.UtcNow;
+        var splash = new SplashWindow();
+        splash.Show();
+        await Step(splash, "Splash.Loading");
+
         var github = new GitHubService();
         var repository = new PresetRepository(settings);
         repository.Reload();
@@ -40,6 +52,7 @@ public partial class App : Application
         var maps = new MapService(github, _log);
         var mapPreview = new MapPreviewService(reshade, _log);
 
+        await Step(splash, "Splash.Game");
         var installer = new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview);
         var main = new MainViewModel(
             installer,
@@ -49,9 +62,31 @@ public partial class App : Application
             new SettingsViewModel(settings, storage),
             github, sync, translations, _log);
 
+        // Like Discord: look for a new version before opening, without making anyone wait for long.
+        await Step(splash, "Splash.Updates");
+        var updateCheck = main.CheckForUpdateAsync();
+        await Task.WhenAny(updateCheck, Task.Delay(UpdateCheckLimit));
+        if (main.AvailableUpdate is { } update)
+        {
+            splash.Status = Loc.Format("Splash.UpdateFound", update.Tag);
+            await Task.Delay(700);
+        }
+
+        splash.Status = Loc.Get("Splash.Starting");
+        var remaining = SplashMinimum - (DateTime.UtcNow - shownAt);
+        if (remaining > TimeSpan.Zero) await Task.Delay(remaining);
+
         var window = new MainWindow { DataContext = main };
-        MainWindow = window;
+        MainWindow = window; // before the splash closes, or closing it would end the app
         window.Show();
+        await splash.CloseWithFadeAsync();
+    }
+
+    /// <summary>Shows a status line and lets the start-up screen repaint before the next step.</summary>
+    private static async Task Step(SplashWindow splash, string key)
+    {
+        splash.Status = Loc.Get(key);
+        await Task.Delay(40);
     }
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

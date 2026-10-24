@@ -19,6 +19,8 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
   updated from GitHub and anyone can contribute.
 - **Storage cleanup** — free the space used by cached previews, old logs and temporary downloads
   (your own presets and screenshots are never touched).
+- **Start-up screen** — logo, name and version while the app loads its data and checks for updates
+  (at most 3 seconds, so it never hangs when offline).
 - **Own title bar** — the main window and dialogs draw their own title bar in the theme colors
   (WindowChrome keeps dragging, snapping and double-click to maximize).
 - **Report a bug** — opens Discord and the logs folder, so today's log can be attached.
