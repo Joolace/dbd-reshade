@@ -55,7 +55,7 @@ public partial class App : Application
         var updater = new UpdateService(_log);
 
         await Step(splash, "Splash.Game");
-        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview);
+        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log));
         var main = new MainViewModel(
             installer,
             new PresetManagerViewModel(repository, sync, _log),

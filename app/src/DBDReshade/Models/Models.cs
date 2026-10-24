@@ -5,13 +5,25 @@ using DBDReshade.Services;
 namespace DBDReshade.Models;
 
 /// <summary>A Dead by Daylight installation found on this PC.</summary>
+/// <param name="Store">"Steam", "Epic" or "Xbox" (Microsoft Store / PC Game Pass).</param>
+/// <param name="RootPath">The game folder; for Xbox, its "Content" folder.</param>
 public sealed record GameInstallation(string Store, string RootPath)
 {
-    /// <summary>Folder that contains the game executable (and ReShade.ini once installed).</summary>
+    public const string XboxLauncher = "gamelaunchhelper.exe";
+
+    public bool IsXbox => Store == "Xbox";
+
+    /// <summary>
+    /// Folder ReShade goes in (with ReShade.ini and reshade-shaders): next to the exe ReShade hooks.
+    /// Steam: Binaries\Win64. Epic: Binaries\EGS. Xbox: the Content folder, next to gamelaunchhelper.exe:
+    /// the real game exe in Binaries\WinGDK is protected by the Xbox app and ReShade can't be installed there.
+    /// </summary>
     public string BinariesDirectory
     {
         get
         {
+            if (IsXbox) return RootPath;
+
             var binaries = System.IO.Path.Combine(RootPath, "DeadByDaylight", "Binaries");
             var egs = System.IO.Path.Combine(binaries, "EGS");
             var win64 = System.IO.Path.Combine(binaries, "Win64");
@@ -22,11 +34,20 @@ public sealed record GameInstallation(string Store, string RootPath)
         }
     }
 
-    /// <summary>The game's *-Shipping.exe, which is what ReShade hooks into.</summary>
-    public string? GameExecutable =>
-        Directory.Exists(BinariesDirectory)
-            ? Directory.EnumerateFiles(BinariesDirectory, "*-Shipping.exe").FirstOrDefault()
-            : null;
+    /// <summary>The exe ReShade is installed for: *-Shipping.exe, or gamelaunchhelper.exe for Xbox.</summary>
+    public string? GameExecutable
+    {
+        get
+        {
+            if (!Directory.Exists(BinariesDirectory)) return null;
+            if (IsXbox)
+            {
+                var helper = System.IO.Path.Combine(BinariesDirectory, XboxLauncher);
+                return File.Exists(helper) ? helper : null;
+            }
+            return Directory.EnumerateFiles(BinariesDirectory, "*-Shipping.exe").FirstOrDefault();
+        }
+    }
 
     public string ReShadeIniPath => System.IO.Path.Combine(BinariesDirectory, "ReShade.ini");
 

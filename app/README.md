@@ -5,7 +5,7 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
 
 ## Features
 
-- **Install Preset** — finds Dead by Daylight (Steam and Epic, or pick the folder by hand), installs
+- **Install Preset** — finds Dead by Daylight (Steam, Epic and Xbox app, or pick the folder by hand), installs
   ReShade automatically if missing, copies the preset and sets `PresetPath` in `ReShade.ini`.
   Searchable preset list, description, source link and a full-screen preview (click or Space).
 - **Try on maps** — see a preset on real map screenshots with ReShade, without starting the game
@@ -63,8 +63,8 @@ To create the distributable exe (self-contained, no .NET runtime needed on the u
 dotnet publish src/DBDReshade/DBDReshade.csproj -c Release -o publish
 ```
 
-The workflow `.github/workflows/build-app.yml` (at the repository root) does the same on every push
-to `app/` on `wpf-app`; see "Releasing a new version" below.
+The GitHub Actions workflow does the same on every push, and attaches `DBDReshade.exe` to a GitHub
+release when you push a tag such as `v2.0.0`.
 
 ## Project layout
 

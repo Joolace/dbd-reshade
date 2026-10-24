@@ -195,5 +195,10 @@
   "Inst.Status.CheckingReShade": "正在检查 ReShade 更新…",
   "Inst.ReShadeUpdate": "有新版本的 ReShade 可用。\n\n已安装：{0}\n最新：{1}\n\n现在更新吗？你的设置、预设和效果都会保留。",
   "Inst.Status.UpdatingReShade": "正在将 ReShade 更新到 {0}…",
-  "Inst.ReShadeOkVersion": "已安装 ReShade {0}"
+  "Inst.ReShadeOkVersion": "已安装 ReShade {0}",
+  "Inst.LaunchGame": "启动游戏",
+  "Inst.LaunchGameTip": "通过 Steam、Epic Games 或 Xbox 应用启动 Dead by Daylight，若它们未运行会先将其打开",
+  "Inst.DoneLaunch": "预设“{0}”安装成功！\n\n在游戏中按 Home 键打开 ReShade。\n\n现在启动 Dead by Daylight 吗？",
+  "Inst.GameRunning": "Dead by Daylight 已在运行。",
+  "Inst.LaunchFailed": "无法启动 Dead by Daylight。\n\n{0}"
 }

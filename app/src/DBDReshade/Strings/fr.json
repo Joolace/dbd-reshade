@@ -195,5 +195,10 @@
   "Inst.Status.CheckingReShade": "Recherche de mises à jour de ReShade…",
   "Inst.ReShadeUpdate": "Une nouvelle version de ReShade est disponible.\n\nInstallée : {0}\nDernière : {1}\n\nLa mettre à jour maintenant ? Vos paramètres, presets et effets sont conservés.",
   "Inst.Status.UpdatingReShade": "Mise à jour de ReShade vers {0}…",
-  "Inst.ReShadeOkVersion": "ReShade {0} installé"
+  "Inst.ReShadeOkVersion": "ReShade {0} installé",
+  "Inst.LaunchGame": "Lancer le jeu",
+  "Inst.LaunchGameTip": "Lance Dead by Daylight via Steam, Epic Games ou l'application Xbox, en les ouvrant d'abord s'ils sont fermés",
+  "Inst.DoneLaunch": "Preset « {0} » installé !\n\nEn jeu, appuyez sur Début (Home) pour ouvrir ReShade.\n\nLancer Dead by Daylight maintenant ?",
+  "Inst.GameRunning": "Dead by Daylight est déjà lancé.",
+  "Inst.LaunchFailed": "Impossible de lancer Dead by Daylight.\n\n{0}"
 }

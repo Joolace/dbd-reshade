@@ -23,13 +23,16 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly LogService _log;
     private readonly MapService _maps;
     private readonly MapPreviewService _mapPreview;
+    private readonly GameLauncher _launcher;
     private CancellationTokenSource? _previewCts;
     private string? _previewMessageKey;
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
-        ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview)
+        ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview,
+        GameLauncher launcher)
     {
+        _launcher = launcher;
         _maps = maps;
         _mapPreview = mapPreview;
         _repository = repository;
@@ -203,6 +206,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(DestinationFolder))]
     [NotifyPropertyChangedFor(nameof(IsUsingGameFolder))]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(LaunchGameCommand))]
     private GameInstallation? _selectedInstallation;
 
     [ObservableProperty]
@@ -318,6 +322,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     [NotifyCanExecuteChangedFor(nameof(SyncPresetsCommand))]
     [NotifyCanExecuteChangedFor(nameof(TryOnMapsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(LaunchGameCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
@@ -389,9 +394,10 @@ public sealed partial class InstallerViewModel : ObservableObject
             ProgressValue = 100;
 
             _log.Success($"Preset {preset.DisplayName} installed!");
-            Dialogs.Info(Loc.Format("Inst.Done", preset.DisplayName));
+            var launchNow = Dialogs.Confirm(Loc.Format("Inst.DoneLaunch", preset.DisplayName));
             if (missingHere.Count > 0)
                 Dialogs.Warning(Loc.Format("Inst.EffectsMissing", string.Join(", ", missingHere)));
+            if (launchNow) LaunchGame();
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -438,5 +444,31 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         StatusText = Loc.Format("Inst.Status.UpdatingReShade", u.Latest);
         await _reshade.UpdateAsync(game.GameExecutable!, u.Url, new System.Progress<double>(p => ProgressValue = 5 + p * 35));
+    }
+
+    // ---- Launch -----------------------------------------------------------------------------
+
+    private bool CanLaunchGame() => !IsBusy && SelectedInstallation is not null;
+
+    /// <summary>Starts the game through Steam/Epic, which open first if they're closed.</summary>
+    [RelayCommand(CanExecute = nameof(CanLaunchGame))]
+    private void LaunchGame()
+    {
+        var game = SelectedInstallation!;
+        if (ReShadeService.IsGameRunning(game))
+        {
+            Dialogs.Info(Loc.Get("Inst.GameRunning"));
+            return;
+        }
+
+        try
+        {
+            _launcher.Launch(game);
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Could not start the game: {ex.Message}");
+            Dialogs.Error(Loc.Format("Inst.LaunchFailed", ex.Message));
+        }
     }
 }

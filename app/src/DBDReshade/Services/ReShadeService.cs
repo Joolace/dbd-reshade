@@ -15,9 +15,33 @@ public sealed partial class ReShadeService
     public ReShadeService(LogService log) => _log = log;
 
     /// <summary>True while the game is running: ReShade's files are in use and it would overwrite ReShade.ini on exit.</summary>
-    public static bool IsGameRunning(GameInstallation game) =>
-        game.GameExecutable is { } exe
-        && Process.GetProcessesByName(Path.GetFileNameWithoutExtension(exe)).Length > 0;
+    /// <remarks>Any DeadByDaylight* process counts (launcher, Win64/EGS/WinGDK builds), plus the Xbox launch helper.</remarks>
+    public static bool IsGameRunning(GameInstallation game)
+    {
+        foreach (var process in Process.GetProcesses())
+        {
+            using (process)
+            {
+                if (process.ProcessName.StartsWith("DeadByDaylight", StringComparison.OrdinalIgnoreCase)) return true;
+                if (game.IsXbox && process.ProcessName.Equals("gamelaunchhelper", StringComparison.OrdinalIgnoreCase)
+                    && IsInFolder(process, game.RootPath)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsInFolder(Process process, string folder)
+    {
+        try
+        {
+            var path = process.MainModule?.FileName;
+            return path is null || path.StartsWith(folder, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return true; // can't tell (access denied): assume it's the game, to be safe
+        }
+    }
 
     public bool IsInstalled(GameInstallation game) =>
         File.Exists(game.ReShadeIniPath)
@@ -136,7 +160,8 @@ public sealed partial class ReShadeService
     public Task InstallAsync(GameInstallation game, IProgress<double>? progress = null, CancellationToken ct = default)
     {
         var exe = game.GameExecutable
-            ?? throw new FileNotFoundException($"Game executable (*-Shipping.exe) not found in {game.BinariesDirectory}");
+            ?? throw new FileNotFoundException(
+                $"Game executable ({(game.IsXbox ? GameInstallation.XboxLauncher : "*-Shipping.exe")}) not found in {game.BinariesDirectory}");
         return InstallForExecutableAsync(exe, progress, ct);
     }
 

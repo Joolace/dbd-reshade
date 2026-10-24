@@ -195,5 +195,10 @@
   "Inst.Status.CheckingReShade": "ReShade のアップデートを確認中…",
   "Inst.ReShadeUpdate": "ReShade の新しいバージョンがあります。\n\nインストール済み: {0}\n最新: {1}\n\n今すぐ更新しますか？設定、プリセット、エフェクトはそのまま残ります。",
   "Inst.Status.UpdatingReShade": "ReShade を {0} に更新中…",
-  "Inst.ReShadeOkVersion": "ReShade {0} インストール済み"
+  "Inst.ReShadeOkVersion": "ReShade {0} インストール済み",
+  "Inst.LaunchGame": "ゲームを起動",
+  "Inst.LaunchGameTip": "Steam、Epic Games または Xbox アプリから Dead by Daylight を起動します（閉じている場合は先に開きます）",
+  "Inst.DoneLaunch": "プリセット「{0}」をインストールしました！\n\nゲーム中に Home キーで ReShade を開けます。\n\n今すぐ Dead by Daylight を起動しますか？",
+  "Inst.GameRunning": "Dead by Daylight はすでに起動しています。",
+  "Inst.LaunchFailed": "Dead by Daylight を起動できませんでした。\n\n{0}"
 }

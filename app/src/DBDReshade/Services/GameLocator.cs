@@ -5,7 +5,7 @@ using Microsoft.Win32;
 
 namespace DBDReshade.Services;
 
-/// <summary>Finds Dead by Daylight installs from Steam (registry + library folders) and Epic Games.</summary>
+/// <summary>Finds Dead by Daylight installs from Steam (registry + library folders), Epic Games and the Xbox app.</summary>
 public sealed partial class GameLocator
 {
     private readonly LogService _log;
@@ -19,9 +19,11 @@ public sealed partial class GameLocator
         TryAdd(found, "Steam", FindSteamFromUninstallKey() ?? FindSteamFromLibraries());
         foreach (var path in FindEpic())
             TryAdd(found, "Epic", path);
+        foreach (var path in FindXbox())
+            TryAdd(found, "Xbox", path);
 
         if (found.Count == 0)
-            _log.Warning("Dead by Daylight installation not found (Steam/Epic).");
+            _log.Warning("Dead by Daylight installation not found (Steam/Epic/Xbox).");
         else
             foreach (var g in found)
                 _log.Info($"Found installation: {g.DisplayName}");
@@ -34,8 +36,14 @@ public sealed partial class GameLocator
     {
         // Accept the game root or any folder below it (Binaries, Win64…).
         var dir = new DirectoryInfo(folder);
+
+        // Xbox: "…\XboxGames\Dead by Daylight" or its Content folder (or anything inside Content).
+        var content = Path.Combine(dir.FullName, "Content");
+        if (IsXboxContent(content)) return new GameInstallation("Xbox", content);
+
         while (dir is not null)
         {
+            if (IsXboxContent(dir.FullName)) return new GameInstallation("Xbox", dir.FullName);
             if (Directory.Exists(Path.Combine(dir.FullName, "DeadByDaylight", "Binaries")))
             {
                 var store = Directory.Exists(Path.Combine(dir.FullName, "DeadByDaylight", "Binaries", "EGS"))
@@ -137,6 +145,79 @@ public sealed partial class GameLocator
             }
 
             if (location is not null) yield return location;
+        }
+    }
+
+    /// <summary>An Xbox app install: gamelaunchhelper.exe next to the DeadByDaylight folder.</summary>
+    private static bool IsXboxContent(string folder) =>
+        File.Exists(Path.Combine(folder, GameInstallation.XboxLauncher))
+        && Directory.Exists(Path.Combine(folder, "DeadByDaylight"));
+
+    /// <summary>
+    /// The Xbox app installs games in &lt;drive&gt;:\XboxGames\&lt;game&gt;\Content by default, or in the folder
+    /// chosen in its settings, which it records in a ".GamingRoot" file at the root of that drive.
+    /// </summary>
+    private static IEnumerable<string> FindXbox()
+    {
+        var roots = new List<string>();
+        foreach (var drive in DriveInfo.GetDrives())
+        {
+            try
+            {
+                if (drive.DriveType != DriveType.Fixed || !drive.IsReady) continue;
+                roots.Add(Path.Combine(drive.RootDirectory.FullName, "XboxGames"));
+                roots.AddRange(GamingRootFolders(drive.RootDirectory.FullName));
+            }
+            catch
+            {
+                // Drive not readable: skip it.
+            }
+        }
+
+        foreach (var root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            IEnumerable<string> games;
+            try
+            {
+                if (!Directory.Exists(root)) continue;
+                games = Directory.GetDirectories(root);
+            }
+            catch
+            {
+                continue;
+            }
+
+            foreach (var game in games)
+            {
+                var content = Path.Combine(game, "Content");
+                if (IsXboxContent(content)) yield return content;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reads "&lt;drive&gt;:\.GamingRoot": a "RGBX" header, a count, then UTF-16 folder paths
+    /// (relative to the drive) separated by null characters.
+    /// </summary>
+    private static IEnumerable<string> GamingRootFolders(string driveRoot)
+    {
+        var file = Path.Combine(driveRoot, ".GamingRoot");
+        if (!File.Exists(file)) return Array.Empty<string>();
+
+        try
+        {
+            var bytes = File.ReadAllBytes(file);
+            if (bytes.Length <= 8 || bytes[0] != 'R' || bytes[1] != 'G' || bytes[2] != 'B' || bytes[3] != 'X')
+                return Array.Empty<string>();
+
+            return System.Text.Encoding.Unicode.GetString(bytes, 8, (bytes.Length - 8) / 2 * 2)
+                .Split('\0', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(p => Path.IsPathRooted(p) && p.Length > 2 && p[1] == ':' ? p : Path.Combine(driveRoot, p.TrimStart('\\')))
+                .ToList();
+        }
+        catch
+        {
+            return Array.Empty<string>();
         }
     }
 
