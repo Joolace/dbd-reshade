@@ -30,7 +30,6 @@ public sealed class PreviewWindow : WinForms.Form
 
     private WinForms.Panel? _help;
     private WinForms.Label? _hintBadge;
-    private WinForms.Timer? _hintTimer;
 
     private ID3D11Device? _device;
     private ID3D11DeviceContext? _context;
@@ -122,39 +121,46 @@ public sealed class PreviewWindow : WinForms.Form
             AutoSizeMode = WinForms.AutoSizeMode.GrowAndShrink,
             BackColor = back,
             Padding = new WinForms.Padding(0, 0, 18, 16),
-            Location = new Drawing.Point(24, 24),
             Visible = false,
         };
         _help.Controls.Add(table);
         Controls.Add(_help);
 
-        // Short reminder at start-up, e.g. "F1: show the keys".
+        // "F1 · show the keys": always visible in the top-right corner, in the app's accent red.
         _hintBadge = new WinForms.Label
         {
-            Text = _hint, AutoSize = true, Font = textFont, ForeColor = Drawing.Color.White,
-            BackColor = back, Padding = new WinForms.Padding(12, 8, 12, 8),
-            Location = new Drawing.Point(24, 24),
+            Text = _hint,
+            AutoSize = true,
+            Font = new Drawing.Font("Segoe UI Semibold", 12f),
+            ForeColor = Drawing.Color.White,
+            BackColor = Drawing.Color.FromArgb(215, 38, 61), // AccentBrush (#D7263D)
+            Padding = new WinForms.Padding(14, 8, 14, 8),
+            Cursor = WinForms.Cursors.Hand,
         };
+        _hintBadge.Click += (_, _) => ToggleHelp();
         Controls.Add(_hintBadge);
         _hintBadge.BringToFront();
 
-        _hintTimer = new WinForms.Timer { Interval = 4000 };
-        _hintTimer.Tick += (_, _) => HideHint();
-        _hintTimer.Start();
+        Resize += (_, _) => PlaceOverlays();
+        PlaceOverlays();
     }
 
-    private void HideHint()
+    /// <summary>Keeps the F1 badge in the top-right corner and the key list right below it.</summary>
+    private void PlaceOverlays()
     {
-        _hintTimer?.Stop();
-        if (_hintBadge is not null) _hintBadge.Visible = false;
+        if (_hintBadge is null || _help is null) return;
+        const int margin = 20;
+        _hintBadge.Location = new Drawing.Point(ClientSize.Width - _hintBadge.Width - margin, margin);
+        _help.Location = new Drawing.Point(ClientSize.Width - _help.Width - margin, _hintBadge.Bottom + 8);
     }
 
     private void ToggleHelp()
     {
         if (_help is null) return;
-        HideHint();
         _help.Visible = !_help.Visible;
+        PlaceOverlays();
         if (_help.Visible) _help.BringToFront();
+        _hintBadge?.BringToFront();
     }
 
     // ---- Title bar colors ------------------------------------------------------------------
@@ -514,7 +520,6 @@ float4 PSMain(float4 position : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TA
     {
         _ready = false;
         WinForms.Application.Idle -= OnIdle;
-        _hintTimer?.Dispose();
 
         _textureView?.Dispose();
         _texture?.Dispose();
