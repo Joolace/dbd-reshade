@@ -53,7 +53,7 @@ dotnet publish src/DBDReshade/DBDReshade.csproj -c Release -o publish
 ```
 
 The workflow `.github/workflows/build-app.yml` (at the repository root) does the same on every push
-to `app/`, and attaches `DBDReshade.exe` to a GitHub release when you push a tag such as `v2.0.0`.
+to `app/` on `wpf-app`, and attaches `DBDReshade.exe` to a GitHub release when you push a tag such as `v2.0.0`.
 
 ## Project layout
 
@@ -70,6 +70,15 @@ src/DBDReshade/
 
 To refresh the bundled presets, rebuild `Seed/seed.zip` from the repository's `Presets/` folder and
 `media/presets.json` (zip layout: `Presets/*.ini` and `presets.json` at the root).
+
+## Branches
+
+- **`wpf-app`** — this app. Presets, translations and map screenshots are read from this branch, and
+  releases of the app are tagged on it.
+- **`main`** — the old PowerShell script, left as it is.
+
+To test another branch (e.g. a pull request) set the environment variable `DBDRESHADE_BRANCH` to its
+name before starting the app; the log then shows "Test mode".
 
 ## Map preview (formerly D3Daylight)
 
@@ -91,7 +100,7 @@ Add or replace screenshots there and users get them the next time they open that
 
 ## Publishing presets (no app update needed)
 
-The app syncs with the `main` branch of this repository at every startup (and with **Update presets**),
+The app syncs with the `wpf-app` branch of this repository at every startup (and with **Update presets**),
 so adding or changing a preset only needs a commit:
 
 1. Put the `.ini` in `Presets/`.
@@ -105,7 +114,7 @@ so adding or changing a preset only needs a commit:
        "preset-preview": "MyPreset.jpg"
    }
    ```
-4. Commit and push to `main`.
+4. Commit and push to `wpf-app`.
 
 What users get on the next start:
 

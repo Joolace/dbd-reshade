@@ -9,6 +9,10 @@ namespace DBDReshade.Services;
 public sealed class GitHubService
 {
     private static string Api => $"https://api.github.com/repos/{AppInfo.GitHubOwner}/{AppInfo.GitHubRepo}";
+    /// <summary>Contents API URL of a folder on the configured branch (without ?ref GitHub uses the default branch).</summary>
+    private static string Contents(string folder) =>
+        $"{Api}/contents/{folder}?ref={Uri.EscapeDataString(AppInfo.GitHubBranch)}";
+
     private static string Raw => $"https://raw.githubusercontent.com/{AppInfo.GitHubOwner}/{AppInfo.GitHubRepo}/{AppInfo.GitHubBranch}";
 
     public async Task<ReleaseInfo?> GetLatestReleaseAsync(CancellationToken ct = default)
@@ -34,7 +38,7 @@ public sealed class GitHubService
     /// <summary>Map names: the subfolders of media/realms.</summary>
     public async Task<IReadOnlyList<string>> ListMapsAsync(CancellationToken ct = default)
     {
-        using var doc = JsonDocument.Parse(await Http.Client.GetStringAsync($"{Api}/contents/{AppInfo.MapsFolder}", ct));
+        using var doc = JsonDocument.Parse(await Http.Client.GetStringAsync(Contents(AppInfo.MapsFolder), ct));
         return doc.RootElement.EnumerateArray()
             .Where(item => item.GetProperty("type").GetString() == "dir")
             .Select(item => item.GetProperty("name").GetString()!)
@@ -52,7 +56,7 @@ public sealed class GitHubService
     private static async Task<IReadOnlyList<RemoteFile>> ListFilesAsync(
         string folder, Func<string, bool> filter, CancellationToken ct)
     {
-        using var doc = JsonDocument.Parse(await Http.Client.GetStringAsync($"{Api}/contents/{folder}", ct));
+        using var doc = JsonDocument.Parse(await Http.Client.GetStringAsync(Contents(folder), ct));
 
         var files = new List<RemoteFile>();
         foreach (var item in doc.RootElement.EnumerateArray())

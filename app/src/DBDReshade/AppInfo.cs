@@ -14,7 +14,17 @@ public static class AppInfo
 
     public const string GitHubOwner = "Joolace";
     public const string GitHubRepo = "dbd-reshade";
-    public const string GitHubBranch = "main";
+    /// <summary>Branch of the new app: presets, translations and maps are read from here ("main" keeps the old PowerShell script).</summary>
+    public const string DefaultBranch = "wpf-app";
+
+    /// <summary>
+    /// Branch actually used. Set the DBDRESHADE_BRANCH environment variable to test another branch
+    /// (e.g. a pull request) without changing the code.
+    /// </summary>
+    public static string GitHubBranch { get; } =
+        Environment.GetEnvironmentVariable("DBDRESHADE_BRANCH") is { Length: > 0 } branch ? branch.Trim() : DefaultBranch;
+
+    public static bool IsTestBranch => GitHubBranch != DefaultBranch;
 
     public const string RepoUrl = "https://github.com/Joolace/dbd-reshade";
     public const string DiscordUrl = "https://discord.gg/mC7Eabu3QW";
@@ -26,7 +36,7 @@ public static class AppInfo
     /// <summary>Folder of the repository with the map screenshots, one subfolder per map (formerly D3Daylight).</summary>
     public const string MapsFolder = "media/realms";
 
-    public const string TranslateGuideUrl = RepoUrl + "/blob/main/translations/README.md";
+    public const string TranslateGuideUrl = RepoUrl + "/blob/" + DefaultBranch + "/translations/README.md";
 
     /// <summary>Dead by Daylight Steam AppID.</summary>
     public const int SteamAppId = 381210;

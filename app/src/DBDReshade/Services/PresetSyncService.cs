@@ -3,7 +3,7 @@ using DBDReshade.Models;
 namespace DBDReshade.Services;
 
 /// <summary>
-/// Brings the local library up to date with the GitHub repository (branch main), without an app update:
+/// Brings the local library up to date with the GitHub repository (branch wpf-app, see AppInfo.GitHubBranch), without an app update:
 /// <list type="bullet">
 /// <item>media/presets.json replaces the local metadata (descriptions, sources, preview names);</item>
 /// <item>new .ini files in Presets/ are downloaded, changed ones re-downloaded (compared by git SHA);</item>

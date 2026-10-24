@@ -96,6 +96,8 @@ public sealed partial class MainViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         _log.Info($"DBD Reshade {AppInfo.VersionText} started. Data folder: {AppPaths.DataRoot}");
+        if (AppInfo.IsTestBranch)
+            _log.Warning($"Test mode: presets, translations and maps are read from the GitHub branch \"{AppInfo.GitHubBranch}\".");
 
         await Task.WhenAll(CheckForUpdateAsync(), SyncPresetsQuietlyAsync(), SyncTranslationsQuietlyAsync());
     }
