@@ -24,8 +24,10 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
 - **Own title bar** — the main window and dialogs draw their own title bar in the theme colors
   (WindowChrome keeps dragging, snapping and double-click to maximize).
 - **Report a bug** — opens Discord and the logs folder, so today's log can be attached.
-- **Automatic updates** — new and changed presets are pulled from this repository at startup; the app
-  tells you when a newer release exists.
+- **Automatic updates** — new and changed presets are pulled from this repository at startup, and
+  **Update now** installs a new release with one click (installer or portable exe, whichever is in use).
+- **Installer or portable** — every release has `DBDReshade-Setup.exe` (Start menu, optional desktop icon,
+  uninstall) and the portable `DBDReshade.exe`.
 
 Preview images (≈1 GB in the repository) are downloaded one at a time, only when you select a preset,
 and then cached.
@@ -62,7 +64,7 @@ dotnet publish src/DBDReshade/DBDReshade.csproj -c Release -o publish
 ```
 
 The workflow `.github/workflows/build-app.yml` (at the repository root) does the same on every push
-to `app/` on `wpf-app`, and attaches `DBDReshade.exe` to a GitHub release when you push a tag such as `v2.0.0`.
+to `app/` on `wpf-app`; see "Releasing a new version" below.
 
 ## Project layout
 
@@ -79,6 +81,24 @@ src/DBDReshade/
 
 To refresh the bundled presets, rebuild `Seed/seed.zip` from the repository's `Presets/` folder and
 `media/presets.json` (zip layout: `Presets/*.ini` and `presets.json` at the root).
+
+## Releasing a new version
+
+1. Raise `<Version>` in `src/DBDReshade/DBDReshade.csproj` (e.g. `2.0.1`) and commit on `wpf-app`.
+2. Tag that commit `v2.0.1` (same number) and push the tag. In GitHub Desktop: History → right-click the
+   commit → Create Tag → Push origin.
+3. The **Build app** workflow builds `DBDReshade.exe` and `DBDReshade-Setup.exe` and creates the release
+   with both. It stops with an error if the tag and `<Version>` differ.
+
+At the next start every user sees **Update available**. **Update now** then:
+
+- installed copies: downloads `DBDReshade-Setup.exe` and runs it silently; Setup closes the app,
+  updates it and starts it again;
+- portable copies: downloads `DBDReshade.exe`, swaps it in place of the running exe and restarts
+  (the previous exe, renamed `.old`, is deleted on the next start).
+
+The installer script is `installer/DBDReshade.iss` (Inno Setup 6). Uninstalling asks whether to also
+delete `%LOCALAPPDATA%\DBDReshade`.
 
 ## Branches
 

@@ -51,6 +51,7 @@ public partial class App : Application
         var translations = new TranslationSyncService(github, _log);
         var maps = new MapService(github, _log);
         var mapPreview = new MapPreviewService(reshade, _log);
+        var updater = new UpdateService(_log);
 
         await Step(splash, "Splash.Game");
         var installer = new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview);
@@ -60,7 +61,7 @@ public partial class App : Application
             new CopyPresetsViewModel(repository, _log),
             new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, _log),
             new SettingsViewModel(settings, storage),
-            github, sync, translations, _log);
+            github, sync, translations, updater, _log);
 
         // Like Discord: look for a new version before opening, without making anyone wait for long.
         await Step(splash, "Splash.Updates");

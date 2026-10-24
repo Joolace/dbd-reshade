@@ -1,3 +1,4 @@
+using DBDReshade.Services;
 using DBDReshade.Viewer;
 
 namespace DBDReshade;
@@ -18,6 +19,8 @@ public static class Program
     {
         if (args.Length > 0 && args[0] == ViewerApp.Argument)
             return ViewerApp.Run(args);
+
+        UpdateService.CleanUpAfterUpdate();
 
         var app = new App();
         app.InitializeComponent();

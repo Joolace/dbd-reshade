@@ -81,7 +81,15 @@
                                 <Run Text="{DynamicResource Update.Text}" /> <Run Text="{Binding AvailableUpdate.Tag, Mode=OneWay}" FontWeight="SemiBold" />
                             </TextBlock>
                             <Button Style="{StaticResource PrimaryButton}" Padding="10,7" FontSize="12"
-                                    Content="{DynamicResource Update.Download}" Command="{Binding OpenUpdateCommand}" />
+                                    Content="{DynamicResource Update.Install}" Command="{Binding UpdateNowCommand}"
+                                    Visibility="{Binding IsUpdating, Converter={x:Static h:InverseBoolToVisibility.Instance}}" />
+                            <StackPanel Visibility="{Binding IsUpdating, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="{DynamicResource Update.Downloading}" FontSize="12" Margin="0,0,0,6"
+                                           Foreground="{DynamicResource TextMutedBrush}" />
+                                <ProgressBar Value="{Binding UpdateProgress}" Maximum="100" />
+                            </StackPanel>
+                            <Button Style="{StaticResource LinkButton}" Content="{DynamicResource Update.Notes}" FontSize="11"
+                                    Margin="0,8,0,0" HorizontalAlignment="Center" Command="{Binding OpenUpdateCommand}" />
                         </StackPanel>
                     </Border>
 

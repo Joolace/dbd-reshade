@@ -149,6 +149,18 @@ public sealed class InverseBool : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => value is not true;
 }
 
+/// <summary>true → Collapsed, false → Visible (static instance, no resource needed).</summary>
+public sealed class InverseBoolToVisibility : IValueConverter
+{
+    public static readonly InverseBoolToVisibility Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? Visibility.Collapsed : Visibility.Visible;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
 public sealed class NullToVisibilityConverter : IValueConverter
 {
     public bool Invert { get; set; }

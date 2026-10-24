@@ -33,6 +33,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly GitHubService _github;
     private readonly PresetSyncService _sync;
     private readonly TranslationSyncService _translations;
+    private readonly UpdateService _updater;
     private readonly LogService _log;
 
     public MainViewModel(
@@ -44,8 +45,10 @@ public sealed partial class MainViewModel : ObservableObject
         GitHubService github,
         PresetSyncService sync,
         TranslationSyncService translations,
+        UpdateService updater,
         LogService log)
     {
+        _updater = updater;
         _github = github;
         _sync = sync;
         _translations = translations;
@@ -88,6 +91,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateNowCommand))]
     private ReleaseInfo? _availableUpdate;
 
     public bool IsUpdateAvailable => AvailableUpdate is not null;
@@ -147,6 +151,40 @@ public sealed partial class MainViewModel : ObservableObject
             // No translations folder on GitHub yet, or offline: the built-in translations are used.
             _log.Info($"Translation update skipped: {ex.Message}");
         }
+    }
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(UpdateNowCommand))]
+    private bool _isUpdating;
+
+    [ObservableProperty]
+    private double _updateProgress;
+
+    private bool CanUpdate() => !IsUpdating && AvailableUpdate is not null;
+
+    /// <summary>Downloads and installs the new version, then closes so it can take over.</summary>
+    [RelayCommand(CanExecute = nameof(CanUpdate))]
+    private async Task UpdateNowAsync()
+    {
+        var release = AvailableUpdate!;
+        IsUpdating = true;
+        UpdateProgress = 0;
+        try
+        {
+            if (await _updater.InstallAsync(release, new System.Progress<double>(p => UpdateProgress = p * 100)))
+            {
+                System.Windows.Application.Current.Shutdown();
+                return;
+            }
+            Shell.Open(release.Url); // nothing to install automatically: the release page explains
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Update failed: {ex.Message}");
+            Dialogs.Error(Loc.Format("Update.Failed", ex.Message));
+            Shell.Open(release.Url);
+        }
+        IsUpdating = false;
     }
 
     [RelayCommand]

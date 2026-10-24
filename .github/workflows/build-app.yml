@@ -1,5 +1,5 @@
-# Builds the Windows app in app/ on every change, and attaches DBDReshade.exe to a GitHub release
-# when a tag is pushed (e.g. v2.0.0). The app checks these releases to tell users about updates.
+# Builds the Windows app in app/ on every change. When a tag like v2.0.1 is pushed, it also builds the
+# installer and creates the GitHub release with both files; the app finds them there to update itself.
 name: Build app
 
 on:
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Only the app: skips downloading the ~1 GB of preset previews.
+          # Only the app: skips downloading the ~1 GB of preset previews and map screenshots.
           filter: blob:none
           sparse-checkout: app
 
@@ -32,21 +32,48 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Read version from the project
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content app/src/DBDReshade/DBDReshade.csproj
+          $version = $project.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ } | Select-Object -First 1
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Version: $version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME.TrimStart('v') -ne $version) {
+            Write-Error "Tag $($env:GITHUB_REF_NAME) does not match <Version>$version</Version> in DBDReshade.csproj: the app would keep asking to update. Change one of them."
+            exit 1
+          }
+
       - name: Build
         run: dotnet build app/DBDReshade.sln -c Release
 
       - name: Publish single-file exe
         run: dotnet publish app/src/DBDReshade/DBDReshade.csproj -c Release -o publish
 
-      - name: Upload artifact
+      - name: Build installer
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+            "/DMyAppVersion=$env:VERSION" `
+            "/DSourceExe=$PWD\publish\DBDReshade.exe" `
+            "/DOutputDir=$PWD\publish" `
+            app\installer\DBDReshade.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: DBDReshade
-          path: publish/DBDReshade.exe
+          name: DBDReshade-${{ env.VERSION }}
+          path: |
+            publish/DBDReshade.exe
+            publish/DBDReshade-Setup.exe
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: publish/DBDReshade.exe
+          files: |
+            publish/DBDReshade.exe
+            publish/DBDReshade-Setup.exe
           generate_release_notes: true

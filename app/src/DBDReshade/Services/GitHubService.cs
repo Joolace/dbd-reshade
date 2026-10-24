@@ -24,7 +24,20 @@ public sealed class GitHubService
         var url = root.GetProperty("html_url").GetString();
         if (tag is null || url is null) return null;
 
-        return new ReleaseInfo(tag, url, ParseVersion(tag));
+        // The files the build attaches to every release (see .github/workflows/build-app.yml).
+        string? portable = null, setup = null;
+        if (root.TryGetProperty("assets", out var assets))
+        {
+            foreach (var asset in assets.EnumerateArray())
+            {
+                var name = asset.GetProperty("name").GetString();
+                var download = asset.GetProperty("browser_download_url").GetString();
+                if (string.Equals(name, AppInfo.PortableAssetName, StringComparison.OrdinalIgnoreCase)) portable = download;
+                else if (string.Equals(name, AppInfo.SetupAssetName, StringComparison.OrdinalIgnoreCase)) setup = download;
+            }
+        }
+
+        return new ReleaseInfo(tag, url, ParseVersion(tag), portable, setup);
     }
 
     /// <summary>The .ini files in the repository's Presets folder.</summary>

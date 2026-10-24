@@ -38,6 +38,10 @@ public static class AppInfo
 
     public const string TranslateGuideUrl = RepoUrl + "/blob/" + DefaultBranch + "/translations/README.md";
 
+    /// <summary>Release files built by the GitHub workflow; the updater looks for these names.</summary>
+    public const string PortableAssetName = "DBDReshade.exe";
+    public const string SetupAssetName = "DBDReshade-Setup.exe";
+
     /// <summary>Dead by Daylight Steam AppID.</summary>
     public const int SteamAppId = 381210;
 }

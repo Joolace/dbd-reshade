@@ -90,7 +90,9 @@ public sealed partial class SelectablePreset : ObservableObject
     private bool _isSelected;
 }
 
-public sealed record ReleaseInfo(string Tag, string Url, Version? Version);
+/// <param name="PortableUrl">Download link of DBDReshade.exe attached to the release, if any.</param>
+/// <param name="SetupUrl">Download link of DBDReshade-Setup.exe attached to the release, if any.</param>
+public sealed record ReleaseInfo(string Tag, string Url, Version? Version, string? PortableUrl = null, string? SetupUrl = null);
 
 public sealed record RemoteFile(string Name, string DownloadUrl, string Sha);
 
