@@ -1,0 +1,125 @@
+using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using DBDReshade.Services;
+
+namespace DBDReshade.Models;
+
+/// <summary>A Dead by Daylight installation found on this PC.</summary>
+public sealed record GameInstallation(string Store, string RootPath)
+{
+    /// <summary>Folder that contains the game executable (and ReShade.ini once installed).</summary>
+    public string BinariesDirectory
+    {
+        get
+        {
+            var binaries = System.IO.Path.Combine(RootPath, "DeadByDaylight", "Binaries");
+            var egs = System.IO.Path.Combine(binaries, "EGS");
+            var win64 = System.IO.Path.Combine(binaries, "Win64");
+
+            if (Store == "Epic" && Directory.Exists(egs)) return egs;
+            if (Directory.Exists(win64)) return win64;
+            return Directory.Exists(egs) ? egs : win64;
+        }
+    }
+
+    /// <summary>The game's *-Shipping.exe, which is what ReShade hooks into.</summary>
+    public string? GameExecutable =>
+        Directory.Exists(BinariesDirectory)
+            ? Directory.EnumerateFiles(BinariesDirectory, "*-Shipping.exe").FirstOrDefault()
+            : null;
+
+    public string ReShadeIniPath => System.IO.Path.Combine(BinariesDirectory, "ReShade.ini");
+
+    public string DisplayName => $"{Store}  ·  {RootPath}";
+}
+
+/// <summary>One entry of presets.json.</summary>
+public sealed class PresetMetadata
+{
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    /// <summary>Where the preset comes from (video, site, Discord…). Stored as "videoLink" for compatibility.</summary>
+    [JsonPropertyName("videoLink")]
+    public string? Source { get; set; }
+
+    [JsonPropertyName("preset-preview")]
+    public string? PreviewImage { get; set; }
+}
+
+/// <summary>A preset .ini available locally.</summary>
+public sealed class Preset
+{
+    public Preset(string filePath, PresetMetadata? metadata, bool isCustom)
+    {
+        FilePath = filePath;
+        Metadata = metadata;
+        IsCustom = isCustom;
+    }
+
+    public string FilePath { get; }
+    public PresetMetadata? Metadata { get; }
+    public bool IsCustom { get; }
+
+    /// <summary>File name including extension, e.g. "01.STX.Dvarka.ini" (the presets.json key).</summary>
+    public string FileName => System.IO.Path.GetFileName(FilePath);
+
+    public string DisplayName => System.IO.Path.GetFileNameWithoutExtension(FilePath);
+
+    public string Description =>
+        string.IsNullOrWhiteSpace(Metadata?.Description) ? Loc.Get("Preset.NoDescription") : Metadata!.Description!;
+
+    /// <summary>The preset's source link, only if it is a valid http(s) address.</summary>
+    public string? SourceLink =>
+        Uri.TryCreate(Metadata?.Source, UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            ? uri.ToString()
+            : null;
+
+    public override string ToString() => DisplayName;
+}
+
+/// <summary>Preset wrapper with a checkbox, used by the copy page.</summary>
+public sealed partial class SelectablePreset : ObservableObject
+{
+    public SelectablePreset(Preset preset) => Preset = preset;
+
+    public Preset Preset { get; }
+
+    [ObservableProperty]
+    private bool _isSelected;
+}
+
+public sealed record ReleaseInfo(string Tag, string Url, Version? Version);
+
+public sealed record RemoteFile(string Name, string DownloadUrl, string Sha);
+
+public sealed record SyncResult(int NewPresets, int UpdatedPresets, int RefreshedPreviews)
+{
+    public int ChangedPresets => NewPresets + UpdatedPresets;
+}
+
+public enum LogLevel { Info, Success, Warning, Error }
+
+public sealed record LogEntry(DateTime Time, LogLevel Level, string Message)
+{
+    public string TimeText => Time.ToString("HH:mm:ss");
+}
+
+/// <summary>Settings persisted to settings.json between runs.</summary>
+public sealed class AppSettings
+{
+    /// <summary>Folder chosen by the user for preset files; null = use the game's binaries folder.</summary>
+    public string? CustomPresetFolder { get; set; }
+
+    /// <summary>Root path of the installation picked last time.</summary>
+    public string? LastGamePath { get; set; }
+
+    /// <summary>Presets the user deleted, so the GitHub sync doesn't bring them back.</summary>
+    public List<string> IgnoredPresets { get; set; } = new();
+
+    /// <summary>UI language code ("en", "it"…); null = follow Windows.</summary>
+    public string? Language { get; set; }
+
+    public AppTheme Theme { get; set; } = AppTheme.System;
+}

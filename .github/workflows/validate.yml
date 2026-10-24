@@ -1,0 +1,44 @@
+# Checks presets.json and the translations on every change.
+# A red ❌ on a commit or pull request means users would get broken data: the log says what to fix.
+name: Validate presets and translations
+
+on:
+  push:
+    paths:
+      - 'media/presets.json'
+      - 'Presets/**'
+      - 'media/preview-preset/**'
+      - 'translations/**'
+      - 'tools/**'
+  pull_request:
+    paths:
+      - 'media/presets.json'
+      - 'Presets/**'
+      - 'media/preview-preset/**'
+      - 'translations/**'
+      - 'tools/**'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # No file contents beyond what's listed below: the preview images alone are ~1 GB.
+          filter: blob:none
+          sparse-checkout: |
+            media/presets.json
+            Presets
+            translations
+            tools
+          sparse-checkout-cone-mode: false
+
+      # Only the names of the previews are needed: create empty placeholders from the git tree.
+      - name: List preview file names
+        run: |
+          mkdir -p media/preview-preset
+          git -c core.quotePath=false ls-tree --name-only HEAD media/preview-preset/ | while IFS= read -r f; do touch "$f"; done
+
+      - name: Validate presets.json and translations
+        run: python3 tools/validate.py

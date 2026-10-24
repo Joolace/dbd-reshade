@@ -1,0 +1,31 @@
+<!-- Light palette: every key here must exist in both Colors.Dark.xaml and Colors.Light.xaml -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#F4F4F7" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="#ECECF1" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#DADAE2" />
+    <SolidColorBrush x:Key="TextBrush" Color="#15151A" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#62626E" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#C81F35" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#DB2F46" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#A3192B" />
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#1E9E57" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#C98A00" />
+    <SolidColorBrush x:Key="LinkBrush" Color="#1F63D6" />
+    <SolidColorBrush x:Key="DangerForegroundBrush" Color="#C0182C" />
+    <SolidColorBrush x:Key="DangerBorderBrush" Color="#F1B9C0" />
+    <SolidColorBrush x:Key="DangerBackgroundBrush" Color="#FDECEE" />
+    <SolidColorBrush x:Key="BannerBackgroundBrush" Color="#FDECEE" />
+    <SolidColorBrush x:Key="ScrollThumbBrush" Color="#C4C4CE" />
+    <SolidColorBrush x:Key="OverlayBrush" Color="#B0000000" />
+    <SolidColorBrush x:Key="OverlayTextBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="LogTimeBrush" Color="#9A9AA6" />
+    <SolidColorBrush x:Key="LogInfoBrush" Color="#3C3C46" />
+    <SolidColorBrush x:Key="LogSuccessBrush" Color="#1E8C4E" />
+    <SolidColorBrush x:Key="LogWarningBrush" Color="#A87400" />
+    <SolidColorBrush x:Key="LogErrorBrush" Color="#C62828" />
+
+</ResourceDictionary>
