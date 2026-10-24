@@ -39,6 +39,7 @@ public sealed partial class MainViewModel : ObservableObject
         InstallerViewModel installer,
         PresetManagerViewModel manager,
         CopyPresetsViewModel copy,
+        EditorViewModel editor,
         SettingsViewModel settings,
         GitHubService github,
         PresetSyncService sync,
@@ -54,6 +55,7 @@ public sealed partial class MainViewModel : ObservableObject
         Pages = new ObservableCollection<NavItem>
         {
             new("Nav.Install", "", installer),
+            new("Nav.Editor", "", editor),
             new("Nav.Manager", "", manager),
             new("Nav.Copy", "", copy),
             new("Nav.Settings", "", settings),
@@ -81,6 +83,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         // Disk usage can change at any time (previews download in the background): re-measure on open.
         if (value.Page is SettingsViewModel settings) _ = settings.RefreshStorageAsync();
+        if (value.Page is EditorViewModel editor) _ = editor.ActivateAsync();
     }
 
     [ObservableProperty]
@@ -152,6 +155,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void OpenDataFolder() => Shell.Open(AppPaths.DataRoot);
+
+    [RelayCommand]
+    private void ReportBug() => Shell.ReportBug();
 
     [RelayCommand]
     private void ClearLog() => _log.Entries.Clear();

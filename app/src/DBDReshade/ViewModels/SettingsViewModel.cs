@@ -151,6 +151,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private void OpenRepository() => Shell.Open(AppInfo.RepoUrl);
 
     [RelayCommand]
+    private void ReportBug() => Shell.ReportBug();
+
+    [RelayCommand]
     private void HelpTranslate() => Shell.Open(AppInfo.TranslateGuideUrl);
 
     [RelayCommand]

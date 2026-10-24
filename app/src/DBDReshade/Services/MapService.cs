@@ -1,6 +1,8 @@
 namespace DBDReshade.Services;
 
-public sealed record MapInfo(string Name, bool IsDownloaded);
+/// <param name="Name">Realm name (folder on GitHub), or the display name of the user's own screenshots.</param>
+/// <param name="IsUser">The "My screenshots" entry: local only, never downloaded.</param>
+public sealed record MapInfo(string Name, bool IsDownloaded, bool IsUser = false);
 
 /// <summary>
 /// Map screenshots for the preview (formerly bundled with D3Daylight, ~400 MB).
@@ -19,7 +21,33 @@ public sealed class MapService
 
     public static string GetFolder(string map) => Path.Combine(AppPaths.MapsDirectory, SafeName(map));
 
-    /// <summary>Maps on GitHub, or only the downloaded ones when offline.</summary>
+    public static bool HasUserScreenshots => HasImages(AppPaths.UserScreenshotsDirectory);
+
+    /// <summary>The "My screenshots" entry, always first in the list (no "downloaded" badge: it's local).</summary>
+    public static MapInfo UserEntry => new(Loc.Get("Map.MyScreenshots"), IsDownloaded: false, IsUser: true);
+
+    /// <summary>Copies images into "My screenshots", renaming on name clashes.</summary>
+    /// <returns>How many were added.</returns>
+    public int AddUserScreenshots(IEnumerable<string> files)
+    {
+        Directory.CreateDirectory(AppPaths.UserScreenshotsDirectory);
+        var added = 0;
+        foreach (var file in files.Where(IsImage))
+        {
+            var name = Path.GetFileNameWithoutExtension(file);
+            var ext = Path.GetExtension(file);
+            var target = Path.Combine(AppPaths.UserScreenshotsDirectory, name + ext);
+            for (var i = 2; File.Exists(target); i++)
+                target = Path.Combine(AppPaths.UserScreenshotsDirectory, $"{name} ({i}){ext}");
+
+            File.Copy(file, target);
+            added++;
+        }
+        _log.Info($"Added {added} screenshot(s) to My screenshots.");
+        return added;
+    }
+
+    /// <summary>"My screenshots" first, then the realms on GitHub (or only the downloaded ones when offline).</summary>
     public async Task<IReadOnlyList<MapInfo>> GetMapsAsync(CancellationToken ct = default)
     {
         IEnumerable<string> names;
@@ -38,6 +66,7 @@ public sealed class MapService
         return names
             .Select(name => new MapInfo(name, HasImages(GetFolder(name))))
             .OrderBy(m => m.Name, StringComparer.CurrentCultureIgnoreCase)
+            .Prepend(UserEntry)
             .ToList();
     }
 
@@ -46,8 +75,15 @@ public sealed class MapService
     /// Works offline when they were downloaded before.
     /// </summary>
     /// <returns>The local folder with the screenshots.</returns>
-    public async Task<string> EnsureDownloadedAsync(string map, IProgress<double>? progress = null, CancellationToken ct = default)
+    public async Task<string> EnsureDownloadedAsync(MapInfo info, IProgress<double>? progress = null, CancellationToken ct = default)
     {
+        if (info.IsUser)
+        {
+            progress?.Report(1);
+            return AppPaths.UserScreenshotsDirectory;
+        }
+
+        var map = info.Name;
         var folder = GetFolder(map);
         Directory.CreateDirectory(folder);
 

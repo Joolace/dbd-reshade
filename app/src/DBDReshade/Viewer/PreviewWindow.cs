@@ -17,14 +17,20 @@ namespace DBDReshade.Viewer;
 /// through DXGI, the ReShade installed next to the preview exe applies the preset to it, exactly
 /// as it would in the game. Ported from D3Daylight; the D3D calls are unchanged.
 ///
-/// Keys: ← / → previous / next image, ESC close, F11 full screen.
+/// Keys: ← / → previous / next image, F11 full screen, F1 key help, ESC close
+/// (Home and Print Screen belong to ReShade).
 /// </summary>
 public sealed class PreviewWindow : WinForms.Form
 {
     private readonly List<string> _images;
     private readonly string _title;
     private readonly string _hint;
+    private readonly bool _dark;
     private int _index;
+
+    private WinForms.Panel? _help;
+    private WinForms.Label? _hintBadge;
+    private WinForms.Timer? _hintTimer;
 
     private ID3D11Device? _device;
     private ID3D11DeviceContext? _context;
@@ -44,15 +50,17 @@ public sealed class PreviewWindow : WinForms.Form
     private WinForms.FormWindowState _windowedState;
     private WinForms.FormBorderStyle _windowedBorder;
 
-    public PreviewWindow(List<string> images, string title, string hint)
+    public PreviewWindow(List<string> images, string title, string hint,
+        IReadOnlyList<(string Key, string Action)> keys, bool dark)
     {
         _images = images;
         _title = title;
         _hint = hint;
+        _dark = dark;
 
         try { Icon = Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!); } catch { /* cosmetic */ }
 
-        BackColor = Drawing.Color.FromArgb(26, 26, 26);
+        BackColor = dark ? Drawing.Color.FromArgb(26, 26, 26) : Drawing.Color.FromArgb(236, 236, 241);
         StartPosition = WinForms.FormStartPosition.CenterScreen;
         var area = WinForms.Screen.PrimaryScreen?.WorkingArea ?? new Drawing.Rectangle(0, 0, 1600, 900);
         Size = new Drawing.Size(area.Width * 4 / 5, area.Height * 4 / 5);
@@ -63,8 +71,121 @@ public sealed class PreviewWindow : WinForms.Form
         Shown += OnShown;
         Resize += (_, _) => ResizeSwapChain();
         FormClosed += (_, _) => Cleanup();
+        HandleCreated += (_, _) => ApplyTitleBarTheme();
 
+        BuildHelp(keys);
         UpdateTitle();
+    }
+
+    // ---- Key help (F1) -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Plain WinForms controls on top of the Direct3D surface (as D3Daylight's hint label was).
+    /// ReShade only touches what is rendered through DXGI, so it never draws over or into them.
+    /// </summary>
+    private void BuildHelp(IReadOnlyList<(string Key, string Action)> keys)
+    {
+        var back = Drawing.Color.FromArgb(23, 23, 28);
+        var muted = Drawing.Color.FromArgb(154, 154, 168);
+        var keyFont = new Drawing.Font("Segoe UI Semibold", 11f);
+        var textFont = new Drawing.Font("Segoe UI", 11f);
+
+        var table = new WinForms.TableLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = WinForms.AutoSizeMode.GrowAndShrink,
+            ColumnCount = 2,
+            BackColor = back,
+            Location = new Drawing.Point(18, 16),
+        };
+        table.ColumnStyles.Add(new WinForms.ColumnStyle(WinForms.SizeType.AutoSize));
+        table.ColumnStyles.Add(new WinForms.ColumnStyle(WinForms.SizeType.AutoSize));
+
+        foreach (var (key, action) in keys)
+        {
+            table.Controls.Add(new WinForms.Label
+            {
+                Text = key, AutoSize = true, Font = keyFont, ForeColor = Drawing.Color.White,
+                BackColor = Drawing.Color.FromArgb(44, 44, 54), Padding = new WinForms.Padding(8, 3, 8, 3),
+                Margin = new WinForms.Padding(0, 4, 16, 4),
+            });
+            table.Controls.Add(new WinForms.Label
+            {
+                Text = action, AutoSize = true, Font = textFont, ForeColor = muted,
+                Margin = new WinForms.Padding(0, 7, 0, 4),
+            });
+        }
+
+        _help = new WinForms.Panel
+        {
+            AutoSize = true,
+            AutoSizeMode = WinForms.AutoSizeMode.GrowAndShrink,
+            BackColor = back,
+            Padding = new WinForms.Padding(0, 0, 18, 16),
+            Location = new Drawing.Point(24, 24),
+            Visible = false,
+        };
+        _help.Controls.Add(table);
+        Controls.Add(_help);
+
+        // Short reminder at start-up, e.g. "F1: show the keys".
+        _hintBadge = new WinForms.Label
+        {
+            Text = _hint, AutoSize = true, Font = textFont, ForeColor = Drawing.Color.White,
+            BackColor = back, Padding = new WinForms.Padding(12, 8, 12, 8),
+            Location = new Drawing.Point(24, 24),
+        };
+        Controls.Add(_hintBadge);
+        _hintBadge.BringToFront();
+
+        _hintTimer = new WinForms.Timer { Interval = 4000 };
+        _hintTimer.Tick += (_, _) => HideHint();
+        _hintTimer.Start();
+    }
+
+    private void HideHint()
+    {
+        _hintTimer?.Stop();
+        if (_hintBadge is not null) _hintBadge.Visible = false;
+    }
+
+    private void ToggleHelp()
+    {
+        if (_help is null) return;
+        HideHint();
+        _help.Visible = !_help.Visible;
+        if (_help.Visible) _help.BringToFront();
+    }
+
+    // ---- Title bar colors ------------------------------------------------------------------
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
+    /// <summary>
+    /// Windows draws this title bar (ReShade needs a normal window), so it's tinted to the app theme:
+    /// dark/light mode on Windows 10, and the app's exact colors on Windows 11.
+    /// </summary>
+    private void ApplyTitleBarTheme()
+    {
+        try
+        {
+            var dark = _dark ? 1 : 0;
+            if (DwmSetWindowAttribute(Handle, 20, ref dark, sizeof(int)) != 0)
+                DwmSetWindowAttribute(Handle, 19, ref dark, sizeof(int));
+
+            // COLORREF is 0x00BBGGRR. Surface / text / border colors of Colors.Dark.xaml and Colors.Light.xaml.
+            var caption = _dark ? 0x001C1717 : 0x00FFFFFF;
+            var text = _dark ? 0x00F5F2F2 : 0x001A1515;
+            var border = _dark ? 0x00362C2C : 0x00E2DADA;
+            DwmSetWindowAttribute(Handle, 35, ref caption, sizeof(int)); // DWMWA_CAPTION_COLOR (Windows 11)
+            DwmSetWindowAttribute(Handle, 36, ref text, sizeof(int));    // DWMWA_TEXT_COLOR
+            DwmSetWindowAttribute(Handle, 34, ref border, sizeof(int));  // DWMWA_BORDER_COLOR
+        }
+        catch
+        {
+            // Purely cosmetic.
+        }
     }
 
     private void UpdateTitle() =>
@@ -81,11 +202,16 @@ public sealed class PreviewWindow : WinForms.Form
                 ShowImage((_index - 1 + _images.Count) % _images.Count);
                 break;
             case WinForms.Keys.Escape:
-                if (FormBorderStyle == WinForms.FormBorderStyle.None) ToggleFullScreen();
+                if (_help?.Visible == true) ToggleHelp();
+                else if (FormBorderStyle == WinForms.FormBorderStyle.None) ToggleFullScreen();
                 else Close();
                 break;
             case WinForms.Keys.F11:
                 ToggleFullScreen();
+                break;
+            case WinForms.Keys.F1:
+                ToggleHelp();
+                e.Handled = true;
                 break;
         }
     }
@@ -388,6 +514,7 @@ float4 PSMain(float4 position : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TA
     {
         _ready = false;
         WinForms.Application.Idle -= OnIdle;
+        _hintTimer?.Dispose();
 
         _textureView?.Dispose();
         _texture?.Dispose();

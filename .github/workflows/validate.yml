@@ -8,7 +8,7 @@ on:
       - 'media/presets.json'
       - 'Presets/**'
       - 'media/preview-preset/**'
-      - 'media/realms/**'
+      - 'Maps/**'
       - 'translations/**'
       - 'tools/**'
   pull_request:
@@ -16,7 +16,7 @@ on:
       - 'media/presets.json'
       - 'Presets/**'
       - 'media/preview-preset/**'
-      - 'media/realms/**'
+      - 'Maps/**'
       - 'translations/**'
       - 'tools/**'
   workflow_dispatch:
@@ -39,8 +39,8 @@ jobs:
       # Only the names of previews and map screenshots are needed: create empty placeholders from the git tree.
       - name: List image file names
         run: |
-          mkdir -p media/preview-preset media/realms
-          git -c core.quotePath=false ls-tree -r --name-only HEAD media/preview-preset/ media/realms/ |
+          mkdir -p media/preview-preset
+          git -c core.quotePath=false ls-tree -r --name-only HEAD media/preview-preset/ Maps/ |
             while IFS= read -r f; do mkdir -p "$(dirname "$f")"; touch "$f"; done
 
       - name: Validate presets, translations and maps

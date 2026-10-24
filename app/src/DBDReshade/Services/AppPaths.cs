@@ -19,6 +19,15 @@ public static class AppPaths
     /// <summary>Map screenshots for the preview, downloaded one map at a time.</summary>
     public static string MapsDirectory => Path.Combine(DataRoot, "Maps");
 
+    /// <summary>The user's own screenshots for the preview and the editor. Never deleted by the cleanup.</summary>
+    public static string UserScreenshotsDirectory => Path.Combine(DataRoot, "My Screenshots");
+
+    /// <summary>Presets being created in the editor (work in progress, never deleted by the cleanup).</summary>
+    public static string EditorDirectory => Path.Combine(DataRoot, "Editor");
+
+    /// <summary>Where ReShade saves screenshots taken in the editor (Print Screen).</summary>
+    public static string EditorScreenshotsDirectory => Path.Combine(EditorDirectory, "Screenshots");
+
     /// <summary>Copy of this exe that runs the map preview, with its own ReShade install.</summary>
     public static string ViewerDirectory => Path.Combine(DataRoot, "Viewer");
 
@@ -46,6 +55,8 @@ public static class AppPaths
         Directory.CreateDirectory(LogsDirectory);
         Directory.CreateDirectory(TranslationsDirectory);
         Directory.CreateDirectory(MapsDirectory);
+        Directory.CreateDirectory(UserScreenshotsDirectory);
+        Directory.CreateDirectory(EditorScreenshotsDirectory);
 
         var firstRun = !Directory.EnumerateFiles(PresetsDirectory, "*.ini").Any();
         if (firstRun || !File.Exists(RemoteMetadataFile))

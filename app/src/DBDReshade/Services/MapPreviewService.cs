@@ -32,9 +32,30 @@ public sealed class MapPreviewService
 
     public static bool IsReShadeInstalled => File.Exists(Path.Combine(AppPaths.ViewerDirectory, "dxgi.dll"));
 
+    /// <summary>
+    /// "Try on maps": shows a temporary copy of the preset in ReShade's performance mode, so trying a
+    /// preset can never change the one in the library.
+    /// </summary>
     /// <returns>False if no ReShade shaders were found: the preview will run, but effects may be missing.</returns>
-    public async Task<bool> PrepareAsync(Preset preset, GameInstallation? game,
+    public Task<bool> PrepareAsync(Preset preset, GameInstallation? game,
         IProgress<double>? reshadeProgress = null, CancellationToken ct = default)
+    {
+        Directory.CreateDirectory(AppPaths.ViewerDirectory);
+        var copy = Path.Combine(AppPaths.ViewerDirectory, "preview-preset.ini");
+        File.Copy(preset.FilePath, copy, overwrite: true);
+        return PrepareCoreAsync(copy, game, editable: false, reshadeProgress, ct);
+    }
+
+    /// <summary>
+    /// Preset editor: ReShade edits <paramref name="presetFile"/> directly (changes are saved as you go)
+    /// and Print Screen saves screenshots to the editor's folder.
+    /// </summary>
+    public Task<bool> PrepareEditorAsync(string presetFile, GameInstallation? game,
+        IProgress<double>? reshadeProgress = null, CancellationToken ct = default) =>
+        PrepareCoreAsync(presetFile, game, editable: true, reshadeProgress, ct);
+
+    private async Task<bool> PrepareCoreAsync(string presetFile, GameInstallation? game, bool editable,
+        IProgress<double>? reshadeProgress, CancellationToken ct)
     {
         await Task.Run(CopyViewer, ct);
 
@@ -44,10 +65,11 @@ public sealed class MapPreviewService
             await _reshade.InstallForExecutableAsync(ViewerExe, reshadeProgress, ct);
         }
 
-        return Configure(preset, game);
+        return Configure(presetFile, game, editable);
     }
 
-    public void Launch(string screenshotsFolder, string title, string hint)
+    /// <summary>Starts the preview window; await <see cref="Process.WaitForExitAsync"/> to know when it closes.</summary>
+    public Process Launch(string screenshotsFolder, string title)
     {
         var start = new ProcessStartInfo(ViewerExe)
         {
@@ -59,11 +81,27 @@ public sealed class MapPreviewService
         start.ArgumentList.Add("--title");
         start.ArgumentList.Add(title);
         start.ArgumentList.Add("--hint");
-        start.ArgumentList.Add(hint);
+        start.ArgumentList.Add(Loc.Get("Viewer.HelpHint"));
+        start.ArgumentList.Add("--keys");
+        start.ArgumentList.Add(KeyHelp());
+        start.ArgumentList.Add("--theme");
+        start.ArgumentList.Add(ThemeManager.IsDark ? "dark" : "light");
 
-        Process.Start(start);
+        var process = Process.Start(start) ?? throw new InvalidOperationException("The preview could not be started.");
         _log.Info($"Map preview started: {title}");
+        return process;
     }
+
+    /// <summary>The F1 key list, translated: one "key TAB action" per line.</summary>
+    private static string KeyHelp() => string.Join("\n", new[]
+    {
+        ("← →", "Viewer.KeyImages"),
+        ("F11", "Viewer.KeyFullScreen"),
+        (Loc.Get("Viewer.KeyNameHome"), "Viewer.KeyReShade"),
+        (Loc.Get("Viewer.KeyNamePrint"), "Viewer.KeyScreenshot"),
+        ("F1", "Viewer.KeyHelp"),
+        ("ESC", "Viewer.KeyClose"),
+    }.Select(k => $"{k.Item1}\t{Loc.Get(k.Item2)}"));
 
     /// <summary>Copies the running app into the viewer folder when it's missing or out of date.</summary>
     private void CopyViewer()
@@ -107,11 +145,15 @@ public sealed class MapPreviewService
         || File.GetLastWriteTimeUtc(ViewerExe) != File.GetLastWriteTimeUtc(source);
 
     /// <returns>True if shaders were found (the game's, or the viewer's own).</returns>
-    private bool Configure(Preset preset, GameInstallation? game)
+    private bool Configure(string presetFile, GameInstallation? game, bool editable)
     {
-        IniFile.SetValue(ViewerIni, "GENERAL", "PresetPath", preset.FilePath);
+        IniFile.SetValue(ViewerIni, "GENERAL", "PresetPath", presetFile);
+        // Performance mode locks effect settings: right for trying a preset, wrong for editing one.
+        IniFile.SetValue(ViewerIni, "GENERAL", "PerformanceMode", editable ? "0" : "1");
         // Skip ReShade's first-run tutorial: the user came to see the preset.
         IniFile.SetValue(ViewerIni, "OVERLAY", "TutorialProgress", "4");
+        if (editable)
+            IniFile.SetValue(ViewerIni, "SCREENSHOT", "SavePath", AppPaths.EditorScreenshotsDirectory);
 
         var shadersFound = false;
         if (game is not null)
@@ -133,7 +175,7 @@ public sealed class MapPreviewService
         if (!shadersFound)
             _log.Warning("No ReShade shaders found for the map preview: some effects of the preset may not show.");
 
-        _log.Info($"Map preview preset: {preset.FileName}");
+        _log.Info($"Map preview preset: {Path.GetFileName(presetFile)}{(editable ? " (editor)" : "")}");
         return shadersFound;
     }
 

@@ -58,7 +58,10 @@ public sealed partial class MapPickerViewModel : ObservableObject
         try
         {
             foreach (var map in await _maps.GetMapsAsync()) Maps.Add(map);
-            SelectedMap = Maps.FirstOrDefault(m => m.IsDownloaded) ?? Maps.FirstOrDefault();
+            // A realm already on disk, else your own screenshots if you have some, else the first realm.
+            SelectedMap = Maps.FirstOrDefault(m => m.IsDownloaded)
+                          ?? (MapService.HasUserScreenshots ? Maps.FirstOrDefault(m => m.IsUser) : Maps.FirstOrDefault(m => !m.IsUser))
+                          ?? Maps.FirstOrDefault();
         }
         finally
         {
@@ -68,16 +71,59 @@ public sealed partial class MapPickerViewModel : ObservableObject
 
     private bool CanStart() => !IsBusy && SelectedMap is not null;
 
+    /// <summary>Adds the user's own images to "My screenshots" and selects that entry.</summary>
+    [RelayCommand]
+    private void AddScreenshots()
+    {
+        var files = Dialogs.PickFiles(Loc.Get("Map.PickScreenshots"),
+            $"{Loc.Get("Man.ImageFilter")} (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg");
+        if (files.Count == 0) return;
+
+        try
+        {
+            var added = _maps.AddUserScreenshots(files);
+            RefreshUserEntry(select: true);
+            Dialogs.Info(Loc.Format("Map.ScreenshotsAdded", added));
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Adding screenshots failed: {ex.Message}");
+            Dialogs.Error(ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void OpenMyScreenshots()
+    {
+        Shell.Open(AppPaths.UserScreenshotsDirectory);
+        RefreshUserEntry(select: false); // the user may add or delete files there
+    }
+
+    private void RefreshUserEntry(bool select)
+    {
+        var wasSelected = SelectedMap?.IsUser == true;
+        var index = Maps.ToList().FindIndex(m => m.IsUser);
+        var entry = MapService.UserEntry;
+        if (index >= 0) Maps[index] = entry; else Maps.Insert(0, entry);
+        if (select || wasSelected) SelectedMap = entry;
+    }
+
     [RelayCommand(CanExecute = nameof(CanStart))]
     private async Task StartAsync()
     {
         var map = SelectedMap!;
+        if (map.IsUser && !MapService.HasUserScreenshots)
+        {
+            Dialogs.Info(Loc.Get("Map.NoMyScreenshots"));
+            return;
+        }
+
         IsBusy = true;
         ProgressValue = 0;
         try
         {
             StatusText = Loc.Get("Map.Status.Downloading");
-            var folder = await _maps.EnsureDownloadedAsync(map.Name, new System.Progress<double>(p => ProgressValue = p * 60));
+            var folder = await _maps.EnsureDownloadedAsync(map, new System.Progress<double>(p => ProgressValue = p * 60));
 
             StatusText = Loc.Get(MapPreviewService.IsReShadeInstalled ? "Map.Status.Starting" : "Map.Status.InstallingReShade");
             var shadersFound = await _preview.PrepareAsync(_preset, _game,
@@ -85,7 +131,7 @@ public sealed partial class MapPickerViewModel : ObservableObject
             ProgressValue = 100;
 
             StatusText = Loc.Get("Map.Status.Starting");
-            _preview.Launch(folder, map.Name, Loc.Get("Map.ViewerHint"));
+            _preview.Launch(folder, map.Name);
 
             if (!shadersFound) Dialogs.Warning(Loc.Get("Map.NoShaders"));
             RequestClose?.Invoke(this, EventArgs.Empty);

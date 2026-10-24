@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainViewModel}"
         Title="DBD Reshade"
+        Style="{StaticResource ChromeWindow}"
         Icon="/Assets/app.ico"
         Width="1180" Height="780" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterScreen"
@@ -32,6 +33,9 @@
         <DataTemplate DataType="{x:Type vm:CopyPresetsViewModel}">
             <views:CopyPresetsView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EditorViewModel}">
+            <views:EditorView />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
             <views:SettingsView />
         </DataTemplate>
@@ -49,6 +53,10 @@
         </Style>
     </Window.Resources>
 
+    <!-- Root: thin border + own title bar (see Views/TitleBar.xaml) above the app -->
+    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+    <DockPanel>
+    <views:TitleBar DockPanel.Dock="Top" />
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240" />
@@ -76,6 +84,14 @@
                                     Content="{DynamicResource Update.Download}" Command="{Binding OpenUpdateCommand}" />
                         </StackPanel>
                     </Border>
+
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Margin="0,0,0,8" ToolTip="{DynamicResource Footer.ReportBugTip}" Command="{Binding ReportBugCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xEBE8;" FontSize="13" Margin="0,0,8,0" />
+                            <TextBlock Text="{DynamicResource Footer.ReportBug}" />
+                        </StackPanel>
+                    </Button>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
                         <Button Style="{StaticResource SocialButton}" ToolTip="Discord"
@@ -214,4 +230,6 @@
             </Border>
         </Grid>
     </Grid>
+    </DockPanel>
+    </Border>
 </Window>

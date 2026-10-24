@@ -40,10 +40,12 @@ public partial class App : Application
         var maps = new MapService(github, _log);
         var mapPreview = new MapPreviewService(reshade, _log);
 
+        var installer = new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview);
         var main = new MainViewModel(
-            new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview),
+            installer,
             new PresetManagerViewModel(repository, sync, _log),
             new CopyPresetsViewModel(repository, _log),
+            new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, _log),
             new SettingsViewModel(settings, storage),
             github, sync, translations, _log);
 

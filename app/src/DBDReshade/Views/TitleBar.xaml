@@ -1,0 +1,35 @@
+<UserControl x:Class="DBDReshade.Views.TitleBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="38">
+    <!-- The window's own title bar: dragging, double-click to maximize, Aero Snap and the system menu
+         still come from WindowChrome; only the look is ours. -->
+    <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Image Source="/Assets/app.ico" Width="16" Height="16" Margin="14,0,10,0" VerticalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality" />
+
+            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource TextMutedBrush}"
+                       Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" />
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="MinimizeButton" Style="{StaticResource CaptionButton}" Click="OnMinimize">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE921;" FontSize="10" />
+                </Button>
+                <Button x:Name="MaximizeButton" Style="{StaticResource CaptionButton}" Click="OnMaximize">
+                    <TextBlock x:Name="MaximizeIcon" Style="{StaticResource Icon}" Text="&#xE922;" FontSize="10" />
+                </Button>
+                <Button x:Name="CloseButton" Style="{StaticResource CloseCaptionButton}" Click="OnClose">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8BB;" FontSize="10" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

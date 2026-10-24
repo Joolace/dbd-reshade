@@ -178,6 +178,12 @@
                     <TextBlock Text="{Binding DataFolder}" Margin="0,6,0,12" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal">
                         <Button Content="{DynamicResource Set.OpenData}" Command="{Binding OpenDataFolderCommand}" />
+                        <Button Style="{StaticResource GhostButton}" Margin="8,0,0,0" Command="{Binding ReportBugCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xEBE8;" FontSize="13" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Footer.ReportBug}" />
+                            </StackPanel>
+                        </Button>
                         <Button Style="{StaticResource GhostButton}" Margin="8,0,0,0" Command="{Binding OpenRepositoryCommand}">
                             <TextBlock>
                                 <Run Text="{DynamicResource Set.About}" /> <Run Text="{Binding VersionText, Mode=OneWay}" />

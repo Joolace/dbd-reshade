@@ -9,7 +9,9 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
   ReShade automatically if missing, copies the preset and sets `PresetPath` in `ReShade.ini`.
   Searchable preset list, description, source link and a full-screen preview (click or Space).
 - **Try on maps** — see a preset on real map screenshots with ReShade, without starting the game
-  (formerly the separate D3Daylight app, now built in).
+  (formerly the separate D3Daylight app, now built in), or on your own screenshots.
+- **Preset Editor** — create a preset in ReShade, live on map screenshots, then save it to the library
+  with description, source and the screenshot taken in the editor.
 - **Preset Manager** — add your own `.ini` with description, source link and screenshot; delete presets.
 - **Copy Presets** — copy any selection of presets to a folder.
 - **Settings** — light / dark / system theme and interface language (English, Italiano, Español,
@@ -17,6 +19,9 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
   updated from GitHub and anyone can contribute.
 - **Storage cleanup** — free the space used by cached previews, old logs and temporary downloads
   (your own presets and screenshots are never touched).
+- **Own title bar** — the main window and dialogs draw their own title bar in the theme colors
+  (WindowChrome keeps dragging, snapping and double-click to maximize).
+- **Report a bug** — opens Discord and the logs folder, so today's log can be attached.
 - **Automatic updates** — new and changed presets are pulled from this repository at startup; the app
   tells you when a newer release exists.
 
@@ -36,6 +41,8 @@ Everything the app writes is in `%LOCALAPPDATA%\DBDReshade`:
 | `settings.json` | theme, language, last game, custom preset folder, presets you deleted |
 | `Maps\` | map screenshots for the preview, downloaded one map at a time |
 | `Viewer\` | the preview copy of the app with its own ReShade (see below) |
+| `My Screenshots\` | the user's own screenshots for the preview and the editor (never cleaned up) |
+| `Editor\` | presets being created in the editor, and their screenshots (never cleaned up) |
 | `Translations\` | translations downloaded from GitHub |
 | `Logs\` | one log file per day |
 
@@ -84,7 +91,9 @@ name before starting the app; the log then shows "Test mode".
 
 `DBDReshade.exe` has two modes. Started normally it shows the app; started as
 `DBDReshade.exe --viewer "<folder>" --title "<map>"` it opens only a Direct3D 11 window that shows the
-screenshots in that folder (← → change image, F11 full screen, ESC close).
+screenshots in that folder (← → change image, F11 full screen, F1 key help, ESC close; Home opens ReShade
+and Print Screen takes a screenshot). The app passes the translated key help (`--keys`) and the theme
+(`--theme dark|light`); the window's title bar is tinted with the theme colors through DWM.
 
 ReShade has to sit next to the exe it hooks, and it must never hook the app's own interface. So when
 you press **Try on maps** the app:
@@ -97,6 +106,22 @@ you press **Try on maps** the app:
 
 Screenshots live in `Maps/<Realm name>/` in the repository (one folder per realm, `.png` or `.jpg`).
 Add or replace screenshots there and users get them the next time they open that realm.
+
+Trying a preset uses a temporary copy of it in ReShade's performance mode, so it can never change the
+preset in the library.
+
+## Preset Editor
+
+ReShade itself is the editor; the app wraps it in four steps:
+
+1. **Name and starting point** — an empty preset or a copy of any preset in the library. The work file is
+   `Editor\<name>.ini`; reopening the same name continues the draft.
+2. **Screenshots** — a realm, or "My screenshots".
+3. **Edit** — the preview opens on the draft with performance mode off. The user presses Home, enables
+   effects and moves sliders; ReShade saves every change into the draft. Print Screen saves screenshots to
+   `Editor\Screenshots`.
+4. **Save** — description, source and preview (the last screenshot of the session is picked
+   automatically), then the draft is added to the library as the user's own preset.
 
 ## Publishing presets (no app update needed)
 

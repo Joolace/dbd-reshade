@@ -47,6 +47,12 @@ public static class Dialogs
         return ShowDialog(dialog) ? dialog.FolderName : null;
     }
 
+    public static IReadOnlyList<string> PickFiles(string title, string filter)
+    {
+        var dialog = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true, Multiselect = true };
+        return ShowDialog(dialog) ? dialog.FileNames : Array.Empty<string>();
+    }
+
     public static string? PickFile(string title, string filter)
     {
         var dialog = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true };
@@ -64,6 +70,17 @@ public static class Dialogs
 
 public static class Shell
 {
+    /// <summary>
+    /// Bug reports go to Discord: explains what to send, then opens Discord and the logs folder
+    /// so today's log file can be attached right away.
+    /// </summary>
+    public static void ReportBug()
+    {
+        Dialogs.Info(Services.Loc.Get("App.ReportBugInfo"));
+        Open(AppInfo.DiscordUrl);
+        Open(Services.AppPaths.LogsDirectory);
+    }
+
     public static void Open(string? target)
     {
         if (string.IsNullOrWhiteSpace(target)) return;
