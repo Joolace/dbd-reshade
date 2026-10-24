@@ -95,8 +95,8 @@ you press **Try on maps** the app:
    `TextureSearchPaths`, so the preview uses exactly the same shaders as the game;
 4. downloads the chosen map's screenshots and starts the copy in `--viewer` mode.
 
-Screenshots live in `media/realms/<Map name>/` in the repository (one folder per map, `.png` or `.jpg`).
-Add or replace screenshots there and users get them the next time they open that map.
+Screenshots live in `Maps/<Realm name>/` in the repository (one folder per realm, `.png` or `.jpg`).
+Add or replace screenshots there and users get them the next time they open that realm.
 
 ## Publishing presets (no app update needed)
 

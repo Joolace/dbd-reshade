@@ -4,7 +4,7 @@ public sealed record MapInfo(string Name, bool IsDownloaded);
 
 /// <summary>
 /// Map screenshots for the preview (formerly bundled with D3Daylight, ~400 MB).
-/// They live in media/realms/&lt;map&gt;/ on GitHub and are downloaded one map at a time.
+/// They live in Maps/&lt;realm&gt;/ on GitHub and are downloaded one realm at a time.
 /// </summary>
 public sealed class MapService
 {

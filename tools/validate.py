@@ -5,7 +5,7 @@ Checks the dbd-reshade repository data before it reaches users.
     python tools/validate.py                  # everything
     python tools/validate.py --presets        # only media/presets.json
     python tools/validate.py --translations   # only translations/*.json
-    python tools/validate.py --maps           # only media/realms (map screenshots for the preview)
+    python tools/validate.py --maps           # only the map screenshots for the preview (Maps/)
 
 Run from anywhere; paths are relative to the repository root.
 Exit code 0 = OK (warnings allowed), 1 = errors found.
@@ -13,7 +13,7 @@ Exit code 0 = OK (warnings allowed), 1 = errors found.
 presets.json   valid JSON, no duplicate keys, every key is a file in Presets/ (same case), every
                preset-preview exists in media/preview-preset/, videoLink is http(s), no unknown fields.
 translations   valid JSON, "_language" set, placeholders {0}/{1} identical to en.json, missing/unknown keys.
-maps           one folder per map in media/realms, each with .png/.jpg screenshots only.
+maps           one folder per realm in Maps/, each with .png/.jpg screenshots only.
 """
 import argparse
 import json
@@ -26,7 +26,7 @@ PRESETS_JSON = os.path.join(ROOT, "media", "presets.json")
 PRESETS_DIR = os.path.join(ROOT, "Presets")
 PREVIEWS_DIR = os.path.join(ROOT, "media", "preview-preset")
 TRANSLATIONS_DIR = os.path.join(ROOT, "translations")
-MAPS_DIR = os.path.join(ROOT, "media", "realms")
+MAPS_FOLDER = "Maps"  # same as AppInfo.MapsFolder in the app
 MAP_IMAGES = (".png", ".jpg", ".jpeg")
 WINDOWS_INVALID = set('<>:"/\\|?*')
 
@@ -196,21 +196,23 @@ def check_translations(report):
 
 
 # ---------------------------------------------------------------------------------------------------
-# media/realms/<map>/*.png
+# Maps/<map>/*.png
 # ---------------------------------------------------------------------------------------------------
 
 def check_maps(report):
+    folder = MAPS_FOLDER
+    MAPS_DIR = os.path.join(ROOT, folder)
     if not os.path.isdir(MAPS_DIR):
-        report.warn("media/realms/ not found: the map preview will have no maps")
+        report.warn(f"{folder}/ not found: the map preview will have no maps")
         return
 
     total = 0
     maps = sorted(os.listdir(MAPS_DIR))
     for name in maps:
         path = os.path.join(MAPS_DIR, name)
-        label = f"media/realms/{name}"
+        label = f"{folder}/{name}"
         if not os.path.isdir(path):
-            report.warn(f"{label}: files directly in media/realms are ignored, put them in a map folder")
+            report.warn(f"{label}: files directly in {folder}/ are ignored, put them in a map folder")
             continue
         if set(name) & WINDOWS_INVALID or name.endswith((" ", ".")):
             report.error(f"{label}: folder name can't be used on Windows")
@@ -223,7 +225,7 @@ def check_maps(report):
             report.warn(f"{label}/{f}: not a .png/.jpg, ignored by the preview")
         total += len(images)
 
-    print(f"maps: {sum(os.path.isdir(os.path.join(MAPS_DIR, m)) for m in maps)} maps, {total} screenshots")
+    print(f"maps ({folder}/): {sum(os.path.isdir(os.path.join(MAPS_DIR, m)) for m in maps)} maps, {total} screenshots")
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -232,7 +234,7 @@ def main():
     parser = argparse.ArgumentParser(description="Validate presets.json and translations.")
     parser.add_argument("--presets", action="store_true", help="only check media/presets.json")
     parser.add_argument("--translations", action="store_true", help="only check translations/*.json")
-    parser.add_argument("--maps", action="store_true", help="only check media/realms")
+    parser.add_argument("--maps", action="store_true", help="only check Maps/")
     args = parser.parse_args()
     run_all = not (args.presets or args.translations or args.maps)
 

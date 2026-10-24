@@ -33,8 +33,8 @@ public static class AppInfo
     /// <summary>Folder of the repository holding the community translations (one JSON per language).</summary>
     public const string TranslationsFolder = "translations";
 
-    /// <summary>Folder of the repository with the map screenshots, one subfolder per map (formerly D3Daylight).</summary>
-    public const string MapsFolder = "media/realms";
+    /// <summary>Repository folder with the map screenshots, one subfolder per realm (formerly D3Daylight).</summary>
+    public const string MapsFolder = "Maps";
 
     public const string TranslateGuideUrl = RepoUrl + "/blob/" + DefaultBranch + "/translations/README.md";
 
