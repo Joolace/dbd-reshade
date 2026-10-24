@@ -31,6 +31,20 @@ public sealed class GitHubService
     public Task<IReadOnlyList<RemoteFile>> ListPreviewFilesAsync(CancellationToken ct = default) =>
         ListFilesAsync("media/preview-preset", IsImage, ct);
 
+    /// <summary>Map names: the subfolders of media/realms.</summary>
+    public async Task<IReadOnlyList<string>> ListMapsAsync(CancellationToken ct = default)
+    {
+        using var doc = JsonDocument.Parse(await Http.Client.GetStringAsync($"{Api}/contents/{AppInfo.MapsFolder}", ct));
+        return doc.RootElement.EnumerateArray()
+            .Where(item => item.GetProperty("type").GetString() == "dir")
+            .Select(item => item.GetProperty("name").GetString()!)
+            .ToList();
+    }
+
+    /// <summary>Screenshots of one map (media/realms/&lt;map&gt;).</summary>
+    public Task<IReadOnlyList<RemoteFile>> ListMapImagesAsync(string map, CancellationToken ct = default) =>
+        ListFilesAsync($"{AppInfo.MapsFolder}/{Uri.EscapeDataString(map)}", IsImage, ct);
+
     /// <summary>The community translations (translations/*.json).</summary>
     public Task<IReadOnlyList<RemoteFile>> ListTranslationFilesAsync(CancellationToken ct = default) =>
         ListFilesAsync(AppInfo.TranslationsFolder, name => name.EndsWith(".json", StringComparison.OrdinalIgnoreCase), ct);

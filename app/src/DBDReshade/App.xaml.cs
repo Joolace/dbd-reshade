@@ -37,9 +37,11 @@ public partial class App : Application
         var reshade = new ReShadeService(_log);
         var storage = new StorageService(repository, _log);
         var translations = new TranslationSyncService(github, _log);
+        var maps = new MapService(github, _log);
+        var mapPreview = new MapPreviewService(reshade, _log);
 
         var main = new MainViewModel(
-            new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log),
+            new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview),
             new PresetManagerViewModel(repository, sync, _log),
             new CopyPresetsViewModel(repository, _log),
             new SettingsViewModel(settings, storage),

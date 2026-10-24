@@ -85,13 +85,14 @@ public sealed partial class SettingsViewModel : ObservableObject
     // ---- Storage --------------------------------------------------------------------------
 
     [ObservableProperty] private string _previewsSize = "…";
+    [ObservableProperty] private string _mapsSize = "…";
     [ObservableProperty] private string _logsSize = "…";
     [ObservableProperty] private string _tempSize = "…";
     [ObservableProperty] private string _totalSize = "…";
     [ObservableProperty] private string? _freedText;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ClearPreviewsCommand), nameof(ClearLogsCommand),
+    [NotifyCanExecuteChangedFor(nameof(ClearPreviewsCommand), nameof(ClearMapsCommand), nameof(ClearLogsCommand),
                                 nameof(ClearTempCommand), nameof(ClearAllCommand))]
     private bool _isWorking;
 
@@ -102,6 +103,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         var info = await Task.Run(_storage.Measure);
         PreviewsSize = StorageService.FormatBytes(info.PreviewsBytes);
+        MapsSize = StorageService.FormatBytes(info.MapsBytes);
         LogsSize = StorageService.FormatBytes(info.LogsBytes);
         TempSize = StorageService.FormatBytes(info.TempBytes);
         TotalSize = StorageService.FormatBytes(info.TotalBytes);
@@ -109,6 +111,9 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     [RelayCommand(CanExecute = nameof(CanClear))]
     private Task ClearPreviewsAsync() => ClearAsync(_storage.ClearPreviews);
+
+    [RelayCommand(CanExecute = nameof(CanClear))]
+    private Task ClearMapsAsync() => ClearAsync(_storage.ClearMaps);
 
     [RelayCommand(CanExecute = nameof(CanClear))]
     private Task ClearLogsAsync() => ClearAsync(_storage.ClearLogs);

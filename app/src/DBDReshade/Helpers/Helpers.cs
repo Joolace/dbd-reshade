@@ -14,7 +14,9 @@ namespace DBDReshade.Helpers;
 /// <summary>Thin wrapper over the standard dialogs so view models stay free of UI types.</summary>
 public static class Dialogs
 {
-    private static Window? Owner => Application.Current?.MainWindow;
+    /// <summary>The window in front (a dialog such as the map picker), else the main window.</summary>
+    private static Window? Owner =>
+        Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? Application.Current?.MainWindow;
 
     public static void Info(string message, string title = "DBD Reshade") =>
         Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
@@ -118,6 +120,16 @@ public static class WindowTheme
             // Purely cosmetic.
         }
     }
+}
+
+/// <summary>true ⇄ false, for bindings such as IsEnabled="{Binding IsBusy, Converter=…}".</summary>
+public sealed class InverseBool : IValueConverter
+{
+    public static readonly InverseBool Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is not true;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => value is not true;
 }
 
 public sealed class NullToVisibilityConverter : IValueConverter

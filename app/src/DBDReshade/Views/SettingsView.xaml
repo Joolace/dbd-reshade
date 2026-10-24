@@ -125,6 +125,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Text="{DynamicResource Set.Previews}" VerticalAlignment="Center" />
@@ -132,14 +133,19 @@
                         <Button Grid.Row="0" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearPreviewsCommand}" MinWidth="110" />
 
-                        <TextBlock Grid.Row="1" Text="{DynamicResource Set.Logs}" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding LogsSize}" />
+                        <TextBlock Grid.Row="1" Text="{DynamicResource Set.Maps}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding MapsSize}" />
                         <Button Grid.Row="1" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
+                                Command="{Binding ClearMapsCommand}" MinWidth="110" />
+
+                        <TextBlock Grid.Row="2" Text="{DynamicResource Set.Logs}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding LogsSize}" />
+                        <Button Grid.Row="2" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearLogsCommand}" MinWidth="110" />
 
-                        <TextBlock Grid.Row="2" Text="{DynamicResource Set.Temp}" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding TempSize}" />
-                        <Button Grid.Row="2" Grid.Column="2" Content="{DynamicResource Set.Clear}"
+                        <TextBlock Grid.Row="3" Text="{DynamicResource Set.Temp}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding TempSize}" />
+                        <Button Grid.Row="3" Grid.Column="2" Content="{DynamicResource Set.Clear}"
                                 Command="{Binding ClearTempCommand}" MinWidth="110" />
                     </Grid>
 

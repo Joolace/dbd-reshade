@@ -4,6 +4,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <!-- WinForms hosts the Direct3D 11 map preview window (ported from D3Daylight) -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Program.Main picks the mode: normal UI, or "--viewer" map preview -->
+    <StartupObject>DBDReshade.Program</StartupObject>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
@@ -35,12 +40,26 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <!-- Same Direct3D 11 bindings and versions D3Daylight used -->
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.6.2" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.6.2" />
+    <PackageReference Include="Vortice.DirectX" Version="3.6.2" />
+    <PackageReference Include="Vortice.DXGI" Version="3.6.2" />
   </ItemGroup>
 
   <!-- WPF projects drop these two from the implicit usings; the code relies on them everywhere -->
   <ItemGroup>
     <Using Include="System.IO" />
     <Using Include="System.Net.Http" />
+    <!-- WinForms is only for the preview window: keep its names out of the WPF code -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <!-- App.xaml stays the WPF application, but Main is ours (Program.cs) -->
+  <ItemGroup>
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
   </ItemGroup>
 
   <ItemGroup>

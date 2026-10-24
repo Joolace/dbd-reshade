@@ -8,6 +8,8 @@ ReShade installer and preset manager for *Dead by Daylight*, rebuilt as a native
 - **Install Preset** — finds Dead by Daylight (Steam and Epic, or pick the folder by hand), installs
   ReShade automatically if missing, copies the preset and sets `PresetPath` in `ReShade.ini`.
   Searchable preset list, description, source link and a full-screen preview (click or Space).
+- **Try on maps** — see a preset on real map screenshots with ReShade, without starting the game
+  (formerly the separate D3Daylight app, now built in).
 - **Preset Manager** — add your own `.ini` with description, source link and screenshot; delete presets.
 - **Copy Presets** — copy any selection of presets to a folder.
 - **Settings** — light / dark / system theme and interface language (English, Italiano, Español,
@@ -32,6 +34,9 @@ Everything the app writes is in `%LOCALAPPDATA%\DBDReshade`:
 | `presets.json` | metadata mirrored from GitHub (overwritten on every sync) |
 | `user-presets.json` | metadata for presets you added (never overwritten) |
 | `settings.json` | theme, language, last game, custom preset folder, presets you deleted |
+| `Maps\` | map screenshots for the preview, downloaded one map at a time |
+| `Viewer\` | the preview copy of the app with its own ReShade (see below) |
+| `Translations\` | translations downloaded from GitHub |
 | `Logs\` | one log file per day |
 
 ## Building
@@ -65,6 +70,24 @@ src/DBDReshade/
 
 To refresh the bundled presets, rebuild `Seed/seed.zip` from the repository's `Presets/` folder and
 `media/presets.json` (zip layout: `Presets/*.ini` and `presets.json` at the root).
+
+## Map preview (formerly D3Daylight)
+
+`DBDReshade.exe` has two modes. Started normally it shows the app; started as
+`DBDReshade.exe --viewer "<folder>" --title "<map>"` it opens only a Direct3D 11 window that shows the
+screenshots in that folder (← → change image, F11 full screen, ESC close).
+
+ReShade has to sit next to the exe it hooks, and it must never hook the app's own interface. So when
+you press **Try on maps** the app:
+
+1. copies itself to `%LOCALAPPDATA%\DBDReshade\Viewer\DBDReshade Preview.exe` (only when it changed);
+2. installs ReShade there, once, with the same setup used for the game;
+3. writes that `ReShade.ini`: `PresetPath` = the selected preset, and the **game's** `EffectSearchPaths` /
+   `TextureSearchPaths`, so the preview uses exactly the same shaders as the game;
+4. downloads the chosen map's screenshots and starts the copy in `--viewer` mode.
+
+Screenshots live in `media/realms/<Map name>/` in the repository (one folder per map, `.png` or `.jpg`).
+Add or replace screenshots there and users get them the next time they open that map.
 
 ## Publishing presets (no app update needed)
 

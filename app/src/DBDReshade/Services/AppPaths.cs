@@ -16,6 +16,12 @@ public static class AppPaths
     public static string PreviewsDirectory => Path.Combine(DataRoot, "Previews");
     public static string LogsDirectory => Path.Combine(DataRoot, "Logs");
 
+    /// <summary>Map screenshots for the preview, downloaded one map at a time.</summary>
+    public static string MapsDirectory => Path.Combine(DataRoot, "Maps");
+
+    /// <summary>Copy of this exe that runs the map preview, with its own ReShade install.</summary>
+    public static string ViewerDirectory => Path.Combine(DataRoot, "Viewer");
+
     /// <summary>Translations downloaded from GitHub (override the ones built into the exe).</summary>
     public static string TranslationsDirectory => Path.Combine(DataRoot, "Translations");
 
@@ -39,6 +45,7 @@ public static class AppPaths
         Directory.CreateDirectory(PreviewsDirectory);
         Directory.CreateDirectory(LogsDirectory);
         Directory.CreateDirectory(TranslationsDirectory);
+        Directory.CreateDirectory(MapsDirectory);
 
         var firstRun = !Directory.EnumerateFiles(PresetsDirectory, "*.ini").Any();
         if (firstRun || !File.Exists(RemoteMetadataFile))

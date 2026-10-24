@@ -237,13 +237,21 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel VerticalAlignment="Center" Margin="0,0,20,0"
                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{Binding StatusText}" Style="{StaticResource Muted}" Margin="0,0,0,8" />
                     <ProgressBar Value="{Binding ProgressValue}" Maximum="100" />
                 </StackPanel>
-                <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" MinWidth="220">
+                <Button Grid.Column="1" Command="{Binding TryOnMapsCommand}" Margin="0,0,10,0" Padding="16,11"
+                        ToolTip="{DynamicResource Inst.TryOnMapsTip}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE7B3;" FontSize="14" Margin="0,0,10,0" />
+                        <TextBlock Text="{DynamicResource Inst.TryOnMaps}" FontSize="14" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" MinWidth="220">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="14" Margin="0,0,10,0" />
                         <TextBlock Text="{DynamicResource Inst.Install}" />

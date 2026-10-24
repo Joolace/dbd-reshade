@@ -20,13 +20,17 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly GitHubService _github;
     private readonly SettingsService _settings;
     private readonly LogService _log;
+    private readonly MapService _maps;
+    private readonly MapPreviewService _mapPreview;
     private CancellationTokenSource? _previewCts;
     private string? _previewMessageKey;
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
-        GitHubService github, SettingsService settings, LogService log)
+        GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview)
     {
+        _maps = maps;
+        _mapPreview = mapPreview;
         _repository = repository;
         _sync = sync;
         _locator = locator;
@@ -66,6 +70,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     [NotifyCanExecuteChangedFor(nameof(OpenSourceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TryOnMapsCommand))]
     private Preset? _selectedPreset;
 
     [ObservableProperty]
@@ -151,6 +156,13 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         new FullscreenImageWindow(path, SelectedPreset.DisplayName).ShowDialog();
     }
+
+    private bool CanTryOnMaps() => !IsBusy && SelectedPreset is not null;
+
+    /// <summary>Opens the map picker; the preview then shows this preset on in-game screenshots.</summary>
+    [RelayCommand(CanExecute = nameof(CanTryOnMaps))]
+    private void TryOnMaps() =>
+        new MapPickerWindow(new MapPickerViewModel(SelectedPreset!, SelectedInstallation, _maps, _mapPreview, _log)).ShowDialog();
 
     private bool CanSync() => !IsBusy;
 
@@ -300,6 +312,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     [NotifyCanExecuteChangedFor(nameof(SyncPresetsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TryOnMapsCommand))]
     private bool _isBusy;
 
     [ObservableProperty]

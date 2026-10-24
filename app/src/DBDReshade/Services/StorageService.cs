@@ -1,8 +1,8 @@
 namespace DBDReshade.Services;
 
-public sealed record StorageInfo(long PreviewsBytes, long LogsBytes, long TempBytes)
+public sealed record StorageInfo(long PreviewsBytes, long MapsBytes, long LogsBytes, long TempBytes)
 {
-    public long TotalBytes => PreviewsBytes + LogsBytes + TempBytes;
+    public long TotalBytes => PreviewsBytes + MapsBytes + LogsBytes + TempBytes;
 }
 
 /// <summary>
@@ -23,17 +23,42 @@ public sealed class StorageService
 
     public StorageInfo Measure() => new(
         CachedPreviews().Sum(Size),
+        MapFiles().Sum(Size),
         OldLogs().Sum(Size),
         TempFiles().Sum(Size));
 
     /// <returns>Bytes freed.</returns>
     public long ClearPreviews() => DeleteAll(CachedPreviews(), "preview cache");
 
+    /// <summary>Map screenshots and the preview copy of the app (both are recreated when the preview is used).</summary>
+    public long ClearMaps()
+    {
+        var freed = DeleteAll(MapFiles(), "map preview files");
+        foreach (var root in new[] { AppPaths.MapsDirectory, AppPaths.ViewerDirectory })
+            DeleteEmptyFolders(root);
+        return freed;
+    }
+
     public long ClearLogs() => DeleteAll(OldLogs(), "old logs");
 
     public long ClearTemp() => DeleteAll(TempFiles(), "temporary files");
 
-    public long ClearAll() => ClearPreviews() + ClearLogs() + ClearTemp();
+    public long ClearAll() => ClearPreviews() + ClearMaps() + ClearLogs() + ClearTemp();
+
+    private static IEnumerable<FileInfo> MapFiles() =>
+        Files(AppPaths.MapsDirectory, recursive: true).Concat(Files(AppPaths.ViewerDirectory, recursive: true));
+
+    private static void DeleteEmptyFolders(string root)
+    {
+        if (!Directory.Exists(root)) return;
+        foreach (var dir in Directory.EnumerateDirectories(root, "*", SearchOption.AllDirectories)
+                     .OrderByDescending(d => d.Length).ToList())
+        {
+            try { if (!Directory.EnumerateFileSystemEntries(dir).Any()) Directory.Delete(dir); }
+            catch (IOException) { /* in use */ }
+            catch (UnauthorizedAccessException) { /* in use */ }
+        }
+    }
 
     /// <summary>Downloaded previews, excluding images that belong to the user's own presets.</summary>
     private IEnumerable<FileInfo> CachedPreviews()

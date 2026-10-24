@@ -37,11 +37,18 @@ public sealed partial class ReShadeService
     }
 
     /// <summary>Downloads the latest setup and runs it unattended against the game executable.</summary>
-    public async Task InstallAsync(GameInstallation game, IProgress<double>? progress = null, CancellationToken ct = default)
+    public Task InstallAsync(GameInstallation game, IProgress<double>? progress = null, CancellationToken ct = default)
     {
         var exe = game.GameExecutable
             ?? throw new FileNotFoundException($"Game executable (*-Shipping.exe) not found in {game.BinariesDirectory}");
+        return InstallForExecutableAsync(exe, progress, ct);
+    }
 
+    /// <summary>
+    /// Installs ReShade (DXGI) next to any executable: the game, or the map preview copy of this app.
+    /// </summary>
+    public async Task InstallForExecutableAsync(string exe, IProgress<double>? progress = null, CancellationToken ct = default)
+    {
         _log.Info("Fetching the latest version of ReShade…");
         var url = await GetLatestSetupUrlAsync(ct);
 
