@@ -7,7 +7,7 @@
     <!-- WinForms hosts the Direct3D 11 map preview window (ported from D3Daylight) -->
     <UseWindowsForms>true</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- Program.Main picks the mode: normal UI, or "--viewer" map preview -->
+    <!-- Program.Main picks the mode: normal UI, or "viewer" map preview -->
     <StartupObject>DBDReshade.Program</StartupObject>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
