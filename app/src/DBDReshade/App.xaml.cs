@@ -50,11 +50,12 @@ public partial class App : Application
         var storage = new StorageService(repository, _log);
         var translations = new TranslationSyncService(github, _log);
         var maps = new MapService(github, _log);
-        var mapPreview = new MapPreviewService(reshade, _log);
+        var shaders = new ShaderService(_log);
+        var mapPreview = new MapPreviewService(reshade, shaders, _log);
         var updater = new UpdateService(_log);
 
         await Step(splash, "Splash.Game");
-        var installer = new InstallerViewModel(repository, sync, locator, reshade, github, settings, _log, maps, mapPreview);
+        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview);
         var main = new MainViewModel(
             installer,
             new PresetManagerViewModel(repository, sync, _log),

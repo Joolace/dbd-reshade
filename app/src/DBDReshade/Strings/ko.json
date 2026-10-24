@@ -187,5 +187,8 @@
   "Full.Close": "ESC를 누르거나 클릭하여 닫기",
   "Full.Failed": "이미지를 불러올 수 없습니다.",
   "App.ReportBugInfo": "Discord가 열립니다. 버그 신고 채널에 문제를 설명하고 오늘의 로그 파일을 첨부해 주세요.\n\n로그 폴더도 함께 열리니 파일을 메시지로 끌어다 놓으면 됩니다.",
-  "App.Error": "문제가 발생했습니다:\n\n{0}\n\n자세한 내용은 로그에 기록되었습니다: {1}"
+  "App.Error": "문제가 발생했습니다:\n\n{0}\n\n자세한 내용은 로그에 기록되었습니다: {1}",
+  "Inst.Status.CheckingEffects": "프리셋 효과 확인 중…",
+  "Inst.Status.Effects": "효과 다운로드 중: {0}…",
+  "Inst.EffectsMissing": "프리셋이 사용하는 다음 효과는 ReShade 공식 효과 패키지에 없어 설치되지 않았습니다:\n\n{0}\n\n프리셋은 작동하지만 이 효과는 빠집니다."
 }

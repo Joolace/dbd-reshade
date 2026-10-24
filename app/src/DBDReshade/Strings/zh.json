@@ -187,5 +187,8 @@
   "Full.Close": "按 ESC 或单击关闭",
   "Full.Failed": "无法加载图片。",
   "App.ReportBugInfo": "将打开 Discord：请在问题反馈频道描述问题，并附上今天的日志文件。\n\n日志文件夹也会同时打开，你可以把文件拖进消息里。",
-  "App.Error": "出错了：\n\n{0}\n\n详细信息已写入日志：{1}"
+  "App.Error": "出错了：\n\n{0}\n\n详细信息已写入日志：{1}",
+  "Inst.Status.CheckingEffects": "正在检查预设的效果…",
+  "Inst.Status.Effects": "正在下载效果：{0}…",
+  "Inst.EffectsMissing": "预设使用的以下效果不在 ReShade 官方效果包中，因此未安装：\n\n{0}\n\n预设仍可使用，但不包含这些效果。"
 }

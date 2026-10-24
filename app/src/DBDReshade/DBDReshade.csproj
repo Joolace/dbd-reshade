@@ -69,6 +69,8 @@
     <Resource Include="Assets\Icons\*.png" />
     <!-- Presets + presets.json shipped inside the exe, unpacked on first run -->
     <EmbeddedResource Include="Seed\seed.zip" LogicalName="seed.zip" />
+    <!-- ReShade's official effect package list (offline fallback; the app downloads the current one) -->
+    <EmbeddedResource Include="Seed\EffectPackages.ini" LogicalName="EffectPackages.ini" />
     <!-- Built-in translations; translations/*.json on GitHub override them at runtime -->
     <EmbeddedResource Include="Strings\*.json" LogicalName="strings.%(Filename).json" />
   </ItemGroup>

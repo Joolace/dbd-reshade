@@ -10,7 +10,8 @@ namespace DBDReshade.Services;
 /// <item>copies this exe to %LOCALAPPDATA%\DBDReshade\Viewer (ReShade must live next to the exe it hooks,
 ///       and must never hook the app's own UI);</item>
 /// <item>installs ReShade there once;</item>
-/// <item>points that ReShade.ini at the chosen preset and at the game's shaders, so the result matches the game;</item>
+/// <item>downloads the effects the preset needs into its own reshade-shaders folder (the game's are the fallback);</item>
+/// <item>points that ReShade.ini at the chosen preset;</item>
 /// <item>starts the copy in <c>--viewer</c> mode on the chosen map.</item>
 /// </list>
 /// </summary>
@@ -19,11 +20,13 @@ public sealed class MapPreviewService
     public const string ExeName = "DBDReshade Preview.exe";
 
     private readonly ReShadeService _reshade;
+    private readonly ShaderService _shaders;
     private readonly LogService _log;
 
-    public MapPreviewService(ReShadeService reshade, LogService log)
+    public MapPreviewService(ReShadeService reshade, ShaderService shaders, LogService log)
     {
         _reshade = reshade;
+        _shaders = shaders;
         _log = log;
     }
 
@@ -36,14 +39,15 @@ public sealed class MapPreviewService
     /// "Try on maps": shows a temporary copy of the preset in ReShade's performance mode, so trying a
     /// preset can never change the one in the library.
     /// </summary>
-    /// <returns>False if no ReShade shaders were found: the preview will run, but effects may be missing.</returns>
+    /// <param name="status">Receives a line to show while effects download.</param>
+    /// <returns>False if some effects couldn't be installed: the preview will run, but they won't show.</returns>
     public Task<bool> PrepareAsync(Preset preset, GameInstallation? game,
-        IProgress<double>? reshadeProgress = null, CancellationToken ct = default)
+        IProgress<double>? reshadeProgress = null, IProgress<string>? status = null, CancellationToken ct = default)
     {
         Directory.CreateDirectory(AppPaths.ViewerDirectory);
         var copy = Path.Combine(AppPaths.ViewerDirectory, "preview-preset.ini");
         File.Copy(preset.FilePath, copy, overwrite: true);
-        return PrepareCoreAsync(copy, game, editable: false, reshadeProgress, ct);
+        return PrepareCoreAsync(copy, game, editable: false, reshadeProgress, status, ct);
     }
 
     /// <summary>
@@ -51,21 +55,48 @@ public sealed class MapPreviewService
     /// and Print Screen saves screenshots to the editor's folder.
     /// </summary>
     public Task<bool> PrepareEditorAsync(string presetFile, GameInstallation? game,
-        IProgress<double>? reshadeProgress = null, CancellationToken ct = default) =>
-        PrepareCoreAsync(presetFile, game, editable: true, reshadeProgress, ct);
+        IProgress<double>? reshadeProgress = null, IProgress<string>? status = null, CancellationToken ct = default) =>
+        PrepareCoreAsync(presetFile, game, editable: true, reshadeProgress, status, ct);
 
     private async Task<bool> PrepareCoreAsync(string presetFile, GameInstallation? game, bool editable,
-        IProgress<double>? reshadeProgress, CancellationToken ct)
+        IProgress<double>? progress, IProgress<string>? status, CancellationToken ct)
     {
         await Task.Run(CopyViewer, ct);
 
         if (!IsReShadeInstalled)
         {
             _log.Info("Installing ReShade for the map preview…");
-            await _reshade.InstallForExecutableAsync(ViewerExe, reshadeProgress, ct);
+            await _reshade.InstallForExecutableAsync(ViewerExe, new System.Progress<double>(p => progress?.Report(p * 0.4)), ct);
         }
+        progress?.Report(0.4);
 
-        return Configure(presetFile, game, editable);
+        // The viewer has its own effects, downloaded as needed: the editor gets a broad set to choose from.
+        bool? allEffects;
+        try
+        {
+            var effectsProgress = new System.Progress<ShaderProgress>(p =>
+            {
+                if (p.PackageName.Length > 0) status?.Report(Loc.Format("Inst.Status.Effects", p.PackageName));
+                progress?.Report(0.4 + 0.6 * (p.Index + p.Fraction) / Math.Max(1, p.Count));
+            });
+            if (editable)
+            {
+                await _shaders.EnsureEditorSetAsync(AppPaths.ViewerDirectory, ViewerIni, effectsProgress, ct);
+                allEffects = (await _shaders.EnsureForPresetAsync(AppPaths.ViewerDirectory, ViewerIni, presetFile, effectsProgress, ct)).Count == 0;
+            }
+            else
+            {
+                allEffects = (await _shaders.EnsureForPresetAsync(AppPaths.ViewerDirectory, ViewerIni, presetFile, effectsProgress, ct)).Count == 0;
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _log.Warning($"Effects could not be downloaded for the map preview: {ex.Message}");
+            allEffects = null; // fall back to the game's shaders
+        }
+        progress?.Report(1);
+
+        return Configure(presetFile, game, editable, allEffects);
     }
 
     /// <summary>Starts the preview window; await <see cref="Process.WaitForExitAsync"/> to know when it closes.</summary>
@@ -144,8 +175,10 @@ public sealed class MapPreviewService
         || new FileInfo(ViewerExe).Length != new FileInfo(source).Length
         || File.GetLastWriteTimeUtc(ViewerExe) != File.GetLastWriteTimeUtc(source);
 
-    /// <returns>True if shaders were found (the game's, or the viewer's own).</returns>
-    private bool Configure(string presetFile, GameInstallation? game, bool editable)
+    /// <param name="ownEffects">True/false: the viewer's own effects are installed (all / not all of them);
+    /// null: downloading them failed, so the game's shaders are used if it has any.</param>
+    /// <returns>True if the preset's effects should all be available.</returns>
+    private bool Configure(string presetFile, GameInstallation? game, bool editable, bool? ownEffects)
     {
         IniFile.SetValue(ViewerIni, "GENERAL", "PresetPath", presetFile);
         // Performance mode locks effect settings: right for trying a preset, wrong for editing one.
@@ -154,6 +187,16 @@ public sealed class MapPreviewService
         IniFile.SetValue(ViewerIni, "OVERLAY", "TutorialProgress", "4");
         if (editable)
             IniFile.SetValue(ViewerIni, "SCREENSHOT", "SavePath", AppPaths.EditorScreenshotsDirectory);
+
+        if (ownEffects is { } all)
+        {
+            // ShaderService already added .\reshade-shaders\… to the search paths: use only the viewer's own
+            // folders, so the same effect is never found twice (an earlier version pointed at the game's).
+            IniFile.SetValue(ViewerIni, "GENERAL", "EffectSearchPaths", @".\reshade-shaders\Shaders\**");
+            IniFile.SetValue(ViewerIni, "GENERAL", "TextureSearchPaths", @".\reshade-shaders\Textures\**");
+            _log.Info($"Map preview preset: {Path.GetFileName(presetFile)}{(editable ? " (editor)" : "")}");
+            return all;
+        }
 
         var shadersFound = false;
         if (game is not null)

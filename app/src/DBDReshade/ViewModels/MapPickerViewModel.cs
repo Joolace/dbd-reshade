@@ -127,7 +127,8 @@ public sealed partial class MapPickerViewModel : ObservableObject
 
             StatusText = Loc.Get(MapPreviewService.IsReShadeInstalled ? "Map.Status.Starting" : "Map.Status.InstallingReShade");
             var shadersFound = await _preview.PrepareAsync(_preset, _game,
-                new System.Progress<double>(p => ProgressValue = 60 + p * 35));
+                new System.Progress<double>(p => ProgressValue = 60 + p * 35),
+                new System.Progress<string>(text => StatusText = text));
             ProgressValue = 100;
 
             StatusText = Loc.Get("Map.Status.Starting");

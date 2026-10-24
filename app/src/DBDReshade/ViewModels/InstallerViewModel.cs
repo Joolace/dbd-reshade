@@ -17,6 +17,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly PresetSyncService _sync;
     private readonly GameLocator _locator;
     private readonly ReShadeService _reshade;
+    private readonly ShaderService _shaders;
     private readonly GitHubService _github;
     private readonly SettingsService _settings;
     private readonly LogService _log;
@@ -27,7 +28,7 @@ public sealed partial class InstallerViewModel : ObservableObject
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
-        GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview)
+        ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview)
     {
         _maps = maps;
         _mapPreview = mapPreview;
@@ -35,6 +36,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         _sync = sync;
         _locator = locator;
         _reshade = reshade;
+        _shaders = shaders;
         _github = github;
         _settings = settings;
         _log = log;
@@ -341,21 +343,33 @@ public sealed partial class InstallerViewModel : ObservableObject
             if (!_reshade.IsInstalled(game))
             {
                 StatusText = Loc.Get("Inst.Status.InstallingReShade");
-                var progress = new System.Progress<double>(p => ProgressValue = 5 + p * 65);
+                var progress = new System.Progress<double>(p => ProgressValue = 5 + p * 35);
                 await _reshade.InstallAsync(game, progress);
             }
             else
             {
-                _log.Info("ReShade is already installed: only the preset will be changed.");
+                _log.Info("ReShade is already installed: checking the preset's effects.");
             }
-            ProgressValue = 75;
+            ProgressValue = 40;
+
+            // ReShade's unattended setup installs no effects: download the ones this preset uses
+            // (only those missing, so with everything in place this is just a quick check).
+            StatusText = Loc.Get("Inst.Status.CheckingEffects");
+            var effectsProgress = new System.Progress<ShaderProgress>(p =>
+            {
+                if (p.PackageName.Length > 0) StatusText = Loc.Format("Inst.Status.Effects", p.PackageName);
+                ProgressValue = 40 + 45 * (p.Index + p.Fraction) / Math.Max(1, p.Count);
+            });
+            var missingEffects = await _shaders.EnsureForPresetAsync(
+                game.BinariesDirectory, game.ReShadeIniPath, preset.FilePath, effectsProgress);
+            ProgressValue = 85;
 
             StatusText = Loc.Get("Inst.Status.Copying");
             Directory.CreateDirectory(destinationFolder);
             var target = Path.Combine(destinationFolder, preset.FileName);
             await Task.Run(() => File.Copy(preset.FilePath, target, overwrite: true));
             _log.Info($"Preset copied to {target}");
-            ProgressValue = 90;
+            ProgressValue = 92;
 
             StatusText = Loc.Get("Inst.Status.Configuring");
             _reshade.SetPresetPath(game, target);
@@ -363,6 +377,8 @@ public sealed partial class InstallerViewModel : ObservableObject
 
             _log.Success($"Preset {preset.DisplayName} installed!");
             Dialogs.Info(Loc.Format("Inst.Done", preset.DisplayName));
+            if (missingEffects.Count > 0)
+                Dialogs.Warning(Loc.Format("Inst.EffectsMissing", string.Join(", ", missingEffects)));
         }
         catch (UnauthorizedAccessException ex)
         {

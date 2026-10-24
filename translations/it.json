@@ -187,5 +187,8 @@
   "Full.Close": "Premi ESC o clicca per chiudere",
   "Full.Failed": "Impossibile caricare l'immagine.",
   "App.ReportBugInfo": "Si aprirà Discord: descrivi il problema nel canale delle segnalazioni e allega il file di log di oggi.\n\nSi apre anche la cartella dei log, così puoi trascinare il file nel messaggio.",
-  "App.Error": "Si è verificato un errore:\n\n{0}\n\nI dettagli sono nel log in {1}"
+  "App.Error": "Si è verificato un errore:\n\n{0}\n\nI dettagli sono nel log in {1}",
+  "Inst.Status.CheckingEffects": "Controllo degli effetti del preset…",
+  "Inst.Status.Effects": "Download degli effetti: {0}…",
+  "Inst.EffectsMissing": "Questi effetti usati dal preset non sono nei pacchetti ufficiali di ReShade, quindi non sono stati installati:\n\n{0}\n\nIl preset funziona, ma senza di loro."
 }

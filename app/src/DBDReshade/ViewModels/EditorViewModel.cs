@@ -185,7 +185,8 @@ public sealed partial class EditorViewModel : ObservableObject
 
             StatusText = Loc.Get(MapPreviewService.IsReShadeInstalled ? "Map.Status.Starting" : "Map.Status.InstallingReShade");
             var shadersFound = await _preview.PrepareEditorAsync(draft, _game(),
-                new System.Progress<double>(p => ProgressValue = 60 + p * 35));
+                new System.Progress<double>(p => ProgressValue = 60 + p * 35),
+                new System.Progress<string>(text => StatusText = text));
             ProgressValue = 100;
             if (!shadersFound) Dialogs.Warning(Loc.Get("Map.NoShaders"));
 

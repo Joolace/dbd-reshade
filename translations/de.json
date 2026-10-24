@@ -187,5 +187,8 @@
   "Full.Close": "ESC drücken oder klicken zum Schließen",
   "Full.Failed": "Das Bild konnte nicht geladen werden.",
   "App.ReportBugInfo": "Discord wird geöffnet: Beschreibe das Problem im Bug-Kanal und hänge die heutige Protokolldatei an.\n\nDer Protokollordner öffnet sich ebenfalls, damit du die Datei in die Nachricht ziehen kannst.",
-  "App.Error": "Etwas ist schiefgelaufen:\n\n{0}\n\nDetails stehen im Protokoll unter {1}"
+  "App.Error": "Etwas ist schiefgelaufen:\n\n{0}\n\nDetails stehen im Protokoll unter {1}",
+  "Inst.Status.CheckingEffects": "Effekte des Presets werden geprüft…",
+  "Inst.Status.Effects": "Effekte werden heruntergeladen: {0}…",
+  "Inst.EffectsMissing": "Diese Effekte des Presets sind nicht in den offiziellen Effektpaketen von ReShade enthalten und wurden daher nicht installiert:\n\n{0}\n\nDas Preset funktioniert, aber ohne sie."
 }
