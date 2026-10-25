@@ -490,7 +490,15 @@ float4 PSMain(float4 position : SV_POSITION, float2 texcoord : TEXCOORD) : SV_TA
     private void OnIdle(object? sender, EventArgs e)
     {
         while (_ready && !IsDisposed && !PeekMessage(out _, IntPtr.Zero, 0, 0, 0))
+        {
+            // Minimized, Present returns at once: without a pause this loop would take a whole CPU core.
+            if (WindowState == WinForms.FormWindowState.Minimized)
+            {
+                Thread.Sleep(50);
+                continue;
+            }
             Render();
+        }
     }
 
     private void Render()

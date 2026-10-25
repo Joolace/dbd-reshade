@@ -215,6 +215,12 @@ public sealed partial class ShaderService
                 var count = await Task.Run(() => Extract(zip, package, exeFolder), ct);
                 _log.Info($"Installed {count} effect file(s) from {package.Name}.");
             }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // One author's repository being down must not block the whole install: its effects are
+                // reported as missing afterwards, and the next install tries again.
+                _log.Warning($"Effects from {package.Name} could not be installed: {ex.Message}");
+            }
             finally
             {
                 try { File.Delete(zip); } catch { /* temp file */ }
@@ -229,8 +235,8 @@ public sealed partial class ShaderService
     /// </summary>
     private static int Extract(string zipPath, EffectPackage package, string exeFolder)
     {
-        var effectsTarget = Path.GetFullPath(Path.Combine(exeFolder, package.InstallPath));
-        var texturesTarget = Path.GetFullPath(Path.Combine(exeFolder, package.TextureInstallPath));
+        var effectsTarget = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(exeFolder, package.InstallPath))) + Path.DirectorySeparatorChar;
+        var texturesTarget = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(exeFolder, package.TextureInstallPath))) + Path.DirectorySeparatorChar;
 
         using var archive = ZipFile.OpenRead(zipPath);
         var files = archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)).ToList();

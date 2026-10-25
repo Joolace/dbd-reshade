@@ -64,6 +64,9 @@ public sealed class MapPreviewService
     private async Task<bool> PrepareCoreAsync(string presetFile, GameInstallation? game, bool editable,
         IProgress<double>? progress, IProgress<string>? status, CancellationToken ct)
     {
+        // The preview and the editor share one ReShade.ini: a second window would change the first one's preset.
+        if (IsViewerRunning) throw new InvalidOperationException(Loc.Get("Map.AlreadyOpen"));
+
         await Task.Run(CopyViewer, ct);
 
         if (!IsReShadeInstalled)

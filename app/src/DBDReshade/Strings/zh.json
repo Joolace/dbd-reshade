@@ -200,5 +200,7 @@
   "Inst.LaunchGameTip": "通过 Steam、Epic Games 或 Xbox 应用启动 Dead by Daylight，若它们未运行会先将其打开",
   "Inst.DoneLaunch": "预设“{0}”安装成功！\n\n在游戏中按 Home 键打开 ReShade。\n\n现在启动 Dead by Daylight 吗？",
   "Inst.GameRunning": "Dead by Daylight 已在运行。",
-  "Inst.LaunchFailed": "无法启动 Dead by Daylight。\n\n{0}"
+  "Inst.LaunchFailed": "无法启动 Dead by Daylight。\n\n{0}",
+  "Inst.ForeignDxgi": "未安装 ReShade：游戏文件夹中已有属于其他程序或模组的 dxgi.dll：\n\n{0}\n\n安装 ReShade 会替换它并导致该模组失效。请先删除或重命名该文件，然后重试。",
+  "Map.AlreadyOpen": "预览或编辑器窗口已打开，请先将其关闭。"
 }

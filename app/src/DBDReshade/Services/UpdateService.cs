@@ -20,6 +20,9 @@ public sealed class UpdateService
 
     public UpdateService(LogService log) => _log = log;
 
+    /// <summary>Passed to the new version after a portable update.</summary>
+    public const string UpdatedArgument = "--updated";
+
     private static string ExePath => Environment.ProcessPath ?? throw new InvalidOperationException("Cannot locate the running exe.");
 
     private static string ExeDirectory => Path.GetDirectoryName(ExePath)!;
@@ -78,7 +81,8 @@ public sealed class UpdateService
                 throw;
             }
 
-            Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true, WorkingDirectory = ExeDirectory });
+            // The new copy waits for this one to close (see Program.Main).
+            Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true, WorkingDirectory = ExeDirectory, Arguments = UpdatedArgument });
             _log.Info($"Updated to {release.Tag}, restarting.");
             return true;
         }

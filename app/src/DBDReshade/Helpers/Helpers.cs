@@ -86,7 +86,12 @@ public static class Shell
         if (string.IsNullOrWhiteSpace(target)) return;
         try
         {
-            Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+            // The app runs as administrator: links go through Explorer so the browser / Discord open
+            // normally, not as administrator. Folders and files open directly.
+            if (Uri.TryCreate(target, UriKind.Absolute, out var uri) && !uri.IsFile)
+                Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { target }, UseShellExecute = false });
+            else
+                Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
         }
         catch
         {

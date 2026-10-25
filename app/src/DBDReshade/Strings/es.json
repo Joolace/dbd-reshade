@@ -200,5 +200,7 @@
   "Inst.LaunchGameTip": "Inicia Dead by Daylight a través de Steam, Epic Games o la app de Xbox, abriéndolos primero si están cerrados",
   "Inst.DoneLaunch": "¡Preset \"{0}\" instalado!\n\nEn el juego, pulsa Inicio (Home) para abrir ReShade.\n\n¿Iniciar Dead by Daylight ahora?",
   "Inst.GameRunning": "Dead by Daylight ya se está ejecutando.",
-  "Inst.LaunchFailed": "No se pudo iniciar Dead by Daylight.\n\n{0}"
+  "Inst.LaunchFailed": "No se pudo iniciar Dead by Daylight.\n\n{0}",
+  "Inst.ForeignDxgi": "ReShade no se instaló: la carpeta del juego ya tiene un dxgi.dll de otro programa o mod:\n\n{0}\n\nInstalar ReShade lo reemplazaría y ese mod dejaría de funcionar. Quítalo o cámbiale el nombre y vuelve a intentarlo.",
+  "Map.AlreadyOpen": "Ya hay una ventana de vista previa o del editor abierta. Ciérrala primero."
 }

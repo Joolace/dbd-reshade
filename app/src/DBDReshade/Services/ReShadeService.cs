@@ -43,9 +43,40 @@ public sealed partial class ReShadeService
         }
     }
 
-    public bool IsInstalled(GameInstallation game) =>
-        File.Exists(game.ReShadeIniPath)
-        || File.Exists(Path.Combine(game.BinariesDirectory, "dxgi.dll"));
+    /// <summary>
+    /// ReShade is installed when one of the DLL names it can use is really ReShade's. A ReShade.ini on its
+    /// own (left behind by an uninstall) or another mod's dxgi.dll doesn't count.
+    /// </summary>
+    public bool IsInstalled(GameInstallation game) => FindReShadeDll(game.BinariesDirectory) is not null;
+
+    private static readonly string[] ReShadeDllNames =
+        { "dxgi.dll", "d3d11.dll", "d3d12.dll", "d3d10.dll", "d3d9.dll", "opengl32.dll", "dinput8.dll" };
+
+    /// <summary>The ReShade DLL in <paramref name="folder"/> (dxgi.dll when this app installed it), or null.</summary>
+    public static string? FindReShadeDll(string folder) =>
+        ReShadeDllNames.Select(name => Path.Combine(folder, name)).FirstOrDefault(IsReShadeDll);
+
+    /// <summary>A DLL in the game folder that isn't ReShade's but would be replaced by installing it (another mod).</summary>
+    public static string? ForeignDxgi(GameInstallation game)
+    {
+        var dxgi = Path.Combine(game.BinariesDirectory, "dxgi.dll");
+        return File.Exists(dxgi) && !IsReShadeDll(dxgi) ? dxgi : null;
+    }
+
+    private static bool IsReShadeDll(string path)
+    {
+        if (!File.Exists(path)) return false;
+        try
+        {
+            var info = FileVersionInfo.GetVersionInfo(path);
+            return info.ProductName?.Contains("ReShade", StringComparison.OrdinalIgnoreCase) == true
+                   || info.FileDescription?.Contains("ReShade", StringComparison.OrdinalIgnoreCase) == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     /// <summary>Finds the newest "ReShade_Setup_X.Y.Z.exe" (not the Addon build) linked from reshade.me.</summary>
     public async Task<string> GetLatestSetupUrlAsync(CancellationToken ct = default) =>
@@ -77,13 +108,10 @@ public sealed partial class ReShadeService
     /// </summary>
     public static Version? GetInstalledVersion(string folder)
     {
-        var dll = Path.Combine(folder, "dxgi.dll");
-        if (!File.Exists(dll)) return null;
+        if (FindReShadeDll(folder) is not { } dll) return null;
         try
         {
             var info = FileVersionInfo.GetVersionInfo(dll);
-            if (info.ProductName?.Contains("ReShade", StringComparison.OrdinalIgnoreCase) != true
-                && info.FileDescription?.Contains("ReShade", StringComparison.OrdinalIgnoreCase) != true) return null;
             return new Version(info.FileMajorPart, info.FileMinorPart, info.FileBuildPart);
         }
         catch
@@ -144,7 +172,8 @@ public sealed partial class ReShadeService
             var entry = archive.Entries.FirstOrDefault(e => e.Name.Equals("ReShade64.dll", StringComparison.OrdinalIgnoreCase));
             if (entry is null) return false;
 
-            var target = Path.Combine(folder, "dxgi.dll");
+            // Same file name as the installed one (dxgi.dll, or d3d11.dll etc. if installed by hand).
+            var target = FindReShadeDll(folder) ?? Path.Combine(folder, "dxgi.dll");
             var temp = target + ".new";
             entry.ExtractToFile(temp, overwrite: true);
             File.Move(temp, target, overwrite: true);

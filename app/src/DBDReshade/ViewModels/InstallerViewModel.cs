@@ -357,6 +357,14 @@ public sealed partial class InstallerViewModel : ObservableObject
         {
             if (!_reshade.IsInstalled(game))
             {
+                // ReShade's setup would replace another mod's dxgi.dll (and break that mod) without asking.
+                if (ReShadeService.ForeignDxgi(game) is { } foreign)
+                {
+                    _log.Error($"{foreign} belongs to another program: ReShade was not installed.");
+                    Dialogs.Error(Loc.Format("Inst.ForeignDxgi", foreign));
+                    return;
+                }
+
                 StatusText = Loc.Get("Inst.Status.InstallingReShade");
                 var progress = new System.Progress<double>(p => ProgressValue = 5 + p * 35);
                 await _reshade.InstallAsync(game, progress);

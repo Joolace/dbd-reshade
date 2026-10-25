@@ -26,7 +26,11 @@ public sealed class SettingsService
     {
         try
         {
-            File.WriteAllText(AppPaths.SettingsFile, JsonSerializer.Serialize(Current, JsonOptions));
+            // Write a copy first: a crash or full disk mid-write must not wipe the settings
+            // (they include the list of deleted presets).
+            var temp = AppPaths.SettingsFile + ".tmp";
+            File.WriteAllText(temp, JsonSerializer.Serialize(Current, JsonOptions));
+            File.Move(temp, AppPaths.SettingsFile, overwrite: true);
         }
         catch
         {
