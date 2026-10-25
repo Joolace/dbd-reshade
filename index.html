@@ -2,7 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script>document.documentElement.classList.add("js");</script>
+    <script>
+        // JS on, and the saved theme applied before anything is drawn (no flash of the wrong theme)
+        (function () {
+            var root = document.documentElement, saved = null;
+            root.classList.add("js");
+            try { saved = localStorage.getItem("theme"); } catch (e) {}
+            var theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+            root.setAttribute("data-theme", theme);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- ============ SEO ============ -->
@@ -11,8 +20,9 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="author" content="Joolace">
     <link rel="canonical" href="https://joolace.github.io/dbd-reshade/">
-    <meta name="theme-color" content="#0e0e11">
-    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0e0e11" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="color-scheme" content="dark light">
     <link rel="icon" href="./favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="./dbdreshade_logo.png">
 
@@ -111,285 +121,349 @@
     <!-- ============ Font: Montserrat, the same as the app ============ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- The first preset preview is the largest element above the fold: fetch it early -->
     <link rel="preload" as="image" href="./assets/presets/knightlight-stream.webp"
           imagesrcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
-          imagesizes="(min-width: 980px) 65vw, 100vw">
+          imagesizes="(min-width: 1200px) 880px, 100vw">
+
 
     <style>
-        :root {
-            /* The app's own dark palette (Themes/Colors.Dark.xaml) */
+        /* ================= Tokens: dark (the app's palette) and light ================= */
+        :root, [data-theme="dark"] {
             --bg: #0e0e11;
+            --bg-2: #121216;
             --surface: #17171c;
-            --surface-alt: #202028;
-            --line: #2c2c36;
+            --surface-2: #202028;
+            --line: rgba(255, 255, 255, .08);
+            --line-strong: rgba(255, 255, 255, .16);
             --text: #f2f2f5;
             --muted: #9a9aa8;
             --red: #d7263d;
-            --red-hover: #e8394f;
-            --focus: #f2c14e;
-
+            --red-2: #ff4d6d;
+            --violet: #7b5cff;
+            --glow: rgba(215, 38, 61, .35);
+            --grid: rgba(255, 255, 255, .045);
+            --card-shadow: 0 30px 80px -40px rgba(0, 0, 0, .9);
+            --overlay: linear-gradient(transparent, rgba(0, 0, 0, .82));
+            --header: rgba(14, 14, 17, .72);
+            color-scheme: dark;
+        }
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --bg-2: #f6f6f8;
+            --surface: #f3f3f6;
+            --surface-2: #ebebf0;
+            --line: rgba(14, 14, 17, .08);
+            --line-strong: rgba(14, 14, 17, .16);
+            --text: #121216;
+            --muted: #5e5e6b;
+            --red: #d7263d;
+            --red-2: #f0435f;
+            --violet: #6a4dff;
+            --glow: rgba(215, 38, 61, .18);
+            --grid: rgba(14, 14, 17, .05);
+            --card-shadow: 0 30px 70px -40px rgba(20, 20, 40, .35);
+            --overlay: linear-gradient(transparent, rgba(0, 0, 0, .7));
+            --header: rgba(255, 255, 255, .75);
+            color-scheme: light;
+        }
+        :root {
             --font: "Montserrat", "Segoe UI", system-ui, sans-serif;
             --ease: cubic-bezier(.2, .7, .2, 1);
-
-            --wrap: 1160px;
+            --wrap: 1200px;
             --gutter: clamp(16px, 4vw, 40px);
+            --radius: 22px;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-
+        html { scroll-behavior: smooth; overflow-x: clip; }
         body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
-            font: 400 16px/1.7 var(--font);
-            -webkit-font-smoothing: antialiased;
+            margin: 0; background: var(--bg); color: var(--text);
+            font: 400 16px/1.7 var(--font); -webkit-font-smoothing: antialiased;
+            transition: background-color .4s, color .4s;
+            overflow-x: hidden;
         }
-
         img { max-width: 100%; height: auto; display: block; }
-        a { color: var(--text); text-underline-offset: 3px; text-decoration-color: rgba(242, 242, 245, .35); transition: text-decoration-color .2s; }
-        a:hover { text-decoration-color: var(--red); }
-        :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
-
+        a { color: inherit; }
+        :focus-visible { outline: 2px solid var(--red-2); outline-offset: 3px; border-radius: 8px; }
         .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
-
-        .skip { position: absolute; left: -9999px; top: 8px; z-index: 20; background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 6px; }
+        .skip { position: absolute; left: -9999px; top: 8px; z-index: 50; background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 8px; }
         .skip:focus { left: 8px; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-        h1, h2, h3 { font-family: var(--font); margin: 0; letter-spacing: -0.025em; }
-        h2 { font-size: clamp(1.75rem, 3.4vw, 2.5rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.45em; }
-        h3 { font-size: 1.08rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; margin-bottom: 0.35em; }
+        h1, h2, h3 { margin: 0; letter-spacing: -0.035em; line-height: 1.08; }
+        h2 { font-size: clamp(2rem, 4.4vw, 3.4rem); font-weight: 700; margin-bottom: 18px; text-wrap: balance; }
+        h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.35; margin-bottom: 8px; }
         p { margin: 0 0 1em; }
-        .lead { font-size: 1.06rem; color: var(--muted); max-width: 58ch; }
-        .muted { color: var(--muted); }
+        .lead { font-size: 1.08rem; color: var(--muted); max-width: 58ch; }
+        .center { text-align: center; margin-left: auto; margin-right: auto; }
 
-        /* ---------- Buttons ---------- */
+        /* Pill label above a section title: a small tag naming what the section is about */
+        .pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 7px 14px; border-radius: 999px; margin-bottom: 22px;
+            border: 1px solid var(--line-strong); background: var(--surface);
+            font-size: 0.82rem; font-weight: 500; color: var(--muted);
+        }
+        .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 var(--glow); animation: ping 2.2s infinite; }
+        @keyframes ping { 0% { box-shadow: 0 0 0 0 var(--glow); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+        /* ================= Buttons ================= */
         .btn {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 13px 22px; border-radius: 10px;
+            position: relative; display: inline-flex; align-items: center; gap: 10px;
+            padding: 15px 26px; border-radius: 999px;
             font: 600 0.95rem/1 var(--font); text-decoration: none; cursor: pointer;
-            border: 1px solid var(--line); background: var(--surface); color: var(--text);
-            transition: background-color .2s, border-color .2s, transform .2s var(--ease);
+            border: 1px solid var(--line-strong); background: var(--surface); color: var(--text);
+            transition: transform .25s var(--ease), background-color .25s, border-color .25s, box-shadow .25s;
         }
-        .btn:hover { border-color: #4a4a57; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-        .btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
-        .btn-primary:hover { background: var(--red-hover); border-color: var(--red-hover); }
+        .btn:hover { transform: translateY(-2px); border-color: var(--text); }
         .btn svg { width: 18px; height: 18px; flex: none; }
-
-        /* ---------- Header ---------- */
-        .site-header {
-            position: sticky; top: 0; z-index: 10;
-            background: rgba(14, 14, 17, .78);
-            backdrop-filter: saturate(140%) blur(12px);
-            -webkit-backdrop-filter: saturate(140%) blur(12px);
-            border-bottom: 1px solid transparent;
-            transition: border-color .3s;
+        .btn-primary {
+            border: 0; color: #fff;
+            background: linear-gradient(135deg, var(--red), var(--red-2));
+            box-shadow: 0 10px 30px -10px var(--red);
         }
-        .site-header.scrolled { border-bottom-color: var(--line); }
-        .site-header .wrap { display: flex; align-items: center; gap: 28px; min-height: 68px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.02em; }
-        .brand img { width: 32px; height: 32px; }
-        .nav { display: flex; gap: 26px; margin-left: auto; }
-        .nav a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 0.9rem; transition: color .2s; }
-        .nav a:hover { color: var(--text); }
-        .site-header .btn { padding: 10px 16px; font-size: 0.88rem; }
-        @media (max-width: 760px) { .nav { display: none; } .site-header .btn { margin-left: auto; } }
+        .btn-primary:hover { box-shadow: 0 16px 40px -10px var(--red); }
+        .btn .arrow { transition: transform .25s var(--ease); }
+        .btn:hover .arrow { transform: translateX(3px); }
 
-        /* ---------- Hero ---------- */
-        .hero { padding: clamp(28px, 5vw, 64px) 0 clamp(56px, 8vw, 104px); }
+        /* ================= Header ================= */
+        .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; transition: background-color .3s, border-color .3s, backdrop-filter .3s; border-bottom: 1px solid transparent; }
+        .site-header.scrolled { background: var(--header); border-bottom-color: var(--line); backdrop-filter: saturate(150%) blur(14px); -webkit-backdrop-filter: saturate(150%) blur(14px); }
+        .site-header .wrap { display: flex; align-items: center; gap: 20px; min-height: 76px; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.02em; font-size: 1.05rem; }
+        .brand img { width: 34px; height: 34px; }
+        .nav { display: flex; gap: 4px; margin: 0 auto; padding: 5px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 70%, transparent); }
+        .nav a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 0.88rem; padding: 8px 16px; border-radius: 999px; transition: color .2s, background-color .2s; }
+        .nav a:hover { color: var(--text); background: var(--surface-2); }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .header-actions .btn { padding: 12px 20px; font-size: 0.88rem; }
+        .theme-toggle {
+            width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-strong);
+            background: var(--surface); color: var(--text); cursor: pointer; display: grid; place-items: center;
+            transition: transform .4s var(--ease), border-color .2s;
+        }
+        .theme-toggle:hover { border-color: var(--text); transform: rotate(20deg); }
+        .theme-toggle svg { width: 19px; height: 19px; }
+        [data-theme="dark"] .icon-sun, [data-theme="light"] .icon-moon { display: none; }
+        @media (max-width: 900px) { .nav { display: none; } .header-actions { margin-left: auto; } }
+        @media (max-width: 420px) { .header-actions .btn { display: none; } }
+
+        /* ================= Hero ================= */
+        .hero { position: relative; padding: 150px 0 40px; text-align: center; isolation: isolate; overflow: hidden; }
+        /* Grid lines that fade out from the center */
+        .hero::before {
+            content: ""; position: absolute; inset: 0; z-index: -2;
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+        }
+        /* Two slow-moving glows behind the title */
+        .orb { position: absolute; z-index: -1; border-radius: 50%; filter: blur(90px); opacity: .55; pointer-events: none; }
+        .orb-1 { width: 520px; height: 520px; left: 50%; top: 40px; margin-left: -460px; background: var(--red); animation: float1 16s ease-in-out infinite alternate; }
+        .orb-2 { width: 460px; height: 460px; left: 50%; top: 120px; margin-left: 20px; background: var(--violet); opacity: .35; animation: float2 18s ease-in-out infinite alternate; }
+        [data-theme="light"] .orb { opacity: .22; }
+        @keyframes float1 { to { transform: translate(80px, 60px) scale(1.1); } }
+        @keyframes float2 { to { transform: translate(-90px, 40px) scale(.95); } }
+
         .hero h1 {
-            font-size: clamp(2.2rem, 4.6vw, 3.6rem);
-            font-weight: 700;
-            line-height: 1.05;
-            letter-spacing: -0.04em;
-            max-width: 20ch;
-            text-wrap: balance;
-            margin-bottom: 18px;
+            font-size: clamp(2.6rem, 7vw, 5.6rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1.0;
+            max-width: 16ch; margin: 0 auto 24px; text-wrap: balance;
         }
-        .hero-top { max-width: 760px; }
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 14px; }
+        .hero .lead { margin: 0 auto; font-size: clamp(1rem, 1.6vw, 1.15rem); max-width: 62ch; text-wrap: pretty; }
+        .hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 34px 0 18px; }
         .hero-note { font-size: 0.85rem; color: var(--muted); margin: 0; }
 
-        /* Load sequence: the hero rises in once, in order, then the reel */
-        .js .rise { opacity: 0; transform: translateY(18px); animation: rise .9s var(--ease) forwards; }
-        .js .rise-2 { animation-delay: .12s; }
-        .js .rise-3 { animation-delay: .24s; }
-        .js .rise-4 { animation-delay: .36s; }
-        .js .rise-5 { animation-delay: .5s; }
+        /* Load sequence */
+        .js .rise { opacity: 0; transform: translateY(24px); animation: rise 1s var(--ease) forwards; }
+        .js .d1 { animation-delay: .1s; } .js .d2 { animation-delay: .2s; } .js .d3 { animation-delay: .3s; } .js .d4 { animation-delay: .45s; }
         @keyframes rise { to { opacity: 1; transform: none; } }
 
-        /* ---------- Preset reel ---------- */
+        /* ================= Preset reel ================= */
+        .reel-wrap { position: relative; margin-top: 64px; }
+        .reel-wrap::before {
+            content: ""; position: absolute; left: 10%; right: 10%; top: 8%; bottom: 0; z-index: -1;
+            background: radial-gradient(closest-side, var(--glow), transparent); filter: blur(40px);
+        }
         .reel {
-            margin-top: clamp(32px, 4vw, 48px);
-            display: grid;
-            grid-template-columns: minmax(0, 1fr); /* minmax: the scrolling preset list must not widen the page */
-            gap: 16px;
+            text-align: left; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px;
+            padding: 10px; border-radius: calc(var(--radius) + 10px);
+            border: 1px solid var(--line-strong); background: color-mix(in srgb, var(--surface) 70%, transparent);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--card-shadow);
         }
-        @media (min-width: 980px) { .reel { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; } }
-
-        .reel-stage { position: relative; margin: 0; border-radius: 16px; overflow: hidden; background: var(--surface); aspect-ratio: 16 / 9; }
-        .reel-stage img {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-            opacity: 0; transition: opacity .9s var(--ease);
-        }
+        @media (min-width: 980px) { .reel { grid-template-columns: minmax(0, 1fr) 270px; } }
+        .reel-stage { position: relative; margin: 0; border-radius: var(--radius); overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+        .reel-stage .layers { position: absolute; inset: 0; }
+        .reel-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s var(--ease); }
         .reel-stage img.shown { opacity: 1; animation: drift 9s linear forwards; }
-        /* A slow push-in on the active picture */
-        @keyframes drift { from { transform: scale(1.0); } to { transform: scale(1.06); } }
+        @keyframes drift { from { transform: scale(1); } to { transform: scale(1.07); } }
+        .reel-caption { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 70px 26px 22px; background: var(--overlay); color: #fff; }
+        .reel-caption strong { display: block; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+        .reel-caption p { margin: 4px 0 0; font-size: 0.88rem; color: rgba(255, 255, 255, .8); max-width: 64ch; }
+        .reel-caption.swap { animation: fadeup .6s var(--ease); }
+        @keyframes fadeup { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-        .reel-caption {
-            position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
-            padding: 64px 24px 20px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, .82));
-        }
-        .reel-caption strong { display: block; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
-        .reel-caption p { margin: 4px 0 0; font-size: 0.88rem; color: #d0d0d6; max-width: 64ch; }
-        .reel-caption.swap { animation: caption .6s var(--ease); }
-        @keyframes caption { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-        .reel-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+        .reel-list { list-style: none; margin: 0; padding: 4px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
         .reel-list::-webkit-scrollbar { display: none; }
         @media (min-width: 980px) { .reel-list { flex-direction: column; overflow: visible; } }
         .reel-list button {
-            position: relative; overflow: hidden;
-            width: 100%; text-align: left; white-space: nowrap;
-            padding: 11px 14px; border-radius: 10px; border: 0;
-            background: transparent; color: var(--muted); cursor: pointer;
-            font: 500 0.9rem/1.3 var(--font);
+            position: relative; overflow: hidden; width: 100%; text-align: left; white-space: nowrap;
+            padding: 11px 14px 13px; border-radius: 14px; border: 0; background: transparent;
+            color: var(--muted); cursor: pointer; font: 500 0.9rem/1.3 var(--font);
             transition: background-color .25s, color .25s;
         }
-        .reel-list button span { display: block; font-size: 0.75rem; color: #6c6c78; margin-top: 2px; }
-        .reel-list button:hover { color: var(--text); background: var(--surface); }
-        .reel-list button[aria-pressed="true"] { background: var(--surface); color: var(--text); }
-        /* Progress line: shows when the next preset comes up on its own */
+        .reel-list button span { display: block; font-size: 0.74rem; opacity: .7; margin-top: 2px; }
+        .reel-list button:hover { color: var(--text); background: var(--surface-2); }
+        .reel-list button[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
         .reel-list button::after {
             content: ""; position: absolute; left: 14px; right: 14px; bottom: 6px; height: 2px; border-radius: 2px;
-            background: var(--red); transform: scaleX(0); transform-origin: left;
+            background: linear-gradient(90deg, var(--red), var(--red-2)); transform: scaleX(0); transform-origin: left;
         }
         .reel-list button[aria-pressed="true"]::after { transform: scaleX(1); }
         .reel.autoplay .reel-list button[aria-pressed="true"]::after { animation: progress var(--slide, 6s) linear forwards; }
         .reel.paused .reel-list button[aria-pressed="true"]::after { animation-play-state: paused; }
         @keyframes progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-        .reel-more { padding: 8px 14px 0; font-size: 0.82rem; color: var(--muted); margin: 0; }
-
         @media (max-width: 979px) {
             .reel-stage { aspect-ratio: auto; }
-            .reel-stage .layers { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
-            .reel-caption { position: static; background: none; padding: 14px 16px 16px; }
-            .reel-more { display: none; }
+            .reel-stage .layers { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius); }
+            .reel-caption { position: static; background: none; color: var(--text); padding: 14px 8px 4px; }
+            .reel-caption p { color: var(--muted); }
+            .reel-stage { background: transparent; }
         }
-        @media (min-width: 980px) {
-            /* The picture fills the whole height of the preset list beside it */
-            .reel-stage { aspect-ratio: auto; min-height: 400px; align-self: stretch; }
-            .reel-stage .layers { position: absolute; inset: 0; }
-        }
+        @media (min-width: 980px) { .reel-stage { aspect-ratio: auto; min-height: 420px; } }
 
-        /* ---------- Sections ---------- */
-        section { padding: clamp(64px, 9vw, 120px) 0; }
-        .section-intro { max-width: 60ch; margin-bottom: clamp(32px, 4vw, 52px); }
+        /* ================= Marquee: every realm you can try presets on ================= */
+        .marquee { position: relative; overflow: hidden; padding: 30px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 90px;
+            mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+        .marquee-track { display: flex; width: max-content; gap: 0; animation: marquee 60s linear infinite; }
+        .marquee:hover .marquee-track { animation-play-state: paused; }
+        .marquee-track span { display: inline-flex; align-items: center; gap: 28px; padding-right: 28px; font-size: clamp(1.1rem, 2vw, 1.5rem); font-weight: 600; letter-spacing: -0.02em; color: var(--muted); white-space: nowrap; }
+        .marquee-track span::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+        @keyframes marquee { to { transform: translateX(-50%); } }
 
-        /* Scroll reveal: each block fades up once when it comes into view (only with JS, so nothing is hidden without it) */
-        .js [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--delay, 0s); }
+        /* ================= Sections ================= */
+        section { position: relative; padding: clamp(80px, 11vw, 140px) 0; }
+        .section-head { max-width: 720px; margin: 0 auto clamp(40px, 5vw, 64px); text-align: center; }
+        .section-head .lead { margin: 0 auto; }
+
+        .js [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: var(--delay, 0s); }
         .js [data-reveal].visible { opacity: 1; transform: none; }
 
-        /* How it works: a real sequence, so it's numbered */
-        .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 36px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); counter-reset: step; }
-        .steps li { counter-increment: step; }
-        .steps li::before {
-            content: counter(step); display: grid; place-items: center;
-            width: 36px; height: 36px; border-radius: 50%; margin-bottom: 18px;
-            border: 1px solid var(--line); color: var(--red); font-weight: 700; font-size: 0.9rem;
-        }
-        .steps p { color: var(--muted); margin: 0; font-size: 0.95rem; }
+        /* Stats with count-up */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .stat { padding: 30px 26px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+        .stat strong { display: block; font-size: clamp(2.4rem, 4.5vw, 3.4rem); font-weight: 800; letter-spacing: -0.05em; line-height: 1;
+            background: linear-gradient(135deg, var(--text) 40%, var(--muted)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .stat span { display: block; margin-top: 10px; color: var(--muted); font-size: 0.92rem; }
 
-        /* Features */
-        .feature { display: grid; gap: 24px 64px; align-items: center; grid-template-columns: 1fr; padding: 32px 0; }
+        /* Feature cards (bento) with a glow that follows the mouse */
+        .bento { display: grid; gap: 14px; grid-template-columns: repeat(6, 1fr); }
+        .card {
+            position: relative; overflow: hidden; grid-column: span 6;
+            padding: 30px; border-radius: var(--radius);
+            background: var(--surface); border: 1px solid var(--line);
+            transition: border-color .3s, transform .4s var(--ease);
+        }
+        .card::before {
+            content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+            background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 45%);
+        }
+        .card:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+        .card:hover::before { opacity: 1; }
+        .card > * { position: relative; }
+        .card p { color: var(--muted); margin: 0; font-size: 0.95rem; }
+        .card .icon {
+            width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 22px;
+            background: linear-gradient(135deg, var(--red), var(--red-2)); color: #fff;
+            box-shadow: 0 10px 24px -10px var(--red);
+        }
+        .card .icon svg { width: 22px; height: 22px; }
+        .card h3 { font-size: 1.25rem; }
+        .card ul { margin: 14px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.93rem; }
+        .card li { padding: 5px 0 5px 24px; position: relative; }
+        .card li::before { content: ""; position: absolute; left: 0; top: 0.85em; width: 12px; height: 6px; border-left: 2px solid var(--red-2); border-bottom: 2px solid var(--red-2); transform: rotate(-45deg); }
+        .card code { font-size: .85em; background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+        .card .shot { margin: 24px -30px -30px; border-top: 1px solid var(--line); }
+        .card .shot img { width: 100%; }
         @media (min-width: 900px) {
-            .feature { grid-template-columns: 1fr 1.3fr; }
-            .feature:nth-of-type(even) .feature-text { order: 2; }
+            .card.wide { grid-column: span 4; }
+            .card.narrow { grid-column: span 2; }
+            .card.half { grid-column: span 3; }
+            .card.third { grid-column: span 2; }
         }
-        .feature-text h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
-        .feature-text ul { margin: 0; padding: 0; list-style: none; color: var(--muted); }
-        .feature-text li { padding: 7px 0 7px 22px; position: relative; font-size: 0.96rem; }
-        .feature-text li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 8px; height: 2px; background: var(--red); border-radius: 2px; }
-        .shot { margin: 0; border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .9); }
-        .shot img { width: 100%; transition: transform 1.2s var(--ease); }
-        .shot:hover img { transform: scale(1.02); }
 
-        .extras { display: grid; gap: 28px 40px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-top: 56px; }
-        .extras p { color: var(--muted); margin: 0; font-size: 0.93rem; }
+        /* Steps */
+        .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); counter-reset: step; }
+        .steps li { counter-increment: step; padding: 30px 26px; border-radius: var(--radius); border: 1px solid var(--line); background: linear-gradient(180deg, var(--surface), transparent); }
+        .steps li::before {
+            content: "0" counter(step); display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 40px;
+            color: var(--red-2);
+        }
+        .steps p { color: var(--muted); margin: 0; font-size: 0.94rem; }
 
-        /* Stores table */
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th, td { text-align: left; padding: 16px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
-        th { font-weight: 600; color: var(--muted); font-size: 0.85rem; }
-        td code, p code { font-size: 0.85em; background: var(--surface); padding: 3px 7px; border-radius: 5px; }
+        /* Stores */
+        .stores { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .store { padding: 28px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); }
+        .store h3 { display: flex; align-items: center; gap: 12px; }
+        .store h3 svg { width: 26px; height: 26px; }
+        .store p { color: var(--muted); font-size: 0.9rem; margin: 6px 0 0; }
+        .store code { font-size: 0.84em; background: var(--surface-2); padding: 3px 7px; border-radius: 6px; word-break: break-word; }
 
-        /* Download */
-        .download-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 8px 0 28px; }
-        .download-option { border-radius: 16px; padding: 28px; background: var(--surface); border: 1px solid transparent; transition: border-color .3s, transform .3s var(--ease); }
-        .download-option:hover { border-color: var(--line); transform: translateY(-2px); }
-        .download-option.recommended { border-color: rgba(215, 38, 61, .55); }
-        .download-option h3 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 1.2rem; }
-        .tag { font: 600 0.72rem/1 var(--font); color: #fff; background: var(--red); padding: 5px 8px; border-radius: 5px; letter-spacing: 0; }
-        .download-option p { color: var(--muted); font-size: 0.94rem; }
-        .callout { border-left: 2px solid var(--focus); padding: 2px 0 2px 18px; color: var(--muted); max-width: 75ch; font-size: 0.93rem; }
+        /* Download CTA band */
+        .cta {
+            position: relative; overflow: hidden; isolation: isolate;
+            padding: clamp(48px, 7vw, 88px) clamp(24px, 5vw, 64px); border-radius: calc(var(--radius) + 8px);
+            background: var(--surface); border: 1px solid var(--line); text-align: center;
+        }
+        .cta::before { content: ""; position: absolute; z-index: -1; width: 700px; height: 700px; left: 50%; top: -360px; margin-left: -350px; border-radius: 50%; background: radial-gradient(closest-side, var(--glow), transparent); animation: breathe 7s ease-in-out infinite alternate; }
+        @keyframes breathe { to { transform: scale(1.2); opacity: .7; } }
+        .cta h2 { max-width: 18ch; margin: 0 auto 16px; }
+        .downloads { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 34px 0 26px; }
+        .callout { max-width: 64ch; margin: 0 auto; font-size: 0.88rem; color: var(--muted); }
 
-        /* FAQ: smooth open/close */
-        .faq { max-width: 780px; }
-        details { border-bottom: 1px solid var(--line); }
-        summary { cursor: pointer; padding: 20px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        /* FAQ */
+        .faq { max-width: 820px; margin: 0 auto; display: grid; gap: 10px; }
+        details { border-radius: 18px; border: 1px solid var(--line); background: var(--surface); transition: border-color .3s; }
+        details[open] { border-color: var(--line-strong); }
+        summary { cursor: pointer; padding: 20px 24px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
         summary::-webkit-details-marker { display: none; }
         summary::after {
-            content: ""; flex: none; width: 10px; height: 10px;
-            border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
-            transform: rotate(45deg) translateY(-3px); transition: transform .3s var(--ease);
+            content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+            background: var(--surface-2); color: var(--text); font-size: 1.1rem; font-weight: 500; transition: transform .35s var(--ease), background-color .3s;
         }
-        details[open] summary::after { transform: rotate(-135deg) translateY(-3px); }
-        details p { color: var(--muted); margin: 0; padding-bottom: 20px; }
-        details[open] p { animation: caption .4s var(--ease); }
-
-        /* Submit form */
-        form { display: grid; gap: 18px; max-width: 620px; }
-        label { font-weight: 600; font-size: 0.92rem; }
-        .hint { display: block; font-weight: 400; color: var(--muted); font-size: 0.82rem; }
-        input[type="text"], input[type="url"], textarea {
-            width: 100%; margin-top: 8px; padding: 13px 14px; border-radius: 10px;
-            border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-weight: 400;
-            transition: border-color .2s, background-color .2s;
-        }
-        input[type="text"]:focus, input[type="url"]:focus, textarea:focus { border-color: #4a4a57; background: var(--surface-alt); outline: none; }
-        textarea { min-height: 100px; resize: vertical; }
-        .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--muted); }
-        .check input { margin-top: 6px; accent-color: var(--red); }
-        #responseMessage { color: #5fd08a; }
+        details[open] summary::after { transform: rotate(45deg); background: var(--red); color: #fff; }
+        details p { color: var(--muted); margin: 0; padding: 0 24px 22px; }
+        details[open] p { animation: fadeup .45s var(--ease); }
 
         /* Credits */
-        .credits { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0 0 28px; list-style: none; }
-        .credits a {
-            display: inline-block; padding: 9px 16px; border-radius: 999px; background: var(--surface);
-            text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: background-color .2s, transform .2s var(--ease);
-        }
-        .credits a:hover { background: var(--surface-alt); transform: translateY(-2px); }
+        .credits { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 0; margin: 0 auto 28px; list-style: none; max-width: 900px; }
+        .credits a { display: inline-block; padding: 11px 20px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: border-color .2s, transform .25s var(--ease); }
+        .credits a:hover { border-color: var(--red); transform: translateY(-2px); }
+        .credits-note { text-align: center; color: var(--muted); font-size: 0.9rem; max-width: 70ch; margin: 0 auto; }
+        .credits-note a { color: var(--text); }
 
         /* Footer */
-        footer { border-top: 1px solid var(--line); padding: 48px 0 56px; color: var(--muted); font-size: 0.85rem; }
-        .footer-top { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-        .social { display: flex; gap: 4px; }
-        .social a { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; color: var(--muted); transition: background-color .2s, color .2s; }
-        .social a:hover { background: var(--surface); color: var(--text); }
-        .social svg { width: 20px; height: 20px; fill: currentColor; }
-        footer p { max-width: 90ch; }
+        footer { border-top: 1px solid var(--line); padding: 64px 0 48px; color: var(--muted); font-size: 0.86rem; }
+        .footer-top { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+        .footer-links a { text-decoration: none; color: var(--muted); } .footer-links a:hover { color: var(--text); }
+        .social { display: flex; gap: 8px; }
+        .social a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); color: var(--muted); transition: color .2s, border-color .2s, transform .25s var(--ease); }
+        .social a:hover { color: var(--text); border-color: var(--line-strong); transform: translateY(-2px); }
+        .social svg { width: 19px; height: 19px; fill: currentColor; }
+        .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 24px; }
+        .footer-bottom p { margin: 0; max-width: 80ch; }
 
-        /* Motion off for people who ask for it */
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
             *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
             .js .rise, .js [data-reveal] { opacity: 1; transform: none; }
+            .marquee-track { animation: none; }
         }
     </style>
 </head>
@@ -407,58 +481,62 @@
                 DBD Reshade
             </a>
             <nav class="nav" aria-label="Main">
-                <a href="#how-it-works">How it works</a>
                 <a href="#features">Features</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="#download">Download</a>
                 <a href="#faq">FAQ</a>
-                <a href="#submit">Submit a preset</a>
             </nav>
-            <a class="btn btn-primary" href="#download">Download</a>
+            <div class="header-actions">
+                <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Switch to light theme">
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                </button>
+                <a class="btn btn-primary" href="#download">Download</a>
+            </div>
         </div>
     </header>
 
     <main id="main">
-        <!-- ============ Hero ============ -->
+        <!-- ================= Hero ================= -->
         <div class="hero">
+            <div class="orb orb-1" aria-hidden="true"></div>
+            <div class="orb orb-2" aria-hidden="true"></div>
             <div class="wrap">
-                <div class="hero-top">
-                    <h1 class="rise">ReShade presets for Dead by Daylight, in one click</h1>
-                    <div>
-                        <p class="lead rise rise-2">Pick from 139+ presets made by streamers and players, see them on real maps without opening the game, and install them with ReShade in a single click. Free for Windows.</p>
-                        <div class="hero-actions rise rise-3">
-                            <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
-                                Download for Windows
-                            </a>
-                            <a class="btn" href="https://github.com/Joolace/dbd-reshade">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.4-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>
-                                Source code
-                            </a>
-                        </div>
-                        <p class="hero-note rise rise-4">Version 2.0. Windows 10 and 11. Steam, Epic Games and Xbox app.</p>
-                    </div>
+                <a class="pill rise" href="https://github.com/Joolace/dbd-reshade/releases/latest" style="text-decoration:none;"><span class="dot" aria-hidden="true"></span>Version 2.0 is out: rebuilt from scratch</a>
+                <h1 class="rise d1">ReShade presets for Dead by Daylight, in one click</h1>
+                <p class="lead rise d2">Pick from 139+ presets made by streamers and players, see them on real maps without opening the game, and install them with ReShade in a single click.</p>
+                <div class="hero-actions rise d3">
+                    <a class="btn btn-primary" href="#download">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
+                        Download for Windows
+                    </a>
+                    <a class="btn" href="https://github.com/Joolace/dbd-reshade">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.4-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>
+                        View on GitHub
+                    </a>
                 </div>
+                <p class="hero-note rise d3">Free and open source. Windows 10 and 11. Steam, Epic Games and Xbox app.</p>
 
                 <!-- Preset reel: real preset previews, the same ones the app shows -->
-                <div class="reel rise rise-5" id="reel" role="region" aria-label="Preset previews">
-                    <figure class="reel-stage">
-                        <!-- Two layers so presets crossfade into each other -->
-                        <div class="layers">
-                            <img class="shown"
-                                 src="./assets/presets/knightlight-stream.webp"
-                                 srcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
-                                 sizes="(min-width: 980px) 65vw, 100vw"
-                                 width="1600" height="900"
-                                 alt="Dead by Daylight with the KnightLight Stream ReShade preset"
-                                 fetchpriority="high">
-                            <img alt="" width="1600" height="900" sizes="(min-width: 980px) 65vw, 100vw" aria-hidden="true">
-                        </div>
-                        <figcaption class="reel-caption" aria-live="polite">
-                            <strong id="reel-name">KnightLight Stream</strong>
-                            <p id="reel-desc">KnightLight's latest preset, the one used on stream. Works on all maps.</p>
-                        </figcaption>
-                    </figure>
-                    <div>
-                        <ul class="reel-list" id="reel-list">
+                <div class="reel-wrap rise d4">
+                    <div class="reel" id="reel" role="region" aria-label="Preset previews">
+                        <figure class="reel-stage">
+                            <div class="layers">
+                                <img class="shown"
+                                     src="./assets/presets/knightlight-stream.webp"
+                                     srcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
+                                     sizes="(min-width: 1200px) 880px, 100vw"
+                                     width="1600" height="900"
+                                     alt="Dead by Daylight with the KnightLight Stream ReShade preset"
+                                     fetchpriority="high">
+                                <img alt="" width="1600" height="900" sizes="(min-width: 1200px) 880px, 100vw" aria-hidden="true">
+                            </div>
+                            <figcaption class="reel-caption" aria-live="polite">
+                                <strong id="reel-name">KnightLight Stream</strong>
+                                <p id="reel-desc">KnightLight's latest preset, the one used on stream. Works on all maps.</p>
+                            </figcaption>
+                        </figure>
+                        <ul class="reel-list">
                             <li><button type="button" aria-pressed="true" data-img="knightlight-stream" data-alt="KnightLight Stream"
                                     data-desc="KnightLight's latest preset, the one used on stream. Works on all maps.">KnightLight Stream<span>KnightLight</span></button></li>
                             <li><button type="button" aria-pressed="false" data-img="stx-universal" data-alt="STX Universal"
@@ -476,236 +554,173 @@
                             <li><button type="button" aria-pressed="false" data-img="faelayis" data-alt="Faelayis"
                                     data-desc="Balanced colour, sharpness and visibility for players and streamers.">Faelayis<span>Faelayis</span></button></li>
                         </ul>
-                        <p class="reel-more">And 130 more in the app.</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Every realm with screenshots for "Try on maps" -->
+            <div class="marquee" aria-label="Realms you can try presets on">
+                <div class="marquee-track" id="marquee">
+                    <span>Autohaven Wreckers</span><span>Backwater Swamp</span><span>Coldwind Farm</span><span>Crotus Prenn Asylum</span><span>Dvarka Deepwood</span><span>Forsaken Boneyard</span><span>Garden of Joy</span><span>Gideon Meat Plant</span><span>Grave of Glenvale</span><span>Haddonfield</span><span>Hawkins National Laboratory</span><span>Léry's Memorial Institute</span><span>Nostromo Wreckage</span><span>Ormond</span><span>Raccoon City</span><span>Red Forest</span><span>Silent Hill</span><span>Springwood</span><span>The Decimated Borgo</span><span>The MacMillan Estate</span><span>Withered Isle</span><span>Yamaoka Estate</span>
                 </div>
             </div>
         </div>
 
-        <!-- ============ How it works ============ -->
-        <section id="how-it-works" aria-labelledby="how-title">
+        <!-- ================= Numbers ================= -->
+        <section aria-label="DBD Reshade in numbers" style="padding-bottom: 0;">
             <div class="wrap">
-                <div class="section-intro" data-reveal>
-                    <h2 id="how-title">How it works</h2>
-                    <p class="lead">No ReShade setup, no copying files into the game folder by hand.</p>
+                <div class="stats">
+                    <div class="stat" data-reveal><strong data-count="139" data-suffix="+">139+</strong><span>presets ready to install</span></div>
+                    <div class="stat" data-reveal style="--delay:.08s"><strong data-count="22">22</strong><span>realms to try them on</span></div>
+                    <div class="stat" data-reveal style="--delay:.16s"><strong data-count="10">10</strong><span>languages</span></div>
+                    <div class="stat" data-reveal style="--delay:.24s"><strong data-count="3">3</strong><span>stores: Steam, Epic and Xbox</span></div>
                 </div>
-                <ol class="steps">
-                    <li data-reveal style="--delay:0.0s">
-                        <h3>Download and open</h3>
-                        <p>The app finds Dead by Daylight on Steam, Epic Games or the Xbox app by itself.</p>
-                    </li>
-                    <li data-reveal style="--delay:0.1s">
-                        <h3>Pick a preset</h3>
-                        <p>Search the list, look at the preview, and open the creator's page if you want to know more.</p>
-                    </li>
-                    <li data-reveal style="--delay:0.2s">
-                        <h3>Try it on the maps</h3>
-                        <p>See the preset with the real ReShade on every realm, before touching your game.</p>
-                    </li>
-                    <li data-reveal style="--delay:0.3s">
-                        <h3>Install and play</h3>
-                        <p>One click installs ReShade, the effects and the preset. Press Home in game to open ReShade.</p>
-                    </li>
-                </ol>
             </div>
         </section>
 
-        <!-- ============ Features ============ -->
+        <!-- ================= Features ================= -->
         <section id="features" aria-labelledby="features-title">
             <div class="wrap">
-                <div class="section-intro" data-reveal>
+                <div class="section-head" data-reveal>
+                    <span class="pill">Features</span>
                     <h2 id="features-title">Everything you need for ReShade in Dead by Daylight</h2>
                     <p class="lead">One app to install, preview, create and manage your presets.</p>
                 </div>
 
-                <article class="feature" data-reveal>
-                    <div class="feature-text">
+                <div class="bento">
+                    <article class="card wide" data-reveal>
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></div>
                         <h3>One-click install</h3>
+                        <p>Finds the game, installs the latest ReShade, downloads the effects your presets need and activates the preset.</p>
                         <ul>
-                            <li>Installs the latest ReShade, and offers to update it when a new version is out</li>
-                            <li>Downloads the effects your presets need from ReShade's official packages</li>
-                            <li>Won't install while the game is running, and won't overwrite another mod's files</li>
-                            <li>Launch game button opens Steam, Epic or Xbox and starts Dead by Daylight</li>
+                            <li>Offers to update ReShade when a new version is out</li>
+                            <li>Won't install while the game is running or overwrite another mod's files</li>
+                            <li>Launch game opens Steam, Epic or Xbox and starts Dead by Daylight</li>
                         </ul>
-                    </div>
-                    <figure class="shot" style="margin:0;">
-                        <!-- Screenshot: the Install Preset page -->
-                        <img src="./screenshots/v2/install-preset.png" alt="DBD Reshade Install Preset page with a preset selected" width="1180" height="780" loading="lazy" onerror="this.closest('figure').remove()">
-                    </figure>
-                </article>
-
-                <article class="feature" data-reveal>
-                    <div class="feature-text">
-                        <h3>Try on maps</h3>
-                        <ul>
-                            <li>See any preset on real screenshots of every realm, with the real ReShade</li>
-                            <li>No need to start the game or queue for a match</li>
-                            <li>Add your own screenshots to test on your favourite spots</li>
-                            <li>Press F1 for all the keys</li>
-                        </ul>
-                    </div>
-                    <figure class="shot" style="margin:0;">
-                        <!-- Screenshot: the map preview window -->
-                        <img src="./screenshots/v2/map-preview.png" alt="A ReShade preset previewed on a Dead by Daylight map screenshot" width="1600" height="900" loading="lazy" onerror="this.closest('figure').remove()">
-                    </figure>
-                </article>
-
-                <article class="feature" data-reveal>
-                    <div class="feature-text">
-                        <h3>Preset Editor</h3>
-                        <ul>
-                            <li>Create your own preset with the full ReShade menu, live on map screenshots</li>
-                            <li>Start from scratch or from any preset in the library</li>
-                            <li>Take a screenshot to use as its preview, then save it to your library</li>
-                        </ul>
-                    </div>
-                    <figure class="shot" style="margin:0;">
-                        <!-- Screenshot: the Preset Editor page -->
-                        <img src="./screenshots/v2/editor.png" alt="DBD Reshade Preset Editor" width="1180" height="780" loading="lazy" onerror="this.closest('figure').remove()">
-                    </figure>
-                </article>
-
-                <div class="extras">
-                    <div data-reveal style="--delay:0.00s">
+                    </article>
+                    <article class="card narrow" data-reveal style="--delay:.08s">
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></div>
                         <h3>Always up to date</h3>
-                        <p>New presets arrive automatically, and the app updates itself with one click.</p>
-                    </div>
-                    <div data-reveal style="--delay:0.08s">
+                        <p>New presets arrive on their own, and the app updates itself with one click.</p>
+                    </article>
+                    <article class="card half" data-reveal>
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
+                        <h3>Try on maps</h3>
+                        <p>See any preset with the real ReShade on screenshots of every realm, without starting the game. Add your own screenshots too.</p>
+                        <figure class="shot"><img src="./screenshots/v2/map-preview.png" alt="A ReShade preset previewed on a Dead by Daylight map screenshot" width="1600" height="900" loading="lazy" onerror="this.closest('figure').remove()"></figure>
+                    </article>
+                    <article class="card half" data-reveal style="--delay:.08s">
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+                        <h3>Preset Editor</h3>
+                        <p>Create your own preset with the full ReShade menu, live on map screenshots, then save it to your library with its preview.</p>
+                        <figure class="shot"><img src="./screenshots/v2/editor.png" alt="DBD Reshade Preset Editor" width="1180" height="780" loading="lazy" onerror="this.closest('figure').remove()"></figure>
+                    </article>
+                    <article class="card third" data-reveal>
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM4 9h16M9 9v11"/></svg></div>
                         <h3>Your own presets</h3>
-                        <p>Add any <code>.ini</code> with a description, a source link and a screenshot. Copy presets to any folder.</p>
-                    </div>
-                    <div data-reveal style="--delay:0.16s">
+                        <p>Add any <code>.ini</code> with a description, source and screenshot. Copy presets to any folder.</p>
+                    </article>
+                    <article class="card third" data-reveal style="--delay:.08s">
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
                         <h3>10 languages</h3>
                         <p>English, Italiano, Español, Français, Deutsch, Português, Русский, 简体中文, 日本語 and 한국어.</p>
-                    </div>
-                    <div data-reveal style="--delay:0.24s">
-                        <h3>Light on your disk</h3>
-                        <p>Previews and map screenshots download only when you look at them, and can be cleared any time.</p>
-                    </div>
+                    </article>
+                    <article class="card third" data-reveal style="--delay:.16s">
+                        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></div>
+                        <h3>Dark or light</h3>
+                        <p>A clean interface that follows your Windows theme, with its own title bar and one-click storage cleanup.</p>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <!-- ============ Supported versions ============ -->
-        <section id="supported" aria-labelledby="supported-title">
+        <!-- ================= How it works ================= -->
+        <section id="how-it-works" aria-labelledby="how-title">
             <div class="wrap">
-                <div class="section-intro" data-reveal>
+                <div class="section-head" data-reveal>
+                    <span class="pill">How it works</span>
+                    <h2 id="how-title">From download to playing in four steps</h2>
+                    <p class="lead">No ReShade setup, no copying files into the game folder by hand.</p>
+                </div>
+                <ol class="steps">
+                    <li data-reveal><h3>Download and open</h3><p>The app finds Dead by Daylight on Steam, Epic Games or the Xbox app by itself.</p></li>
+                    <li data-reveal style="--delay:.08s"><h3>Pick a preset</h3><p>Search the list, look at the preview, and open the creator's page if you want to know more.</p></li>
+                    <li data-reveal style="--delay:.16s"><h3>Try it on the maps</h3><p>See the preset with the real ReShade on every realm, before touching your game.</p></li>
+                    <li data-reveal style="--delay:.24s"><h3>Install and play</h3><p>One click installs ReShade, the effects and the preset. Press Home in game to open ReShade.</p></li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ================= Supported versions ================= -->
+        <section id="supported" aria-labelledby="supported-title" style="padding-top: 0;">
+            <div class="wrap">
+                <div class="section-head" data-reveal>
+                    <span class="pill">Compatibility</span>
                     <h2 id="supported-title">Works with every PC version of the game</h2>
                     <p class="lead">Found automatically, or pick the game folder yourself.</p>
                 </div>
-                <div class="table-wrap" data-reveal>
-                    <table>
-                        <thead>
-                            <tr><th scope="col">Store</th><th scope="col">Where ReShade is installed</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Steam</td><td><code>DeadByDaylight\Binaries\Win64</code></td></tr>
-                            <tr><td>Epic Games</td><td><code>DeadByDaylight\Binaries\EGS</code></td></tr>
-                            <tr><td>Xbox app and PC Game Pass</td><td><code>Content</code>, next to <code>gamelaunchhelper.exe</code></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ Download ============ -->
-        <section id="download" aria-labelledby="download-title">
-            <div class="wrap">
-                <div class="section-intro" data-reveal>
-                    <h2 id="download-title">Download DBD Reshade</h2>
-                    <p class="lead">Free and open source. Windows 10 or 11, 64-bit. Nothing else to install.</p>
-                </div>
-                <div class="download-grid">
-                    <div class="download-option recommended" data-reveal>
-                        <h3>Installer <span class="tag">Recommended</span></h3>
-                        <p>Adds DBD Reshade to the Start menu, with an optional desktop icon and an uninstaller.</p>
-                        <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade-Setup.exe">Download the installer</a>
+                <div class="stores">
+                    <div class="store" data-reveal>
+                        <h3><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-10 9.2l5.4 2.2a2.8 2.8 0 0 1 1.6-.5l2.4-3.5v-.1a3.8 3.8 0 1 1 3.8 3.8h-.1l-3.4 2.5a2.8 2.8 0 0 1-5.6.3L2.3 14A10 10 0 1 0 12 2zm-4.8 15.2-1.2-.5a2.1 2.1 0 1 0 1.3-2.8l1.3.5a1.5 1.5 0 1 1-1.4 2.8zm8.8-7.5a2.5 2.5 0 1 0-2.5 2.5 2.5 2.5 0 0 0 2.5-2.5zm-4.4 0a1.9 1.9 0 1 1 1.9 1.9 1.9 1.9 0 0 1-1.9-1.9z"/></svg>Steam</h3>
+                        <p>ReShade goes in <code>DeadByDaylight\Binaries\Win64</code></p>
                     </div>
-                    <div class="download-option" data-reveal style="--delay:.1s">
-                        <h3>Portable</h3>
-                        <p>A single file, nothing to install. Put it in any folder and run it.</p>
-                        <a class="btn" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade.exe">Download the portable exe</a>
+                    <div class="store" data-reveal style="--delay:.08s">
+                        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 2h14v16l-7 4-7-4z"/><path d="M9 7h3M9 7v8h3M9 11h2.5M14.5 7v8"/></svg>Epic Games</h3>
+                        <p>ReShade goes in <code>DeadByDaylight\Binaries\EGS</code></p>
+                    </div>
+                    <div class="store" data-reveal style="--delay:.16s">
+                        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M6.5 6.5c3 1.5 6.5 6 8.5 11M17.5 6.5c-3 1.5-6.5 6-8.5 11"/></svg>Xbox app and PC Game Pass</h3>
+                        <p>ReShade goes in <code>Content</code>, next to <code>gamelaunchhelper.exe</code></p>
                     </div>
                 </div>
-                <p class="callout" data-reveal>If Windows shows <em>Windows protected your PC</em>, choose <strong>More info</strong> and then <strong>Run anyway</strong>. SmartScreen warns about apps that few people have downloaded yet. Only download DBD Reshade from this site or the <a href="https://github.com/Joolace/dbd-reshade/releases">GitHub releases page</a>.</p>
             </div>
         </section>
 
-        <!-- ============ FAQ ============ -->
-        <section id="faq" aria-labelledby="faq-title">
+        <!-- ================= Download ================= -->
+        <section id="download" aria-labelledby="download-title" style="padding-top: 0;">
             <div class="wrap">
-                <h2 id="faq-title" data-reveal>Questions</h2>
-                <div class="faq" data-reveal>
-                <details>
-                    <summary>Is DBD Reshade free?</summary>
-                    <p>Yes. DBD Reshade is free and open source (GPL-3.0). ReShade and the presets are free too.</p>
-                </details>
-                <details>
-                    <summary>Does it work with the Steam, Epic and Xbox versions?</summary>
-                    <p>Yes. It finds Dead by Daylight on Steam, Epic Games and the Xbox app / PC Game Pass automatically, or you can pick the game folder by hand.</p>
-                </details>
-                <details>
-                    <summary>Can I see a preset before installing it?</summary>
-                    <p>Yes. Try on maps shows any preset with the real ReShade on screenshots of every realm, without starting the game. You can also use your own screenshots.</p>
-                </details>
-                <details>
-                    <summary>Can I get banned for using ReShade?</summary>
-                    <p>ReShade is widely used by Dead by Daylight players and streamers, but there is no guarantee. Use it at your own risk.</p>
-                </details>
-                <details>
-                    <summary>Why does Windows SmartScreen warn about the app?</summary>
-                    <p>SmartScreen warns about apps that few people have downloaded yet. Download it only from the official GitHub releases page, then choose More info and Run anyway.</p>
-                </details>
-                <details>
-                    <summary>The preset is installed but nothing changes in game</summary>
-                    <p>Close the game, click Install preset again and start the game. Press Home: if the ReShade menu opens, the preset is active. If not, use Report a bug in the app and send us the log on Discord.</p>
-                </details>
-                <details>
-                    <summary>How do I remove ReShade from the game?</summary>
-                    <p>Run the official installer from <a href="https://reshade.me">reshade.me</a>, select Dead by Daylight and choose Uninstall. Uninstalling DBD Reshade doesn't change the game.</p>
-                </details>
+                <div class="cta" data-reveal>
+                    <span class="pill"><span class="dot" aria-hidden="true"></span>Free for Windows 10 and 11</span>
+                    <h2 id="download-title">Ready to change how the Fog looks?</h2>
+                    <p class="lead center">Download DBD Reshade. No .NET or anything else to install.</p>
+                    <div class="downloads">
+                        <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade-Setup.exe">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
+                            Download the installer
+                        </a>
+                        <a class="btn" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade.exe">Portable version</a>
+                    </div>
+                    <p class="callout">The installer adds DBD Reshade to the Start menu with an uninstaller; the portable version is a single file. If Windows shows <em>Windows protected your PC</em>, choose <strong>More info</strong> and then <strong>Run anyway</strong>. Only download DBD Reshade from this site or the <a href="https://github.com/Joolace/dbd-reshade/releases">GitHub releases page</a>.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ============ Submit a preset ============ -->
-        <section id="submit" aria-labelledby="submit-title">
+        <!-- ================= FAQ ================= -->
+        <section id="faq" aria-labelledby="faq-title" style="padding-top: 0;">
             <div class="wrap">
-                <div class="section-intro" data-reveal>
-                    <h2 id="submit-title">Submit your preset</h2>
-                    <p class="lead">Made a preset you're proud of? Send it in. Once added, it reaches every user automatically.</p>
+                <div class="section-head" data-reveal>
+                    <span class="pill">FAQ</span>
+                    <h2 id="faq-title">Questions</h2>
                 </div>
-                <form data-reveal id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST">
-                    <label for="username">Your username
-                        <input type="text" id="username" name="username" required autocomplete="nickname">
-                    </label>
-                    <label for="description">Preset description
-                        <textarea id="description" name="description" required></textarea>
-                    </label>
-                    <label for="screenshot">Preview screenshot link
-                        <span class="hint">Google Drive, Mega, Mediafire… at 2560×1440.</span>
-                        <input type="url" id="screenshot" name="screenshot" required placeholder="https://">
-                    </label>
-                    <label for="presetfile">Preset file (.ini) link
-                        <span class="hint">Google Drive, Mega, Mediafire…</span>
-                        <input type="url" id="presetfile" name="presetfile" required placeholder="https://">
-                    </label>
-                    <label class="check">
-                        <input type="checkbox" id="terms" required>
-                        <span>I have read and understood the <a href="./terms-conditions.html">terms and conditions</a>.</span>
-                    </label>
-                    <div><button type="submit" class="btn btn-primary">Send preset</button></div>
-                    <p id="responseMessage" role="status" hidden></p>
-                </form>
+                <div class="faq">
+                    <details data-reveal><summary>Is DBD Reshade free?</summary><p>Yes. DBD Reshade is free and open source (GPL-3.0). ReShade and the presets are free too.</p></details>
+                    <details data-reveal><summary>Does it work with the Steam, Epic and Xbox versions?</summary><p>Yes. It finds Dead by Daylight on Steam, Epic Games and the Xbox app / PC Game Pass automatically, or you can pick the game folder by hand.</p></details>
+                    <details data-reveal><summary>Can I see a preset before installing it?</summary><p>Yes. Try on maps shows any preset with the real ReShade on screenshots of every realm, without starting the game. You can also use your own screenshots.</p></details>
+                    <details data-reveal><summary>Can I get banned for using ReShade?</summary><p>ReShade is widely used by Dead by Daylight players and streamers, but there is no guarantee. Use it at your own risk.</p></details>
+                    <details data-reveal><summary>Why does Windows SmartScreen warn about the app?</summary><p>SmartScreen warns about apps that few people have downloaded yet. Download it only from the official GitHub releases page, then choose More info and Run anyway.</p></details>
+                    <details data-reveal><summary>The preset is installed but nothing changes in game</summary><p>Close the game, click Install preset again and start the game. Press Home: if the ReShade menu opens, the preset is active. If not, use Report a bug in the app and send us the log on Discord.</p></details>
+                    <details data-reveal><summary>How do I remove ReShade from the game?</summary><p>Run the official installer from <a href="https://reshade.me">reshade.me</a>, select Dead by Daylight and choose Uninstall. Uninstalling DBD Reshade doesn't change the game.</p></details>
+                </div>
             </div>
         </section>
 
-        <!-- ============ Credits ============ -->
-        <section id="credits" aria-labelledby="credits-title">
+        <!-- ================= Credits ================= -->
+        <section id="credits" aria-labelledby="credits-title" style="padding-top: 0;">
             <div class="wrap">
-                <div class="section-intro" data-reveal>
-                    <h2 id="credits-title">Made possible by</h2>
-                    <p class="lead">The presets come from these creators. Go show them some love.</p>
+                <div class="section-head" data-reveal>
+                    <span class="pill">Credits</span>
+                    <h2 id="credits-title">Made possible by the preset creators</h2>
+                    <p class="lead">Go show them some love.</p>
                 </div>
                 <ul class="credits" data-reveal>
                     <li><a href="https://github.com/steaxss/STEAXS-FILTER-PACK">STX</a></li>
@@ -720,7 +735,7 @@
                     <li><a href="https://discord.com/invite/bNvWEde5Vr">Trolling Prophets</a></li>
                     <li><a href="https://www.youtube.com/watch?v=Qs28LJTro70">NUGGETZ</a></li>
                 </ul>
-                <p class="muted">Built on <a href="https://reshade.me">ReShade</a> by crosire, with effects by CeeJay.dk (SweetFX), prod80, BlueSkyDefender, Lord of Lunacy, Fubaxiusz, SirCobra, Marty McFly and more.</p>
+                <p class="credits-note" data-reveal>Built on <a href="https://reshade.me">ReShade</a> by crosire, with effects by CeeJay.dk (SweetFX), prod80, BlueSkyDefender, Lord of Lunacy, Fubaxiusz, SirCobra, Marty McFly and more. Want your preset in the app? Share it on our <a href="https://discord.gg/mC7Eabu3QW">Discord</a>.</p>
             </div>
         </section>
     </main>
@@ -732,6 +747,13 @@
                     <img src="./dbdreshade_logo.png" alt="" width="34" height="34" loading="lazy">
                     DBD Reshade
                 </a>
+                <nav class="footer-links" aria-label="Footer">
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it works</a>
+                    <a href="#download">Download</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="https://github.com/Joolace/dbd-reshade">GitHub</a>
+                </nav>
                 <nav class="social" aria-label="Social links">
                     <a href="https://discord.gg/mC7Eabu3QW" aria-label="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.4 18.4 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.4C.6 9 -.3 13.6.1 18.1a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.8 19.8 0 0 0 6-3c.5-5.2-.8-9.7-3.6-13.7zM8 15.4c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg></a>
                     <a href="https://github.com/Joolace/dbd-reshade" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.4-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></a>
@@ -740,14 +762,31 @@
                     <a href="https://www.instagram.com/joolace" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
                 </nav>
             </div>
-            <p>DBD Reshade is a fan project, not affiliated with, endorsed, sponsored or approved by Behaviour Interactive Inc. Dead by Daylight and all related content are trademarks of their respective owners. Use it at your own risk: the author is not responsible for bans or other consequences.</p>
-            <p>© <span id="year">2026</span> Joolace. Released under the <a href="https://github.com/Joolace/dbd-reshade/blob/wpf-app/LICENSE">GPL-3.0 license</a>. <a href="./terms-conditions.html">Terms and conditions</a>.</p>
+            <div class="footer-bottom">
+                <p>DBD Reshade is a fan project, not affiliated with, endorsed, sponsored or approved by Behaviour Interactive Inc. Dead by Daylight and all related content are trademarks of their respective owners. Use it at your own risk: the author is not responsible for bans or other consequences.</p>
+                <p>© <span id="year">2026</span> Joolace. <a href="https://github.com/Joolace/dbd-reshade/blob/wpf-app/LICENSE">GPL-3.0</a></p>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Preset reel: crossfades between presets and moves on by itself every few seconds,
-        // until the visitor picks one. Hover or focus pauses it; reduced motion turns it off.
+        // ---- Theme toggle (saved for next visit; follows Windows until the visitor picks one) ----
+        (function () {
+            var root = document.documentElement;
+            var button = document.getElementById('theme-toggle');
+            function label() {
+                button.setAttribute('aria-label', root.getAttribute('data-theme') === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+            }
+            button.addEventListener('click', function () {
+                var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                root.setAttribute('data-theme', next);
+                try { localStorage.setItem('theme', next); } catch (e) {}
+                label();
+            });
+            label();
+        })();
+
+        // ---- Preset reel: crossfades, moves on by itself until the visitor picks one ----
         (function () {
             var reel = document.getElementById('reel');
             var layers = reel.querySelectorAll('.layers img');
@@ -755,10 +794,8 @@
             var name = document.getElementById('reel-name');
             var desc = document.getElementById('reel-desc');
             var buttons = Array.prototype.slice.call(reel.querySelectorAll('.reel-list button'));
-            var SLIDE = 6000;
-            var front = 0, current = 0, timer = null, started = 0, remaining = SLIDE, userChose = false;
+            var SLIDE = 6000, front = 0, current = 0, timer = null, started = 0, remaining = SLIDE, userChose = false;
             var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
             reel.style.setProperty('--slide', SLIDE + 'ms');
 
             function show(index) {
@@ -766,7 +803,6 @@
                 current = index;
                 var button = buttons[index];
                 buttons.forEach(function (b, i) { b.setAttribute('aria-pressed', i === index ? 'true' : 'false'); });
-
                 var base = './assets/presets/' + button.dataset.img;
                 var back = layers[1 - front];
                 back.onload = function () {
@@ -781,45 +817,40 @@
                 };
                 back.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
                 back.src = base + '.webp';
-
                 name.textContent = button.dataset.alt;
                 desc.textContent = button.dataset.desc;
                 caption.classList.remove('swap'); void caption.offsetWidth; caption.classList.add('swap');
-
-                // Keep the active preset in view in the horizontal list on phones
-                if (window.innerWidth < 980) button.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+                if (window.innerWidth < 980) {
+                    var list = button.closest('ul');
+                    list.scrollTo({ left: button.parentNode.offsetLeft - 8, behavior: calm ? 'auto' : 'smooth' });
+                }
                 if (!userChose) schedule(SLIDE);
             }
-
+            function next() { show((current + 1) % buttons.length); }
             function schedule(ms) {
                 clearTimeout(timer);
                 remaining = ms; started = Date.now();
-                // Restart the progress line on the active button
                 reel.classList.remove('autoplay'); void reel.offsetWidth; reel.classList.add('autoplay');
-                timer = setTimeout(function () { show((current + 1) % buttons.length); }, ms);
+                timer = setTimeout(next, ms);
             }
-
             function pause() {
                 if (userChose || !timer) return;
                 clearTimeout(timer); timer = null;
                 remaining = Math.max(0, remaining - (Date.now() - started));
                 reel.classList.add('paused');
             }
-
             function resume() {
                 if (userChose || timer) return;
                 reel.classList.remove('paused');
                 started = Date.now();
-                timer = setTimeout(function () { show((current + 1) % buttons.length); }, remaining);
+                timer = setTimeout(next, remaining);
             }
-
             function choose(index) {
                 userChose = true;
                 clearTimeout(timer); timer = null;
                 reel.classList.remove('autoplay', 'paused');
                 show(index);
             }
-
             buttons.forEach(function (button, i) {
                 button.addEventListener('click', function () { choose(i); });
                 button.addEventListener('keydown', function (e) {
@@ -831,14 +862,11 @@
                     choose(target);
                 });
             });
-
-            // Warm the cache so each crossfade is instant
             buttons.forEach(function (b) {
                 var img = new Image();
                 img.sizes = layers[0].sizes;
                 img.srcset = './assets/presets/' + b.dataset.img + '-800.webp 800w, ./assets/presets/' + b.dataset.img + '.webp 1600w';
             });
-
             if (!calm) {
                 reel.addEventListener('mouseenter', pause);
                 reel.addEventListener('mouseleave', resume);
@@ -849,50 +877,55 @@
             }
         })();
 
-        // Blocks fade up once as they scroll into view
+        // ---- Marquee: the list is repeated once so the loop is seamless ----
         (function () {
+            var track = document.getElementById('marquee');
+            var copy = track.innerHTML;
+            track.insertAdjacentHTML('beforeend', copy.replace(/<span>/g, '<span aria-hidden="true">'));
+        })();
+
+        // ---- Blocks fade up as they scroll into view; numbers count up ----
+        (function () {
+            var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            function countUp(el) {
+                var target = +el.dataset.count, suffix = el.dataset.suffix || '';
+                if (calm) { el.textContent = target + suffix; return; }
+                var start = performance.now(), duration = 1400;
+                (function frame(now) {
+                    var t = Math.min(1, (now - start) / duration), eased = 1 - Math.pow(1 - t, 3);
+                    el.textContent = Math.round(target * eased) + suffix;
+                    if (t < 1) requestAnimationFrame(frame);
+                })(start);
+            }
             var items = document.querySelectorAll('[data-reveal]');
             if (!('IntersectionObserver' in window)) { items.forEach(function (el) { el.classList.add('visible'); }); return; }
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
-                    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('visible');
+                    var number = entry.target.querySelector('[data-count]');
+                    if (number) countUp(number);
+                    observer.unobserve(entry.target);
                 });
             }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
             items.forEach(function (el) { observer.observe(el); });
         })();
 
-        // Header gets its border once the page scrolls
+        // ---- Card glow follows the mouse ----
+        document.querySelectorAll('.card').forEach(function (card) {
+            card.addEventListener('pointermove', function (e) {
+                var r = card.getBoundingClientRect();
+                card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+            });
+        });
+
+        // ---- Header turns solid once the page scrolls ----
         (function () {
             var header = document.getElementById('top');
-            function update() { header.classList.toggle('scrolled', window.scrollY > 8); }
+            function update() { header.classList.toggle('scrolled', window.scrollY > 10); }
             window.addEventListener('scroll', update, { passive: true });
             update();
-        })();
-
-        // Preset form: send without leaving the page.
-        (function () {
-            var form = document.getElementById('presetForm');
-            var message = document.getElementById('responseMessage');
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                var button = form.querySelector('button[type="submit"]');
-                button.disabled = true;
-                fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } })
-                    .then(function (response) {
-                        message.hidden = false;
-                        if (response.ok) {
-                            message.textContent = 'Preset sent. Thanks! We\'ll take a look and add it if it fits.';
-                            form.reset();
-                        } else {
-                            message.textContent = 'The preset couldn\'t be sent. Check the links and try again, or send it on Discord.';
-                        }
-                    })
-                    .catch(function () {
-                        message.hidden = false;
-                        message.textContent = 'The preset couldn\'t be sent: check your connection and try again.';
-                    })
-                    .finally(function () { button.disabled = false; });
-            });
         })();
 
         document.getElementById('year').textContent = new Date().getFullYear();
