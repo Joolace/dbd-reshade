@@ -693,5 +693,25 @@
         "description": "Latest Knightlight preset. All maps. (Similar to 0.KL_Stream.ini)",
         "videoLink": "https://discord.gg/N8eExDuVUe",
         "preset-preview": "end.png"
+    },
+    "TWD.ini": {
+        "description": "Knightlight preset for TWD Map.",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "TWD.png"
+    },
+    "Stream.ini": {
+        "description": "Knightlight preset for Streams.",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "Stream.png"
+    },
+    "Event.ini": {
+        "description": "Knightlight preset for Halloween 2026 Event.",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "Event.png"
+    },
+    "Event Menu_S.ini": {
+        "description": "Knightlight preset for Halloween 2026 Event.",
+        "videoLink": "https://discord.gg/N8eExDuVUe",
+        "preset-preview": "Event Menu_S.png"
     }
 }
