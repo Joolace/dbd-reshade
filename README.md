@@ -37,6 +37,7 @@ Pick a preset, try it on real map screenshots without opening the game, install 
 - [Submit a preset](#submit-a-preset)
 - [Credits](#credits)
 - [Disclaimer](#disclaimer)
+- [How it was made](#how-it-was-made)
 - [For developers](#for-developers)
 - [License](#license)
 - [Contact](#contact)
@@ -331,6 +332,20 @@ repositories through ReShade's official package list, including SweetFX (CeeJay.
 - **False positives**: some antivirus programs may flag the app. Download it only from the official repository.
 - DBD Reshade is a fan project, not affiliated with or endorsed by Behaviour Interactive or ReShade.
   *Dead by Daylight* is a trademark of Behaviour Interactive Inc.
+
+---
+
+## How it was made
+
+Version 2.0 was built by **Joolace with the help of [Claude](https://claude.ai)**, Anthropic's AI assistant.
+Claude helped with writing the code; the ideas, the features, the design decisions and all the testing on real
+Dead by Daylight installs are mine. Every feature exists because players asked for it or because I needed it,
+and every bug found while testing was reported, reproduced and fixed before release.
+
+The app does real, checkable things: it uses ReShade's official installer and effect packages, the presets
+are made by the community creators listed in [Credits](#credits), and the whole source code is public in
+[`app/`](./app). If something looks wrong, read it, open an issue or tell me on
+[Discord](https://discord.gg/mC7Eabu3QW).
 
 ---
 
