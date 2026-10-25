@@ -275,9 +275,11 @@
         </Setter>
     </Style>
 
+    <!-- The margin keeps the bar away from the content it scrolls (cards, list items) and from the edges -->
     <Style TargetType="ScrollBar">
         <Setter Property="Width" Value="8" />
         <Setter Property="MinWidth" Value="8" />
+        <Setter Property="Margin" Value="8,4,2,4" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>
@@ -296,6 +298,7 @@
                 <Setter Property="MinWidth" Value="0" />
                 <Setter Property="Height" Value="8" />
                 <Setter Property="MinHeight" Value="8" />
+                <Setter Property="Margin" Value="4,8,4,2" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ScrollBar">
@@ -322,7 +325,9 @@
     <Style x:Key="ChromeWindow" TargetType="Window">
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
-                <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="0"
+                <!-- GlassFrameThickness 1 (not 0) keeps Windows' own window frame underneath: no black or
+                     stale areas while resizing, plus the native shadow and (Windows 11) rounded corners -->
+                <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="1"
                               CornerRadius="0" UseAeroCaptionButtons="False" />
             </Setter.Value>
         </Setter>

@@ -24,7 +24,7 @@
 
     <!-- Fit or scroll: the page fills the window, but below MinHeight it scrolls instead of cutting off the cards -->
     <ScrollViewer x:Name="PageScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                  Focusable="False">
+                  Focusable="False" Padding="0,0,4,0">
     <Grid MinHeight="620" Height="{Binding ViewportHeight, ElementName=PageScroller}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

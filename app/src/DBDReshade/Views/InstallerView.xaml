@@ -31,7 +31,7 @@
 
     <!-- Fit or scroll: the page fills the window, but below MinHeight it scrolls instead of cutting off the buttons -->
     <ScrollViewer x:Name="PageScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                  Focusable="False">
+                  Focusable="False" Padding="0,0,4,0">
     <Grid MinHeight="560" Height="{Binding ViewportHeight, ElementName=PageScroller}">
         <Grid.ColumnDefinitions>
             <!-- The list gives up space first when the window gets narrow -->
@@ -239,37 +239,57 @@
             </Border>
 
             <!-- Install -->
-            <!-- Progress on its own line; the buttons always stay on one line: when the window is too narrow
-                 for their labels, "Try on maps" and "Launch game" show only their icon (see InstallerView.xaml.cs) -->
-            <StackPanel Grid.Row="4" x:Name="InstallArea">
+            <!-- Progress on its own line; the buttons always stay on one line. FirstFitPanel shows the first
+                 version that fits: with labels, or (narrow window) "Try on maps" / "Launch game" as icons only.
+                 It's decided while measuring, so nothing jumps or overflows during a resize. -->
+            <StackPanel Grid.Row="4">
                 <StackPanel Margin="0,0,0,12"
                             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{Binding StatusText}" Style="{StaticResource Muted}" Margin="0,0,0,8"
                                TextTrimming="CharacterEllipsis" />
                     <ProgressBar Value="{Binding ProgressValue}" Maximum="100" />
                 </StackPanel>
-                <StackPanel x:Name="InstallButtons" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Command="{Binding TryOnMapsCommand}" Margin="0,0,10,0" Padding="16,11"
-                            ToolTip="{DynamicResource Inst.TryOnMapsTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="TryOnMapsIcon" Style="{StaticResource Icon}" Text="&#xE7B3;" FontSize="14" Margin="0,0,10,0" />
-                            <TextBlock x:Name="TryOnMapsText" Text="{DynamicResource Inst.TryOnMaps}" FontSize="14" />
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{Binding LaunchGameCommand}" Margin="0,0,10,0" Padding="16,11"
-                            ToolTip="{DynamicResource Inst.LaunchGameTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock x:Name="LaunchIcon" Style="{StaticResource Icon}" Text="&#xE7FC;" FontSize="14" Margin="0,0,10,0" />
-                            <TextBlock x:Name="LaunchText" Text="{DynamicResource Inst.LaunchGame}" FontSize="14" />
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="InstallButton" Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" MinWidth="200">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="14" Margin="0,0,10,0" />
-                            <TextBlock Text="{DynamicResource Inst.Install}" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                <h:FirstFitPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Command="{Binding TryOnMapsCommand}" Margin="0,0,10,0" Padding="16,11"
+                                ToolTip="{DynamicResource Inst.TryOnMapsTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7B3;" FontSize="14" Margin="0,0,10,0" />
+                                <TextBlock Text="{DynamicResource Inst.TryOnMaps}" FontSize="14" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding LaunchGameCommand}" Margin="0,0,10,0" Padding="16,11"
+                                ToolTip="{DynamicResource Inst.LaunchGameTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE7FC;" FontSize="14" Margin="0,0,10,0" />
+                                <TextBlock Text="{DynamicResource Inst.LaunchGame}" FontSize="14" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}" MinWidth="200">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="14" Margin="0,0,10,0" />
+                                <TextBlock Text="{DynamicResource Inst.Install}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <!-- Narrow: icons only (the tooltips still explain them) -->
+                    <StackPanel Orientation="Horizontal">
+                        <Button Command="{Binding TryOnMapsCommand}" Margin="0,0,10,0" Padding="14,11"
+                                ToolTip="{DynamicResource Inst.TryOnMaps}">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7B3;" FontSize="14" />
+                        </Button>
+                        <Button Command="{Binding LaunchGameCommand}" Margin="0,0,10,0" Padding="14,11"
+                                ToolTip="{DynamicResource Inst.LaunchGame}">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7FC;" FontSize="14" />
+                        </Button>
+                        <Button Style="{StaticResource PrimaryButton}" Command="{Binding InstallCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" FontSize="14" Margin="0,0,10,0" />
+                                <TextBlock Text="{DynamicResource Inst.Install}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </h:FirstFitPanel>
             </StackPanel>
         </Grid>
     </Grid>

@@ -209,3 +209,48 @@ public sealed class LogLevelToBrushConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>
+/// Shows the first child that fits the available width (the others are kept but invisible), aligned right.
+/// Used for button rows: a full version with labels first, then more compact ones. The choice is made
+/// while measuring, so the layout never overflows or jumps for a frame while the window is resized.
+/// </summary>
+public sealed class FirstFitPanel : System.Windows.Controls.Panel
+{
+    private UIElement? _shown;
+
+    protected override Size MeasureOverride(Size available)
+    {
+        _shown = null;
+        foreach (UIElement child in InternalChildren)
+        {
+            child.Measure(new Size(double.PositiveInfinity, available.Height));
+            if (_shown is null && child.DesiredSize.Width <= available.Width) _shown = child;
+        }
+
+        // Nothing fits: show the most compact version anyway.
+        if (_shown is null && InternalChildren.Count > 0) _shown = InternalChildren[InternalChildren.Count - 1];
+        if (_shown is null) return new Size();
+
+        var width = double.IsInfinity(available.Width) ? _shown.DesiredSize.Width : Math.Min(_shown.DesiredSize.Width, available.Width);
+        return new Size(width, _shown.DesiredSize.Height);
+    }
+
+    protected override Size ArrangeOverride(Size finalSize)
+    {
+        foreach (UIElement child in InternalChildren)
+        {
+            var shown = ReferenceEquals(child, _shown);
+            // Opacity and hit-testing, not Visibility: changing Visibility here would start a new layout pass.
+            child.Opacity = shown ? 1 : 0;
+            child.IsHitTestVisible = shown;
+            child.IsEnabled = shown; // hidden buttons can't be reached with Tab either
+
+            var width = child.DesiredSize.Width;
+            child.Arrange(shown
+                ? new Rect(Math.Max(0, finalSize.Width - width), 0, width, finalSize.Height)
+                : new Rect(0, 0, 0, 0));
+        }
+        return finalSize;
+    }
+}
