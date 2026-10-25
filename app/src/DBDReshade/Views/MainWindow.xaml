@@ -43,7 +43,9 @@
         <Style x:Key="SocialButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
             <Setter Property="Width" Value="40" />
             <Setter Property="Height" Value="40" />
-            <Setter Property="Padding" Value="9" />
+            <!-- No padding: the 40×40 button (1 px border) leaves 38×38, the 22×22 icon sits centered in it.
+                 With padding 9 only 20×20 was left and the icons were clipped. -->
+            <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="4,0" />
         </Style>
 
