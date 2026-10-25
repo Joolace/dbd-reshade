@@ -1,0 +1,112 @@
+# Keeps preset previews light: every image pushed to media/preview-preset larger than 800 KB is resized
+# to at most 1920 px wide and saved as a quality-85 JPG (a PNG becomes a .jpg, and media/presets.json is
+# updated to the new name). Previews then download in a second instead of 5-10 MB each.
+# Run it by hand (Actions > Compress previews > Run workflow) with "all" to compress the existing ones once.
+name: Compress previews
+
+on:
+  push:
+    branches: [ wpf-app ]
+    paths:
+      - 'media/preview-preset/**'
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'Compress every preview, not only the ones in the last push'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: compress-previews
+  cancel-in-progress: false
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Only the folders this job touches (the repository has ~1 GB of images and map screenshots).
+          sparse-checkout: |
+            media
+          filter: blob:none
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pillow
+        run: pip install pillow==10.4.0
+
+      - name: Pick the images to compress
+        id: files
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.all }}" = "true" ]; then
+            ls media/preview-preset/* > files.txt
+          elif [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --name-only --diff-filter=AM "${{ github.event.before }}" "${{ github.sha }}" -- media/preview-preset > files.txt
+          else
+            git diff --name-only --diff-filter=AM HEAD~1 HEAD -- media/preview-preset > files.txt || true
+          fi
+          echo "Candidates:"; cat files.txt
+
+      - name: Compress
+        shell: python
+        run: |
+          import json, os, re
+          from PIL import Image
+
+          LIMIT = 800 * 1024          # leave already-light images alone
+          MAX_WIDTH = 1920
+          QUALITY = 85
+          json_path = "media/presets.json"
+          renamed = {}
+
+          files = [l.strip() for l in open("files.txt", encoding="utf-8") if l.strip()]
+          for path in files:
+              if not os.path.isfile(path) or not path.lower().endswith((".jpg", ".jpeg", ".png")):
+                  continue
+              size = os.path.getsize(path)
+              if size <= LIMIT:
+                  continue
+
+              with Image.open(path) as im:
+                  im = im.convert("RGB")
+                  if im.width > MAX_WIDTH:
+                      im = im.resize((MAX_WIDTH, round(im.height * MAX_WIDTH / im.width)), Image.LANCZOS)
+                  target = path if path.lower().endswith((".jpg", ".jpeg")) else os.path.splitext(path)[0] + ".jpg"
+                  if target != path and os.path.exists(target):
+                      print(f"skip {path}: {target} already exists")
+                      continue
+                  im.save(target, "JPEG", quality=QUALITY, optimize=True, progressive=True)
+
+              if target != path:
+                  os.remove(path)
+                  renamed[os.path.basename(path)] = os.path.basename(target)
+              print(f"{path}: {size // 1024} KB -> {os.path.getsize(target) // 1024} KB")
+
+          # PNGs that became JPGs: point presets.json at the new names (text replace keeps the file's formatting).
+          if renamed and os.path.exists(json_path):
+              text = open(json_path, encoding="utf-8").read()
+              for old, new in renamed.items():
+                  text = re.sub(r'("preset-preview"\s*:\s*")' + re.escape(old) + '"', lambda m: m.group(1) + new + '"', text)
+              open(json_path, "w", encoding="utf-8", newline="").write(text)
+              json.loads(text)  # fail the job rather than commit broken JSON
+
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A media
+          if git diff --cached --quiet; then
+            echo "Nothing to compress."
+          else
+            git commit -m "Compress preset previews"
+            git push
+          fi

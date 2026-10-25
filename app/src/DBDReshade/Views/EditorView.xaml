@@ -199,13 +199,22 @@
                                     Visibility="{Binding ScreenshotPath, Converter={StaticResource NullToVis}}" />
                         </StackPanel>
 
-                        <Button Style="{StaticResource PrimaryButton}" Margin="0,20,0,0" HorizontalAlignment="Left" MinWidth="200"
-                                Command="{Binding SaveCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="14" Margin="0,0,10,0" />
-                                <TextBlock Text="{DynamicResource Edit.Save}" />
-                            </StackPanel>
-                        </Button>
+                        <WrapPanel Margin="0,20,0,0">
+                            <Button Style="{StaticResource PrimaryButton}" MinWidth="200" Margin="0,0,8,8"
+                                    Command="{Binding SaveCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="14" Margin="0,0,10,0" />
+                                    <TextBlock Text="{DynamicResource Edit.Save}" />
+                                </StackPanel>
+                            </Button>
+                            <!-- Send it to the official library (GitHub issue with the preset attached) -->
+                            <Button Margin="0,0,0,8" Command="{Binding ProposeCommand}" ToolTip="{DynamicResource Edit.ProposeTip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE724;" FontSize="13" Margin="0,0,8,0" />
+                                    <TextBlock Text="{DynamicResource Edit.Propose}" />
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>

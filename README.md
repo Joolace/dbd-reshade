@@ -106,6 +106,8 @@ works from ReShade's own menu in game.
 ![Install Preset](./screenshots/1.png)
 
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
+- **Favorites and filters**: star the presets you like, and filter by author, map and style (bright, dark, competitive, cinematic)
+- **New badge**: presets that just arrived are marked for a few days, and the app tells you how many came in
 - **Finds the game** on Steam, Epic Games and the Xbox app, or pick the folder by hand
 - **Installs ReShade** automatically, always the latest version from [reshade.me](https://reshade.me)
 - **Keeps ReShade up to date**: if a newer version is out, the app offers to update it (settings, presets and effects are kept)
@@ -114,6 +116,8 @@ works from ReShade's own menu in game.
 - **Custom preset folder**: save presets in the game folder (recommended) or anywhere you like
 - **Launch game**: starts Dead by Daylight through Steam, Epic or Xbox, opening them first if they're closed
 - **Safe**: won't install while the game is running, and won't overwrite another mod's `dxgi.dll`
+- **Automatic backup and undo**: before every change the app saves `ReShade.ini`, the active preset and ReShade itself; the **undo** button puts them back
+- **Uninstall ReShade** from the game with one click (effects and settings included)
 
 ### Try on maps
 
@@ -143,7 +147,8 @@ Create your own preset, live on map screenshots:
 2. **Pick a realm** (or your own screenshots)
 3. **Edit**: press **Home** to open ReShade, enable effects and move their sliders. Changes are saved automatically.
    Press **Print Screen** to take the screenshot that will be the preset's preview.
-4. **Save** it to your library with a description and an optional source link
+4. **Save** it to your library with a description and an optional source link, or **Propose** it for the official
+   library: the app packs it and opens a ready-made GitHub submission
 
 Unfinished presets are kept as drafts: type the same name to continue later.
 
@@ -155,6 +160,7 @@ Unfinished presets are kept as drafts: type the same name to continue later.
 - **Add your own presets** (`.ini`) with description, source link and screenshot
 - **Delete presets** you don't use. Deleted official presets don't come back with updates, and can be **restored** at any time with the button at the bottom of the list.
 - If your preset has the same name as an official one, you choose: keep both, or replace the official one
+- **Export and import**: share a preset as a single `.dbdpreset` file (preset, screenshot and description). To import, use **Import** or just drop the file on the window
 
 ### Copy Presets
 
@@ -273,8 +279,9 @@ game's exe. Steam, Epic and the game itself are still started normally, without 
 <details>
 <summary><b>How do I remove ReShade from the game?</b></summary>
 
-Run the official ReShade installer from [reshade.me](https://reshade.me), select Dead by Daylight and choose
-**Uninstall**. Uninstalling DBD Reshade doesn't touch the game.
+Click the **trash** icon in the **Game** box on the Install Preset page: ReShade, its effects and settings are removed
+(a backup is saved first, so the **undo** button can bring everything back). Uninstalling DBD Reshade itself doesn't
+touch the game.
 </details>
 
 <details>
@@ -296,7 +303,8 @@ Translations reach every user automatically, without an app update.
 
 ## Submit a preset
 
-Made a great preset? Share it on our [Discord](https://discord.gg/mC7Eabu3QW) or open a pull request with the
+Made a great preset? In the **Preset Editor** press **Propose**: the app packs your preset and opens a ready-made
+GitHub submission, just drop the file in and send. You can also share it on our [Discord](https://discord.gg/mC7Eabu3QW) or open a pull request with the
 `.ini` in [`Presets/`](./Presets), a preview image in [`media/preview-preset/`](./media/preview-preset) and an entry
 in [`media/presets.json`](./media/presets.json). New presets reach every user automatically.
 

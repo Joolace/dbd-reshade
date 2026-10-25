@@ -14,9 +14,11 @@ public sealed partial class PresetManagerViewModel : ObservableObject
     private readonly PresetRepository _repository;
     private readonly PresetSyncService _sync;
     private readonly LogService _log;
+    private readonly PresetPackageService _packages;
 
-    public PresetManagerViewModel(PresetRepository repository, PresetSyncService sync, LogService log)
+    public PresetManagerViewModel(PresetRepository repository, PresetSyncService sync, PresetPackageService packages, LogService log)
     {
+        _packages = packages;
         _repository = repository;
         _sync = sync;
         _log = log;
@@ -28,6 +30,7 @@ public sealed partial class PresetManagerViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
     private Preset? _selectedPreset;
 
     /// <summary>Official presets the user deleted (hidden from sync until restored).</summary>
@@ -107,8 +110,24 @@ public sealed partial class PresetManagerViewModel : ObservableObject
             return;
         }
 
-        var fileName = Path.GetFileName(IniPath!);
+        var fileName = SaveToLibrary(IniPath!, Path.GetFileName(IniPath!), Description, Source, ScreenshotPath);
+        if (fileName is null) return;
 
+        Dialogs.Info(Loc.Format("Man.Saved", Path.GetFileNameWithoutExtension(fileName)));
+        IniPath = null;
+        Description = "";
+        Source = "";
+        ScreenshotPath = null;
+        SelectedPreset = Presets.FirstOrDefault(p => p.FileName.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Adds a preset to the library, asking what to do when the name is taken.
+    /// </summary>
+    /// <returns>The file name it was saved under, or null if the user cancelled or saving failed.</returns>
+    private string? SaveToLibrary(string iniPath, string fileName, string description, string? source, string? screenshot,
+        PresetMetadata? extra = null)
+    {
         if (_repository.IsOfficial(fileName) && !_repository.IsCustom(fileName))
         {
             // Same name as a preset from GitHub: by default keep both, so the official one keeps updating.
@@ -120,31 +139,88 @@ public sealed partial class PresetManagerViewModel : ObservableObject
                 case false:
                     break; // replace the official preset on this PC
                 default:
-                    return;
+                    return null;
             }
         }
         else if (_repository.Exists(fileName) && !Dialogs.Confirm(Loc.Format("Man.Exists", fileName)))
         {
-            return;
+            return null;
         }
 
         try
         {
-            _repository.AddCustom(IniPath!, fileName, Description, Source, ScreenshotPath);
+            _repository.AddCustom(iniPath, fileName, description, source, screenshot, extra);
             _log.Success($"Preset {fileName} saved.");
-            Dialogs.Info(Loc.Format("Man.Saved", Path.GetFileNameWithoutExtension(fileName)));
-
-            IniPath = null;
-            Description = "";
-            Source = "";
-            ScreenshotPath = null;
-            SelectedPreset = Presets.FirstOrDefault(p => p.FileName.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+            return fileName;
         }
         catch (Exception ex)
         {
             _log.Error($"Saving preset failed: {ex.Message}");
             Dialogs.Error(Loc.Format("Man.SaveFailed", ex.Message));
+            return null;
         }
+    }
+
+    // ---- Export / import -------------------------------------------------------------------
+
+    private bool CanExport() => SelectedPreset is not null;
+
+    /// <summary>Saves the selected preset as one .dbdpreset file (preset, screenshot and description).</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private void Export()
+    {
+        var preset = SelectedPreset!;
+        var path = Dialogs.SaveFile(Loc.Get("Man.ExportTitle"),
+            $"{Loc.Get("Man.PackageFilter")} (*{PresetPackageService.Extension})|*{PresetPackageService.Extension}",
+            preset.DisplayName + PresetPackageService.Extension);
+        if (path is null) return;
+
+        try
+        {
+            _packages.Export(preset, path);
+            Shell.ShowInFolder(path);
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Export failed: {ex.Message}");
+            Dialogs.Error(Loc.Format("Man.ExportFailed", ex.Message));
+        }
+    }
+
+    [RelayCommand]
+    private void Import()
+    {
+        var files = Dialogs.PickFiles(Loc.Get("Man.ImportTitle"),
+            $"{Loc.Get("Man.PackageFilter")} (*{PresetPackageService.Extension};*.zip;*.ini)|*{PresetPackageService.Extension};*.zip;*.ini");
+        if (files.Count > 0) ImportFiles(files);
+    }
+
+    /// <summary>Imports preset packages (or plain .ini files): from the Import button or dropped on the window.</summary>
+    public void ImportFiles(IEnumerable<string> paths)
+    {
+        var imported = new List<string>();
+        foreach (var path in paths)
+        {
+            try
+            {
+                var package = _packages.Open(path);
+                var source = Uri.TryCreate(package.Metadata.Source, UriKind.Absolute, out var uri)
+                             && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                    ? package.Metadata.Source : null;
+                var saved = SaveToLibrary(package.IniPath, package.FileName, package.Metadata.Description ?? "",
+                    source, package.ScreenshotPath, package.Metadata);
+                if (saved is not null) imported.Add(Path.GetFileNameWithoutExtension(saved));
+            }
+            catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                _log.Error($"Import of {Path.GetFileName(path)} failed: {ex.Message}");
+                Dialogs.Error(Loc.Format("Man.ImportFailed", Path.GetFileName(path), ex.Message));
+            }
+        }
+
+        if (imported.Count == 0) return;
+        SelectedPreset = Presets.FirstOrDefault(p => p.DisplayName == imported[^1]);
+        Dialogs.Info(Loc.Format("Man.Imported", imported.Count, string.Join(", ", imported)));
     }
 
     // ---- Delete / restore ------------------------------------------------------------------

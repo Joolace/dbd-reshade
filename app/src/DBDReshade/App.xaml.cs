@@ -53,14 +53,15 @@ public partial class App : Application
         var shaders = new ShaderService(_log);
         var mapPreview = new MapPreviewService(reshade, shaders, _log);
         var updater = new UpdateService(_log);
+        var packages = new PresetPackageService(_log);
 
         await Step(splash, "Splash.Game");
-        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log));
+        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log), new BackupService(_log));
         var main = new MainViewModel(
             installer,
-            new PresetManagerViewModel(repository, sync, _log),
+            new PresetManagerViewModel(repository, sync, packages, _log),
             new CopyPresetsViewModel(repository, _log),
-            new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, _log),
+            new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, packages, _log),
             new SettingsViewModel(settings, storage),
             github, sync, translations, updater, _log);
 

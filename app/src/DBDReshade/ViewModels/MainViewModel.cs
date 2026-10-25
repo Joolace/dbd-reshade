@@ -35,6 +35,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly TranslationSyncService _translations;
     private readonly UpdateService _updater;
     private readonly LogService _log;
+    private readonly PresetManagerViewModel _manager;
 
     public MainViewModel(
         InstallerViewModel installer,
@@ -49,6 +50,7 @@ public sealed partial class MainViewModel : ObservableObject
         LogService log)
     {
         _updater = updater;
+        _manager = manager;
         _github = github;
         _sync = sync;
         _translations = translations;
@@ -201,4 +203,18 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void ClearLog() => _log.Entries.Clear();
+
+    /// <summary>Files dropped on the window: preset packages and .ini files go to the Preset Manager.</summary>
+    public void ImportDroppedFiles(IReadOnlyList<string> files)
+    {
+        var presets = files.Where(f => PresetPackageService.IsPackage(f) || f.EndsWith(".ini", StringComparison.OrdinalIgnoreCase)).ToList();
+        if (presets.Count == 0)
+        {
+            Dialogs.Info(Loc.Get("Man.DropUnsupported"));
+            return;
+        }
+
+        SelectedPage = Pages.First(p => p.Page == _manager);
+        _manager.ImportFiles(presets);
+    }
 }

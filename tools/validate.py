@@ -30,7 +30,10 @@ MAPS_FOLDER = "Maps"  # same as AppInfo.MapsFolder in the app
 MAP_IMAGES = (".png", ".jpg", ".jpeg")
 WINDOWS_INVALID = set('<>:"/\\|?*')
 
-PRESET_FIELDS = {"description", "videoLink", "preset-preview"}
+PRESET_FIELDS = {"description", "videoLink", "preset-preview", "author", "map", "tags"}
+TEXT_FIELDS = {"description", "videoLink", "preset-preview", "author", "map"}
+# Style labels the app knows (filter "Style"); others still work but show as written.
+KNOWN_TAGS = {"bright", "dark", "competitive", "cinematic"}
 PLACEHOLDER = re.compile(r"\{\d+\}")
 LANG_CODE = re.compile(r"^[a-z]{2,3}(-[a-z0-9]{2,8})?$")
 
@@ -88,6 +91,8 @@ def check_presets(report):
 
     presets = files_in(PRESETS_DIR)
     previews = files_in(PREVIEWS_DIR)
+    maps_dir = os.path.join(ROOT, MAPS_FOLDER)
+    realms = {d.lower() for d in os.listdir(maps_dir) if os.path.isdir(os.path.join(maps_dir, d))} if os.path.isdir(maps_dir) else set()
 
     for name, entry in data.items():
         where = f'presets.json "{name}"'
@@ -106,7 +111,7 @@ def check_presets(report):
         if unknown:
             report.warn(f"{where}: unknown field(s) {sorted(unknown)} (typo?)")
 
-        for field in PRESET_FIELDS & set(entry):
+        for field in TEXT_FIELDS & set(entry):
             if entry[field] is not None and not isinstance(entry[field], str):
                 report.error(f'{where}: "{field}" must be text')
 
@@ -116,6 +121,19 @@ def check_presets(report):
         link = str(entry.get("videoLink") or "").strip()
         if link and not link.startswith(("http://", "https://")):
             report.error(f'{where}: videoLink must start with http:// or https:// (got "{link}")')
+
+        tags = entry.get("tags")
+        if tags is not None:
+            if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
+                report.error(f'{where}: "tags" must be a list of texts, like ["dark", "competitive"]')
+            else:
+                for tag in tags:
+                    if tag.strip().lower() not in KNOWN_TAGS:
+                        report.warn(f'{where}: tag "{tag}" is not one of {sorted(KNOWN_TAGS)} (shown as written)')
+
+        map_name = str(entry.get("map") or "").strip()
+        if map_name and realms and map_name.lower() not in realms:
+            report.warn(f'{where}: map "{map_name}" is not a folder in {MAPS_FOLDER}/ (the map filter still works)')
 
         preview = str(entry.get("preset-preview") or "").strip()
         if not preview:

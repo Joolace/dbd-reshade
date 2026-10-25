@@ -17,7 +17,11 @@ public sealed class PresetRepository
         // Forgive the two most common hand-editing mistakes in presets.json.
         AllowTrailingCommas = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
     };
+
+    /// <summary>How long a preset that arrived with a sync keeps its "New" badge.</summary>
+    public static readonly TimeSpan NewFor = TimeSpan.FromDays(7);
 
     private readonly SettingsService _settings;
     private Dictionary<string, PresetMetadata> _remote = new(StringComparer.OrdinalIgnoreCase);
@@ -34,6 +38,10 @@ public sealed class PresetRepository
     {
         _remote = ReadMetadata(AppPaths.RemoteMetadataFile);
         _user = ReadMetadata(AppPaths.UserMetadataFile);
+        PruneNew();
+
+        var favorites = _settings.Current.Favorites.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var recent = _settings.Current.NewPresets.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         Presets = Directory.EnumerateFiles(AppPaths.PresetsDirectory, "*.ini")
             .Select(path =>
@@ -41,12 +49,53 @@ public sealed class PresetRepository
                 var name = Path.GetFileName(path);
                 var isCustom = _user.TryGetValue(name, out var meta);
                 if (!isCustom) _remote.TryGetValue(name, out meta);
-                return new Preset(path, meta, isCustom);
+                return new Preset(path, meta, isCustom)
+                {
+                    IsFavorite = favorites.Contains(name),
+                    IsNew = recent.Contains(name),
+                };
             })
             .OrderBy(p => p.FileName, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    // ---- Favorites and "New" ------------------------------------------------------------------
+
+    /// <summary>Raised when a preset is starred or unstarred (the list itself doesn't change).</summary>
+    public event EventHandler? FavoritesChanged;
+
+    public void SetFavorite(Preset preset, bool favorite)
+    {
+        preset.IsFavorite = favorite;
+        var list = _settings.Current.Favorites;
+        list.RemoveAll(n => n.Equals(preset.FileName, StringComparison.OrdinalIgnoreCase));
+        if (favorite) list.Add(preset.FileName);
+        _settings.Save();
+        FavoritesChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Remembers presets that just arrived with a sync, for the "New" badge.</summary>
+    public void MarkNew(IEnumerable<string> fileNames)
+    {
+        var now = DateTime.Now;
+        foreach (var name in fileNames) _settings.Current.NewPresets[name] = now;
+        _settings.Save();
+    }
+
+    public int NewCount => Presets.Count(p => p.IsNew);
+
+    /// <summary>Badges last <see cref="NewFor"/>; presets that no longer exist lose theirs too.</summary>
+    private void PruneNew()
+    {
+        var limit = DateTime.Now - NewFor;
+        var stale = _settings.Current.NewPresets
+            .Where(kv => kv.Value < limit || !File.Exists(Path.Combine(AppPaths.PresetsDirectory, kv.Key)))
+            .Select(kv => kv.Key).ToList();
+        if (stale.Count == 0) return;
+        foreach (var name in stale) _settings.Current.NewPresets.Remove(name);
+        _settings.Save();
     }
 
     public bool Exists(string fileName) =>
@@ -112,7 +161,9 @@ public sealed class PresetRepository
 
     /// <summary>Imports a user preset: copies the .ini (and screenshot) and writes its metadata.</summary>
     /// <param name="fileName">Name to store it under (may differ from the source file, e.g. a "(custom)" copy).</param>
-    public void AddCustom(string iniPath, string fileName, string description, string? source, string? screenshotPath)
+    /// <param name="extra">Author, map and tags to keep (from an imported package), if any.</param>
+    public void AddCustom(string iniPath, string fileName, string description, string? source, string? screenshotPath,
+        PresetMetadata? extra = null)
     {
         File.Copy(iniPath, Path.Combine(AppPaths.PresetsDirectory, fileName), overwrite: true);
 
@@ -129,6 +180,9 @@ public sealed class PresetRepository
             Description = description.Trim(),
             Source = string.IsNullOrWhiteSpace(source) ? null : source.Trim(),
             PreviewImage = previewName,
+            Author = extra?.Author,
+            Map = extra?.Map,
+            Tags = extra?.Tags is { Count: > 0 } tags ? tags : null,
         };
         WriteMetadata(AppPaths.UserMetadataFile, _user);
 

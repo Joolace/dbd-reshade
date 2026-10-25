@@ -243,6 +243,52 @@ public sealed partial class ReShadeService
             throw new InvalidOperationException($"ReShade setup exited with code {process.ExitCode}.");
     }
 
+    /// <summary>
+    /// Removes ReShade from the game like ReShade's own setup does: its DLL, ReShade.ini and log, add-ons,
+    /// the reshade-shaders folder with the effects, and the preset files this app copied there.
+    /// The game's own files are never touched.
+    /// </summary>
+    /// <param name="libraryPresetNames">File names of the library's presets: copies of them in the game folder are removed.</param>
+    /// <returns>How many files and folders were removed.</returns>
+    public int Uninstall(GameInstallation game, IEnumerable<string> libraryPresetNames)
+    {
+        var dir = game.BinariesDirectory;
+        var removed = 0;
+
+        void Delete(string path)
+        {
+            if (File.Exists(path)) { File.Delete(path); removed++; }
+        }
+
+        // The active preset, if it sits in the game folder (read before ReShade.ini goes).
+        var active = BackupService.ResolvePresetPath(game, GetCurrentPresetPath(game));
+        if (active is not null && string.Equals(Path.GetDirectoryName(active), dir, StringComparison.OrdinalIgnoreCase))
+            Delete(active);
+
+        foreach (var name in ReShadeDllNames)
+        {
+            var path = Path.Combine(dir, name);
+            if (IsReShadeDll(path)) Delete(path);
+        }
+
+        Delete(game.ReShadeIniPath);
+        Delete(Path.Combine(dir, "ReShadePreset.ini"));
+        foreach (var log in Directory.EnumerateFiles(dir, "ReShade*.log").ToList()) Delete(log);
+        foreach (var addon in Directory.EnumerateFiles(dir, "*.addon64").ToList()) Delete(addon);
+
+        foreach (var name in libraryPresetNames) Delete(Path.Combine(dir, name));
+
+        var shaders = Path.Combine(dir, "reshade-shaders");
+        if (Directory.Exists(shaders))
+        {
+            Directory.Delete(shaders, recursive: true);
+            removed++;
+        }
+
+        _log.Success($"ReShade removed from {game.DisplayName} ({removed} item(s)).");
+        return removed;
+    }
+
     /// <summary>Sets [GENERAL] PresetPath in ReShade.ini, creating the file/section if needed.</summary>
     public void SetPresetPath(GameInstallation game, string presetFile)
     {

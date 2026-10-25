@@ -53,6 +53,12 @@ public static class Dialogs
         return ShowDialog(dialog) ? dialog.FileNames : Array.Empty<string>();
     }
 
+    public static string? SaveFile(string title, string filter, string fileName)
+    {
+        var dialog = new SaveFileDialog { Title = title, Filter = filter, FileName = fileName, AddExtension = true };
+        return ShowDialog(dialog) ? dialog.FileName : null;
+    }
+
     public static string? PickFile(string title, string filter)
     {
         var dialog = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true };
@@ -79,6 +85,19 @@ public static class Shell
         Dialogs.Info(Services.Loc.Get("App.ReportBugInfo"));
         Open(AppInfo.DiscordUrl);
         Open(Services.AppPaths.LogsDirectory);
+    }
+
+    /// <summary>Opens Explorer with the file selected.</summary>
+    public static void ShowInFolder(string path)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { "/select,", path }, UseShellExecute = false });
+        }
+        catch
+        {
+            Open(Path.GetDirectoryName(path));
+        }
     }
 
     public static void Open(string? target)
@@ -252,5 +271,62 @@ public sealed class FirstFitPanel : System.Windows.Controls.Panel
                 : new Rect(0, 0, 0, 0));
         }
         return finalSize;
+    }
+}
+
+/// <summary>
+/// Accepts files dropped from Explorer. The app runs as administrator, and Windows blocks normal (OLE)
+/// drag and drop from the non-elevated Explorer into it; the older WM_DROPFILES message can be allowed
+/// through explicitly, which is what this does.
+/// </summary>
+public static class FileDrop
+{
+    private const int WM_DROPFILES = 0x0233;
+    private const int WM_COPYDATA = 0x004A;
+    private const int WM_COPYGLOBALDATA = 0x0049;
+    private const uint MSGFLT_ALLOW = 1;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool ChangeWindowMessageFilterEx(IntPtr hwnd, uint message, uint action, IntPtr changeInfo);
+
+    [DllImport("shell32.dll")]
+    private static extern void DragAcceptFiles(IntPtr hwnd, bool accept);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    private static extern uint DragQueryFile(IntPtr hDrop, uint index, System.Text.StringBuilder? file, uint size);
+
+    [DllImport("shell32.dll")]
+    private static extern void DragFinish(IntPtr hDrop);
+
+    /// <summary>Call from SourceInitialized (the window needs its handle).</summary>
+    public static void Enable(Window window, Action<IReadOnlyList<string>> onDrop)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
+        if (hwnd == IntPtr.Zero) return;
+
+        foreach (var message in new uint[] { WM_DROPFILES, WM_COPYDATA, WM_COPYGLOBALDATA })
+            ChangeWindowMessageFilterEx(hwnd, message, MSGFLT_ALLOW, IntPtr.Zero);
+        DragAcceptFiles(hwnd, true);
+
+        HwndSource.FromHwnd(hwnd)?.AddHook((IntPtr _, int msg, IntPtr wParam, IntPtr _, ref bool handled) =>
+        {
+            if (msg != WM_DROPFILES) return IntPtr.Zero;
+
+            var files = new List<string>();
+            var count = DragQueryFile(wParam, 0xFFFFFFFF, null, 0);
+            for (uint i = 0; i < count; i++)
+            {
+                var length = DragQueryFile(wParam, i, null, 0);
+                var buffer = new System.Text.StringBuilder((int)length + 1);
+                DragQueryFile(wParam, i, buffer, (uint)buffer.Capacity);
+                files.Add(buffer.ToString());
+            }
+            DragFinish(wParam);
+            handled = true;
+
+            // Let the drop finish before showing any dialog.
+            window.Dispatcher.BeginInvoke(new Action(() => onDrop(files)));
+            return IntPtr.Zero;
+        });
     }
 }

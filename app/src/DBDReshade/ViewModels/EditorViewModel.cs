@@ -27,12 +27,14 @@ public sealed partial class EditorViewModel : ObservableObject
     private readonly MapPreviewService _preview;
     private readonly Func<GameInstallation?> _game;
     private readonly LogService _log;
+    private readonly PresetPackageService _packages;
     private bool _mapsLoaded;
     private bool _screenshotPickedByUser;
 
     public EditorViewModel(PresetRepository repository, MapService maps, MapPreviewService preview,
-        Func<GameInstallation?> game, LogService log)
+        Func<GameInstallation?> game, PresetPackageService packages, LogService log)
     {
+        _packages = packages;
         _repository = repository;
         _maps = maps;
         _preview = preview;
@@ -59,7 +61,7 @@ public sealed partial class EditorViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NameError), nameof(HasDraft), nameof(DraftPath))]
-    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand), nameof(ProposeCommand))]
     private string _name = "";
 
     /// <summary>Error text for the name field, or null when it's valid (or still empty).</summary>
@@ -139,12 +141,12 @@ public sealed partial class EditorViewModel : ObservableObject
     // ---- 3. Edit ----------------------------------------------------------------------------
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand), nameof(ProposeCommand))]
     private bool _isBusy;
 
     /// <summary>The editor window is open.</summary>
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenEditorCommand), nameof(SaveCommand), nameof(DiscardCommand), nameof(ProposeCommand))]
     private bool _isEditing;
 
     [ObservableProperty]
@@ -251,6 +253,7 @@ public sealed partial class EditorViewModel : ObservableObject
         OnPropertyChanged(nameof(HasDraft));
         SaveCommand.NotifyCanExecuteChanged();
         DiscardCommand.NotifyCanExecuteChanged();
+        ProposeCommand.NotifyCanExecuteChanged();
     }
 
     // ---- 4. Save ----------------------------------------------------------------------------
@@ -261,6 +264,7 @@ public sealed partial class EditorViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ProposeCommand))]
     private string _description = "";
 
     [ObservableProperty]
@@ -341,4 +345,54 @@ public sealed partial class EditorViewModel : ObservableObject
 
     [RelayCommand]
     private void OpenScreenshotsFolder() => Shell.Open(AppPaths.EditorScreenshotsDirectory);
+
+    // ---- Propose to the official library ---------------------------------------------------
+
+    /// <summary>
+    /// Sends the preset to the maintainer: packs it (preset, screenshot, description) into a zip, shows the
+    /// zip in Explorer and opens a pre-filled GitHub issue to drop it into. Once approved, it reaches everyone.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanSave))]
+    private void Propose()
+    {
+        if (!string.IsNullOrWhiteSpace(Source)
+            && !(Uri.TryCreate(Source.Trim(), UriKind.Absolute, out var uri)
+                 && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
+        {
+            Dialogs.Warning(Loc.Get("Man.InvalidSource"));
+            return;
+        }
+        if (!Dialogs.Confirm(Loc.Get("Edit.ProposeInfo"))) return;
+
+        var name = Name.Trim();
+        try
+        {
+            var folder = Path.Combine(AppPaths.DataRoot, "Submissions");
+            Directory.CreateDirectory(folder);
+            var zip = Path.Combine(folder, name + ".zip");
+            _packages.Export(DraftPath!, FileName, new PresetMetadata
+            {
+                Description = Description.Trim(),
+                Source = string.IsNullOrWhiteSpace(Source) ? null : Source.Trim(),
+            }, ScreenshotPath, zip);
+
+            var body =
+                $"**Preset name:** {name}\n" +
+                $"**Description:** {Description.Trim()}\n" +
+                $"**Source / author link:** {(string.IsNullOrWhiteSpace(Source) ? "-" : Source.Trim())}\n" +
+                "**Made for map (optional):** \n\n" +
+                $"<!-- Drag {name}.zip from the folder that just opened into this box, wait for the upload, then press Create. -->\n";
+            var url = $"{AppInfo.RepoUrl}/issues/new?template=preset-submission.md&labels=preset-submission" +
+                      $"&title={Uri.EscapeDataString("[Preset] " + name)}&body={Uri.EscapeDataString(body)}";
+
+            Shell.ShowInFolder(zip);
+            Shell.Open(url);
+            _log.Info($"Preset {name} packed for submission: {zip}");
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Preparing the submission failed: {ex.Message}");
+            Dialogs.Error(Loc.Format("Edit.ProposeFailed", ex.Message));
+        }
+    }
 }

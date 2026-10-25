@@ -158,10 +158,20 @@ so adding or changing a preset only needs a commit:
    "MyPreset.ini": {
        "description": "What the preset looks like / is for.",
        "videoLink": "https://link-to-the-source",
-       "preset-preview": "MyPreset.jpg"
+       "preset-preview": "MyPreset.jpg",
+       "author": "Creator name",
+       "map": "Coldwind Farm",
+       "tags": ["dark", "competitive"]
    }
    ```
-4. Commit and push to `wpf-app`.
+   `author`, `map` and `tags` are optional and feed the filters on the Install Preset page:
+   `map` should be a realm folder name from `Maps/` (leave it out for presets made for every map), and
+   `tags` can use `bright`, `dark`, `competitive`, `cinematic` (other words work too, shown as written).
+4. Commit and push to `wpf-app`. Presets that arrive this way get a **New** badge for 7 days, and the app
+   says how many arrived. Previews over 800 KB are compressed automatically by
+   `.github/workflows/compress-previews.yml` (max 1920 px wide, JPG quality 85; a PNG becomes a JPG and
+   `presets.json` is updated). To compress the existing ones once: Actions → Compress previews → Run
+   workflow with "all".
 
 What users get on the next start:
 

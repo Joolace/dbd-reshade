@@ -11,7 +11,12 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        SourceInitialized += (_, _) => WindowTheme.SetTitleBar(this, ThemeManager.IsDark);
+        SourceInitialized += (_, _) =>
+        {
+            WindowTheme.SetTitleBar(this, ThemeManager.IsDark);
+            // Preset packages dropped on the window are imported into the library.
+            FileDrop.Enable(this, files => (DataContext as MainViewModel)?.ImportDroppedFiles(files));
+        };
         Loaded += OnLoaded;
     }
 

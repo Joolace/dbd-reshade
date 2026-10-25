@@ -25,6 +25,9 @@ public sealed class PresetSyncService
         _log = log;
     }
 
+    /// <summary>Raised after every successful sync (on the caller's thread).</summary>
+    public event EventHandler<SyncResult>? Synced;
+
     public async Task<SyncResult> SyncAsync(CancellationToken ct = default)
     {
         await _gate.WaitAsync(ct);
@@ -37,12 +40,14 @@ public sealed class PresetSyncService
             var (added, updated) = await SyncPresetFilesAsync(ct);
             var refreshed = await DropOutdatedPreviewsAsync(ct);
 
+            if (added.Count > 0) _repository.MarkNew(added);
             _repository.Reload();
 
-            var result = new SyncResult(added, updated, refreshed);
+            var result = new SyncResult(added.Count, updated, refreshed);
             _log.Success(result.ChangedPresets > 0 || refreshed > 0
-                ? $"Presets synced: {added} new, {updated} updated, {refreshed} preview(s) refreshed."
+                ? $"Presets synced: {added.Count} new, {updated} updated, {refreshed} preview(s) refreshed."
                 : "Presets are already up to date.");
+            Synced?.Invoke(this, result);
             return result;
         }
         finally
@@ -68,10 +73,11 @@ public sealed class PresetSyncService
         }
     }
 
-    private async Task<(int Added, int Updated)> SyncPresetFilesAsync(CancellationToken ct)
+    private async Task<(List<string> Added, int Updated)> SyncPresetFilesAsync(CancellationToken ct)
     {
         var remote = await _github.ListPresetFilesAsync(ct);
-        int added = 0, updated = 0;
+        var added = new List<string>();
+        var updated = 0;
 
         foreach (var file in remote)
         {
@@ -84,7 +90,7 @@ public sealed class PresetSyncService
             try
             {
                 await Http.DownloadFileAsync(file.DownloadUrl, local, null, ct);
-                if (exists) updated++; else added++;
+                if (exists) updated++; else added.Add(file.Name);
                 _log.Info($"{(exists ? "Updated" : "Downloaded")} preset {file.Name}");
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

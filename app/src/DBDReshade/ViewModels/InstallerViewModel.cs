@@ -24,15 +24,17 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly MapService _maps;
     private readonly MapPreviewService _mapPreview;
     private readonly GameLauncher _launcher;
+    private readonly BackupService _backups;
     private CancellationTokenSource? _previewCts;
     private string? _previewMessageKey;
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
         ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview,
-        GameLauncher launcher)
+        GameLauncher launcher, BackupService backups)
     {
         _launcher = launcher;
+        _backups = backups;
         _maps = maps;
         _mapPreview = mapPreview;
         _repository = repository;
@@ -45,10 +47,11 @@ public sealed partial class InstallerViewModel : ObservableObject
         _log = log;
 
         PresetsView = CollectionViewSource.GetDefaultView(Presets);
-        PresetsView.Filter = o => o is Preset p
-            && (string.IsNullOrWhiteSpace(SearchText) || p.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        PresetsView.Filter = o => o is Preset p && Matches(p);
 
         _repository.Changed += (_, _) => ReloadPresets();
+        _repository.FavoritesChanged += (_, _) => { if (SelectedShow?.Value == ShowFavorites) PresetsView.Refresh(); };
+        _sync.Synced += (_, result) => OnSynced(result);
         Loc.Changed += (_, _) => OnLanguageChanged();
 
         ReloadPresets();
@@ -57,7 +60,10 @@ public sealed partial class InstallerViewModel : ObservableObject
 
     private void OnLanguageChanged()
     {
+        RebuildFilterOptions();
+        if (_newPresetsCount > 0) NewPresetsBanner = Loc.Format("Inst.NewPresets", _newPresetsCount);
         RefreshReShadeStatus();
+        OnPropertyChanged(nameof(UndoTooltip));
         PreviewMessage = _previewMessageKey is null ? null : Loc.Get(_previewMessageKey);
         OnPropertyChanged(nameof(SelectedPreset)); // re-reads the localized "no description" text
     }
@@ -70,7 +76,165 @@ public sealed partial class InstallerViewModel : ObservableObject
     [ObservableProperty]
     private string _searchText = "";
 
-    partial void OnSearchTextChanged(string value) => PresetsView.Refresh();
+    partial void OnSearchTextChanged(string value) { PresetsView.Refresh(); OnPropertyChanged(nameof(VisibleCount)); }
+
+    // ---- Filters ---------------------------------------------------------------------------
+
+    private const string ShowFavorites = "favorites";
+    private const string ShowNew = "new";
+
+    /// <summary>The style labels presets.json may use; others are shown as written.</summary>
+    private static readonly string[] KnownStyles = { "bright", "dark", "competitive", "cinematic" };
+
+    public ObservableCollection<FilterOption> ShowOptions { get; } = new();
+    public ObservableCollection<FilterOption> AuthorOptions { get; } = new();
+    public ObservableCollection<FilterOption> MapOptions { get; } = new();
+    public ObservableCollection<FilterOption> StyleOptions { get; } = new();
+
+    [ObservableProperty] private FilterOption? _selectedShow;
+    [ObservableProperty] private FilterOption? _selectedAuthor;
+    [ObservableProperty] private FilterOption? _selectedMap;
+    [ObservableProperty] private FilterOption? _selectedStyle;
+
+    partial void OnSelectedShowChanged(FilterOption? value) => FiltersChanged();
+    partial void OnSelectedAuthorChanged(FilterOption? value) => FiltersChanged();
+    partial void OnSelectedMapChanged(FilterOption? value) => FiltersChanged();
+    partial void OnSelectedStyleChanged(FilterOption? value) => FiltersChanged();
+
+    private bool _rebuildingFilters;
+
+    private void FiltersChanged()
+    {
+        if (_rebuildingFilters) return;
+        PresetsView.Refresh();
+        OnPropertyChanged(nameof(HasActiveFilters));
+        OnPropertyChanged(nameof(VisibleCount));
+    }
+
+    public bool HasActiveFilters =>
+        SelectedShow?.Value is not null || SelectedAuthor?.Value is not null
+        || SelectedMap?.Value is not null || SelectedStyle?.Value is not null;
+
+    /// <summary>Presets shown with the current search and filters.</summary>
+    public int VisibleCount => PresetsView.Cast<object>().Count();
+
+    private bool Matches(Preset p)
+    {
+        if (!string.IsNullOrWhiteSpace(SearchText)
+            && !p.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+            && !(p.Author?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
+            && !(p.Map?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false))
+            return false;
+
+        return SelectedShow?.Value switch
+        {
+            ShowFavorites when !p.IsFavorite => false,
+            ShowNew when !p.IsNew => false,
+            _ => (SelectedAuthor?.Value is not { } author || string.Equals(p.Author, author, StringComparison.OrdinalIgnoreCase))
+                 && (SelectedMap?.Value is not { } map || string.Equals(p.Map, map, StringComparison.OrdinalIgnoreCase))
+                 && (SelectedStyle?.Value is not { } style || p.Tags.Contains(style)),
+        };
+    }
+
+    /// <summary>Fills the filter lists from the presets in the library, keeping the current choices.</summary>
+    private void RebuildFilterOptions()
+    {
+        _rebuildingFilters = true;
+        try
+        {
+            Fill(ShowOptions, SelectedShow, new[]
+            {
+                new FilterOption(null, Loc.Get("Inst.Filter.All")),
+                new FilterOption(ShowFavorites, Loc.Get("Inst.Filter.Favorites")),
+                new FilterOption(ShowNew, Loc.Get("Inst.Filter.New")),
+            }, v => SelectedShow = v);
+
+            Fill(AuthorOptions, SelectedAuthor,
+                Presets.Select(p => p.Author).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(a => a, StringComparer.CurrentCultureIgnoreCase)
+                    .Select(a => new FilterOption(a, a))
+                    .Prepend(new FilterOption(null, Loc.Get("Inst.Filter.AllAuthors"))),
+                v => SelectedAuthor = v);
+
+            Fill(MapOptions, SelectedMap,
+                Presets.Select(p => p.Map).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(m => m, StringComparer.CurrentCultureIgnoreCase)
+                    .Select(m => new FilterOption(m, m))
+                    .Prepend(new FilterOption(null, Loc.Get("Inst.Filter.AllMaps"))),
+                v => SelectedMap = v);
+
+            Fill(StyleOptions, SelectedStyle,
+                KnownStyles.Concat(Presets.SelectMany(p => p.Tags)).Distinct()
+                    .Where(t => KnownStyles.Contains(t) || Presets.Any(p => p.Tags.Contains(t)))
+                    .Select(t => new FilterOption(t, KnownStyles.Contains(t) ? Loc.Get($"Inst.Style.{t}") : t))
+                    .Prepend(new FilterOption(null, Loc.Get("Inst.Filter.AllStyles"))),
+                v => SelectedStyle = v);
+        }
+        finally
+        {
+            _rebuildingFilters = false;
+        }
+        FiltersChanged();
+    }
+
+    private static void Fill(ObservableCollection<FilterOption> target, FilterOption? selected,
+        IEnumerable<FilterOption> options, Action<FilterOption?> select)
+    {
+        var keep = selected?.Value;
+        target.Clear();
+        foreach (var option in options) target.Add(option);
+        select(target.FirstOrDefault(o => string.Equals(o.Value, keep, StringComparison.OrdinalIgnoreCase)) ?? target.FirstOrDefault());
+    }
+
+    [RelayCommand]
+    private void ClearFilters()
+    {
+        _rebuildingFilters = true;
+        SelectedShow = ShowOptions.FirstOrDefault();
+        SelectedAuthor = AuthorOptions.FirstOrDefault();
+        SelectedMap = MapOptions.FirstOrDefault();
+        SelectedStyle = StyleOptions.FirstOrDefault();
+        SearchText = "";
+        _rebuildingFilters = false;
+        FiltersChanged();
+    }
+
+    [RelayCommand]
+    private void ToggleFavorite(Preset? preset)
+    {
+        if (preset is null) return;
+        _repository.SetFavorite(preset, !preset.IsFavorite);
+        OnPropertyChanged(nameof(VisibleCount));
+    }
+
+    // ---- "New presets" banner --------------------------------------------------------------
+
+    private int _newPresetsCount;
+
+    [ObservableProperty]
+    private string? _newPresetsBanner;
+
+    private void OnSynced(SyncResult result)
+    {
+        if (result.NewPresets <= 0) return;
+        _newPresetsCount = result.NewPresets;
+        NewPresetsBanner = Loc.Format("Inst.NewPresets", result.NewPresets);
+    }
+
+    /// <summary>Shows only the presets that just arrived.</summary>
+    [RelayCommand]
+    private void ShowNewPresets()
+    {
+        SelectedShow = ShowOptions.FirstOrDefault(o => o.Value == ShowNew);
+        DismissBanner();
+    }
+
+    [RelayCommand]
+    private void DismissBanner()
+    {
+        _newPresetsCount = 0;
+        NewPresetsBanner = null;
+    }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
@@ -94,6 +258,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         var selected = SelectedPreset?.FileName;
         Presets.Clear();
         foreach (var preset in _repository.Presets) Presets.Add(preset);
+        RebuildFilterOptions();
 
         SelectedPreset = Presets.FirstOrDefault(p => p.FileName == selected) ?? Presets.FirstOrDefault();
     }
@@ -213,7 +378,18 @@ public sealed partial class InstallerViewModel : ObservableObject
     private string _reShadeStatus = "";
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
     private bool _isReShadeInstalled;
+
+    /// <summary>The newest backup of this installation: what "Undo" puts back.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(UndoCommand))]
+    [NotifyPropertyChangedFor(nameof(UndoTooltip))]
+    private BackupEntry? _latestBackup;
+
+    public string UndoTooltip => LatestBackup is { } b
+        ? Loc.Format("Inst.UndoTip", b.Created.ToString("g"), Loc.Get($"Backup.Reason.{b.Reason}"))
+        : Loc.Get("Inst.UndoNone");
 
     [ObservableProperty]
     private string? _currentPresetName;
@@ -264,6 +440,7 @@ public sealed partial class InstallerViewModel : ObservableObject
 
     private void RefreshReShadeStatus()
     {
+        LatestBackup = SelectedInstallation is null ? null : _backups.Latest(SelectedInstallation);
         if (SelectedInstallation is null)
         {
             IsReShadeInstalled = false;
@@ -323,6 +500,8 @@ public sealed partial class InstallerViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(SyncPresetsCommand))]
     [NotifyCanExecuteChangedFor(nameof(TryOnMapsCommand))]
     [NotifyCanExecuteChangedFor(nameof(LaunchGameCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UndoCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
@@ -355,6 +534,8 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         try
         {
+            TryBackup(game, "install");
+
             if (!_reshade.IsInstalled(game))
             {
                 // ReShade's setup would replace another mod's dxgi.dll (and break that mod) without asking.
@@ -452,6 +633,104 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         StatusText = Loc.Format("Inst.Status.UpdatingReShade", u.Latest);
         await _reshade.UpdateAsync(game.GameExecutable!, u.Url, new System.Progress<double>(p => ProgressValue = 5 + p * 35));
+    }
+
+    // ---- Backup, undo, uninstall ------------------------------------------------------------
+
+    /// <summary>A failed backup must not stop the install: it's logged and the install goes on.</summary>
+    private void TryBackup(GameInstallation game, string reason)
+    {
+        try
+        {
+            _backups.Create(game, reason);
+        }
+        catch (Exception ex)
+        {
+            _log.Warning($"Backup before {reason} failed: {ex.Message}");
+        }
+    }
+
+    private bool CanUndo() => !IsBusy && LatestBackup is not null;
+
+    /// <summary>Puts back ReShade.ini, the preset and ReShade as they were before the last change.</summary>
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private async Task UndoAsync()
+    {
+        var game = SelectedInstallation!;
+        var backup = LatestBackup!;
+        if (ReShadeService.IsGameRunning(game))
+        {
+            Dialogs.Warning(Loc.Get("Inst.CloseGame"));
+            return;
+        }
+
+        var preset = backup.PresetName ?? Loc.Get("Inst.UndoNoPreset");
+        if (!Dialogs.Confirm(Loc.Format("Inst.UndoConfirm", backup.Created.ToString("g"), preset))) return;
+
+        IsBusy = true;
+        ProgressValue = 0;
+        StatusText = Loc.Get("Inst.Status.Restoring");
+        try
+        {
+            await Task.Run(() => _backups.Restore(backup));
+
+            // The effects aren't part of the backup: make sure the restored preset has them.
+            var presetPath = BackupService.ResolvePresetPath(game, _reshade.GetCurrentPresetPath(game));
+            if (_reshade.IsInstalled(game) && presetPath is not null && File.Exists(presetPath))
+            {
+                StatusText = Loc.Get("Inst.Status.CheckingEffects");
+                await _shaders.EnsureForPresetAsync(game.BinariesDirectory, game.ReShadeIniPath, presetPath,
+                    new System.Progress<ShaderProgress>(p =>
+                    {
+                        if (p.PackageName.Length > 0) StatusText = Loc.Format("Inst.Status.Effects", p.PackageName);
+                        ProgressValue = 100.0 * (p.Index + p.Fraction) / Math.Max(1, p.Count);
+                    }));
+            }
+            Dialogs.Info(Loc.Get("Inst.UndoDone"));
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Restoring the backup failed: {ex.Message}");
+            Dialogs.Error(Loc.Format("Inst.UndoFailed", ex.Message));
+        }
+        finally
+        {
+            RefreshReShadeStatus();
+            IsBusy = false;
+            StatusText = null;
+            ProgressValue = 0;
+        }
+    }
+
+    private bool CanUninstall() => !IsBusy && IsReShadeInstalled;
+
+    /// <summary>Removes ReShade, its effects and settings from the game (a backup is taken first).</summary>
+    [RelayCommand(CanExecute = nameof(CanUninstall))]
+    private void Uninstall()
+    {
+        var game = SelectedInstallation!;
+        if (ReShadeService.IsGameRunning(game))
+        {
+            Dialogs.Warning(Loc.Get("Inst.CloseGame"));
+            return;
+        }
+        if (!Dialogs.Confirm(Loc.Format("Inst.UninstallConfirm", game.DisplayName))) return;
+
+        try
+        {
+            TryBackup(game, "uninstall");
+            _reshade.Uninstall(game, _repository.Presets.Select(p => p.FileName));
+            Dialogs.Info(Loc.Get("Inst.UninstallDone"));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _log.Error($"Uninstall failed: {ex.Message}");
+            Dialogs.Error(Loc.Format("Inst.UninstallFailed", ex.Message));
+        }
+        finally
+        {
+            RefreshReShadeStatus();
+        }
     }
 
     // ---- Launch -----------------------------------------------------------------------------

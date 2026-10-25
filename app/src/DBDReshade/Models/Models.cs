@@ -66,10 +66,22 @@ public sealed class PresetMetadata
 
     [JsonPropertyName("preset-preview")]
     public string? PreviewImage { get; set; }
+
+    /// <summary>Who made the preset (used by the author filter).</summary>
+    [JsonPropertyName("author")]
+    public string? Author { get; set; }
+
+    /// <summary>The map/realm the preset is made for; empty = all maps (used by the map filter).</summary>
+    [JsonPropertyName("map")]
+    public string? Map { get; set; }
+
+    /// <summary>Style labels: "bright", "dark", "competitive", "cinematic" (used by the style filter).</summary>
+    [JsonPropertyName("tags")]
+    public List<string>? Tags { get; set; }
 }
 
 /// <summary>A preset .ini available locally.</summary>
-public sealed class Preset
+public sealed partial class Preset : ObservableObject
 {
     public Preset(string filePath, PresetMetadata? metadata, bool isCustom)
     {
@@ -81,6 +93,21 @@ public sealed class Preset
     public string FilePath { get; }
     public PresetMetadata? Metadata { get; }
     public bool IsCustom { get; }
+
+    /// <summary>Starred by the user (saved in settings).</summary>
+    [ObservableProperty]
+    private bool _isFavorite;
+
+    /// <summary>Arrived with a recent sync (shown with a "New" badge for a few days).</summary>
+    public bool IsNew { get; init; }
+
+    public string? Author => string.IsNullOrWhiteSpace(Metadata?.Author) ? null : Metadata!.Author!.Trim();
+
+    public string? Map => string.IsNullOrWhiteSpace(Metadata?.Map) ? null : Metadata!.Map!.Trim();
+
+    public IReadOnlyList<string> Tags =>
+        Metadata?.Tags?.Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t.Trim().ToLowerInvariant()).ToList()
+        ?? (IReadOnlyList<string>)Array.Empty<string>();
 
     /// <summary>File name including extension, e.g. "01.STX.Dvarka.ini" (the presets.json key).</summary>
     public string FileName => System.IO.Path.GetFileName(FilePath);
@@ -98,6 +125,12 @@ public sealed class Preset
             : null;
 
     public override string ToString() => DisplayName;
+}
+
+/// <summary>One entry of a filter list: Value null means "all".</summary>
+public sealed record FilterOption(string? Value, string Label)
+{
+    public override string ToString() => Label;
 }
 
 /// <summary>Preset wrapper with a checkbox, used by the copy page.</summary>
@@ -145,4 +178,10 @@ public sealed class AppSettings
     public string? Language { get; set; }
 
     public AppTheme Theme { get; set; } = AppTheme.System;
+
+    /// <summary>Preset file names the user starred.</summary>
+    public List<string> Favorites { get; set; } = new();
+
+    /// <summary>Presets that arrived with a sync, and when (they get a "New" badge for a few days).</summary>
+    public Dictionary<string, DateTime> NewPresets { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
