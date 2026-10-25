@@ -22,7 +22,7 @@ Pick a preset, try it on real map screenshots without opening the game, install 
 </div>
 
 <!-- SCREENSHOT: main window, Install Preset page with a preset selected (dark theme) -->
-![DBD Reshade](./screenshots/v2/install-preset.png)
+![DBD Reshade](./screenshots/1.png)
 
 ---
 
