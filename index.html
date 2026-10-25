@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.classList.add("js");</script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- ============ SEO ============ -->
@@ -10,7 +11,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="author" content="Joolace">
     <link rel="canonical" href="https://joolace.github.io/dbd-reshade/">
-    <meta name="theme-color" content="#10161a">
+    <meta name="theme-color" content="#0e0e11">
     <meta name="color-scheme" content="dark">
     <link rel="icon" href="./favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="./dbdreshade_logo.png">
@@ -107,229 +108,289 @@
         gtag('config', 'G-BMHYGH19CZ');
     </script>
 
-    <!-- ============ Fonts: Barlow Condensed (headlines, like the game's UI) + Montserrat (the app's font) ============ -->
+    <!-- ============ Font: Montserrat, the same as the app ============ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- The first preset preview is the largest element above the fold: fetch it early -->
     <link rel="preload" as="image" href="./assets/presets/knightlight-stream.webp"
           imagesrcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
-          imagesizes="(min-width: 980px) 62vw, 100vw">
+          imagesizes="(min-width: 980px) 65vw, 100vw">
 
     <style>
         :root {
-            /* The fog of the Entity's realms, bone-white hooks, and the app's own red */
-            --night: #10161a;
-            --surface: #162027;
-            --line: #26343c;
-            --fog: #93a39f;
-            --bone: #ece6d6;
-            --red: #d42a3c;
-            --red-hover: #e53d4f;
-            --ember: #e8a33d;
+            /* The app's own dark palette (Themes/Colors.Dark.xaml) */
+            --bg: #0e0e11;
+            --surface: #17171c;
+            --surface-alt: #202028;
+            --line: #2c2c36;
+            --text: #f2f2f5;
+            --muted: #9a9aa8;
+            --red: #d7263d;
+            --red-hover: #e8394f;
+            --focus: #f2c14e;
 
-            --display: "Barlow Condensed", "Arial Narrow", sans-serif;
-            --body: "Montserrat", "Segoe UI", system-ui, sans-serif;
+            --font: "Montserrat", "Segoe UI", system-ui, sans-serif;
+            --ease: cubic-bezier(.2, .7, .2, 1);
 
-            --wrap: 1180px;
+            --wrap: 1160px;
             --gutter: clamp(16px, 4vw, 40px);
         }
 
         *, *::before, *::after { box-sizing: border-box; }
-
         html { scroll-behavior: smooth; }
-        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
         body {
             margin: 0;
-            background: var(--night);
-            color: var(--bone);
-            font: 400 16px/1.65 var(--body);
+            background: var(--bg);
+            color: var(--text);
+            font: 400 16px/1.7 var(--font);
             -webkit-font-smoothing: antialiased;
         }
 
         img { max-width: 100%; height: auto; display: block; }
-        a { color: var(--bone); text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--bone) 40%, transparent); }
+        a { color: var(--text); text-underline-offset: 3px; text-decoration-color: rgba(242, 242, 245, .35); transition: text-decoration-color .2s; }
         a:hover { text-decoration-color: var(--red); }
-        :focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 4px; }
+        :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
 
         .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 
-        .skip {
-            position: absolute; left: -9999px; top: 8px; z-index: 10;
-            background: var(--bone); color: var(--night); padding: 8px 14px; border-radius: 6px;
-        }
+        .skip { position: absolute; left: -9999px; top: 8px; z-index: 20; background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 6px; }
         .skip:focus { left: 8px; }
 
-        h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; margin: 0; letter-spacing: 0.005em; }
-        h2 { font-size: clamp(2.2rem, 4.5vw, 3.2rem); margin-bottom: 0.4em; }
-        h3 { font-size: 1.6rem; margin-bottom: 0.3em; }
+        h1, h2, h3 { font-family: var(--font); margin: 0; letter-spacing: -0.025em; }
+        h2 { font-size: clamp(1.75rem, 3.4vw, 2.5rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.45em; }
+        h3 { font-size: 1.08rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; margin-bottom: 0.35em; }
         p { margin: 0 0 1em; }
-        .lead { font-size: 1.1rem; color: var(--fog); max-width: 60ch; }
-        .muted { color: var(--fog); }
+        .lead { font-size: 1.06rem; color: var(--muted); max-width: 58ch; }
+        .muted { color: var(--muted); }
 
         /* ---------- Buttons ---------- */
         .btn {
             display: inline-flex; align-items: center; gap: 10px;
-            padding: 13px 22px; border-radius: 8px;
-            font: 600 0.98rem/1 var(--body); text-decoration: none; cursor: pointer;
-            border: 1px solid var(--line); background: var(--surface); color: var(--bone);
-            transition: background-color .15s, border-color .15s;
+            padding: 13px 22px; border-radius: 10px;
+            font: 600 0.95rem/1 var(--font); text-decoration: none; cursor: pointer;
+            border: 1px solid var(--line); background: var(--surface); color: var(--text);
+            transition: background-color .2s, border-color .2s, transform .2s var(--ease);
         }
-        .btn:hover { border-color: var(--fog); }
+        .btn:hover { border-color: #4a4a57; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
         .btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
         .btn-primary:hover { background: var(--red-hover); border-color: var(--red-hover); }
         .btn svg { width: 18px; height: 18px; flex: none; }
 
         /* ---------- Header ---------- */
-        .site-header { border-bottom: 1px solid var(--line); }
+        .site-header {
+            position: sticky; top: 0; z-index: 10;
+            background: rgba(14, 14, 17, .78);
+            backdrop-filter: saturate(140%) blur(12px);
+            -webkit-backdrop-filter: saturate(140%) blur(12px);
+            border-bottom: 1px solid transparent;
+            transition: border-color .3s;
+        }
+        .site-header.scrolled { border-bottom-color: var(--line); }
         .site-header .wrap { display: flex; align-items: center; gap: 28px; min-height: 68px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.5rem/1 var(--display); }
-        .brand img { width: 34px; height: 34px; }
-        .nav { display: flex; gap: 24px; margin-left: auto; }
-        .nav a { text-decoration: none; color: var(--fog); font-weight: 500; font-size: 0.95rem; }
-        .nav a:hover { color: var(--bone); }
-        .site-header .btn { padding: 10px 16px; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.02em; }
+        .brand img { width: 32px; height: 32px; }
+        .nav { display: flex; gap: 26px; margin-left: auto; }
+        .nav a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 0.9rem; transition: color .2s; }
+        .nav a:hover { color: var(--text); }
+        .site-header .btn { padding: 10px 16px; font-size: 0.88rem; }
         @media (max-width: 760px) { .nav { display: none; } .site-header .btn { margin-left: auto; } }
 
         /* ---------- Hero ---------- */
-        .hero { padding: clamp(32px, 5vw, 64px) 0 clamp(48px, 7vw, 88px); }
+        .hero { padding: clamp(28px, 5vw, 64px) 0 clamp(56px, 8vw, 104px); }
         .hero h1 {
-            font-size: clamp(2.8rem, 6.2vw, 5.4rem);
+            font-size: clamp(2.2rem, 4.6vw, 3.6rem);
             font-weight: 700;
-            line-height: 0.95;
-            max-width: 16ch;
-            margin: 0;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            max-width: 20ch;
             text-wrap: balance;
+            margin-bottom: 18px;
         }
-        .hero-top { display: grid; gap: 24px 48px; grid-template-columns: 1fr; align-items: end; }
-        @media (min-width: 980px) { .hero-top { grid-template-columns: 1.1fr 1fr; } }
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 14px; }
-        .hero-note { font-size: 0.88rem; color: var(--fog); margin: 0; }
+        .hero-top { max-width: 760px; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 14px; }
+        .hero-note { font-size: 0.85rem; color: var(--muted); margin: 0; }
 
-        /* The preset reel: the page's one bold element. Pick a preset, see what the game looks like. */
+        /* Load sequence: the hero rises in once, in order, then the reel */
+        .js .rise { opacity: 0; transform: translateY(18px); animation: rise .9s var(--ease) forwards; }
+        .js .rise-2 { animation-delay: .12s; }
+        .js .rise-3 { animation-delay: .24s; }
+        .js .rise-4 { animation-delay: .36s; }
+        .js .rise-5 { animation-delay: .5s; }
+        @keyframes rise { to { opacity: 1; transform: none; } }
+
+        /* ---------- Preset reel ---------- */
         .reel {
-            margin-top: clamp(32px, 5vw, 56px);
-            display: grid; gap: 0;
+            margin-top: clamp(32px, 4vw, 48px);
+            display: grid;
             grid-template-columns: minmax(0, 1fr); /* minmax: the scrolling preset list must not widen the page */
-            border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-            background: var(--surface);
+            gap: 16px;
         }
-        @media (min-width: 980px) { .reel { grid-template-columns: minmax(0, 1fr) 300px; } }
-        .reel-stage { position: relative; aspect-ratio: 16 / 9; background: #0c1114; margin: 0; }
-        .reel-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .25s ease; }
-        /* Wide screens: the picture fills the whole height of the preset list beside it */
-        @media (min-width: 980px) { .reel-stage { aspect-ratio: auto; min-height: 420px; align-self: stretch; } }
-        .reel-stage img.loading { opacity: 0.35; }
-        @media (prefers-reduced-motion: reduce) { .reel-stage img { transition: none; } }
+        @media (min-width: 980px) { .reel { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; } }
+
+        .reel-stage { position: relative; margin: 0; border-radius: 16px; overflow: hidden; background: var(--surface); aspect-ratio: 16 / 9; }
+        .reel-stage img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+            opacity: 0; transition: opacity .9s var(--ease);
+        }
+        .reel-stage img.shown { opacity: 1; animation: drift 9s linear forwards; }
+        /* A slow push-in on the active picture */
+        @keyframes drift { from { transform: scale(1.0); } to { transform: scale(1.06); } }
+
         .reel-caption {
-            position: absolute; left: 0; right: 0; bottom: 0;
-            padding: 48px 22px 18px;
-            background: linear-gradient(transparent, rgba(8, 12, 14, 0.88));
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+            padding: 64px 24px 20px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, .82));
         }
-        /* Small screens: the caption goes under the picture so the picture stays visible */
+        .reel-caption strong { display: block; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+        .reel-caption p { margin: 4px 0 0; font-size: 0.88rem; color: #d0d0d6; max-width: 64ch; }
+        .reel-caption.swap { animation: caption .6s var(--ease); }
+        @keyframes caption { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        .reel-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+        .reel-list::-webkit-scrollbar { display: none; }
+        @media (min-width: 980px) { .reel-list { flex-direction: column; overflow: visible; } }
+        .reel-list button {
+            position: relative; overflow: hidden;
+            width: 100%; text-align: left; white-space: nowrap;
+            padding: 11px 14px; border-radius: 10px; border: 0;
+            background: transparent; color: var(--muted); cursor: pointer;
+            font: 500 0.9rem/1.3 var(--font);
+            transition: background-color .25s, color .25s;
+        }
+        .reel-list button span { display: block; font-size: 0.75rem; color: #6c6c78; margin-top: 2px; }
+        .reel-list button:hover { color: var(--text); background: var(--surface); }
+        .reel-list button[aria-pressed="true"] { background: var(--surface); color: var(--text); }
+        /* Progress line: shows when the next preset comes up on its own */
+        .reel-list button::after {
+            content: ""; position: absolute; left: 14px; right: 14px; bottom: 6px; height: 2px; border-radius: 2px;
+            background: var(--red); transform: scaleX(0); transform-origin: left;
+        }
+        .reel-list button[aria-pressed="true"]::after { transform: scaleX(1); }
+        .reel.autoplay .reel-list button[aria-pressed="true"]::after { animation: progress var(--slide, 6s) linear forwards; }
+        .reel.paused .reel-list button[aria-pressed="true"]::after { animation-play-state: paused; }
+        @keyframes progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        .reel-more { padding: 8px 14px 0; font-size: 0.82rem; color: var(--muted); margin: 0; }
+
         @media (max-width: 979px) {
             .reel-stage { aspect-ratio: auto; }
-            .reel-stage img { position: static; aspect-ratio: 16 / 9; height: auto; }
-            .reel-caption { position: static; background: none; padding: 14px 16px 2px; }
+            .reel-stage .layers { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
+            .reel-caption { position: static; background: none; padding: 14px 16px 16px; }
+            .reel-more { display: none; }
         }
-        .reel-caption strong { display: block; font: 600 1.7rem/1.1 var(--display); }
-        .reel-caption p { margin: 4px 0 0; font-size: 0.9rem; color: #c9cfc9; max-width: 70ch; }
-        .reel-list { list-style: none; margin: 0; padding: 10px; border-top: 1px solid var(--line); display: flex; gap: 6px; overflow-x: auto; }
-        @media (min-width: 980px) { .reel-list { flex-direction: column; border-top: 0; border-left: 1px solid var(--line); overflow: visible; } }
-        .reel-list button {
-            width: 100%; text-align: left; white-space: nowrap;
-            padding: 8px 14px 8px 16px; border-radius: 8px; border: 0;
-            background: transparent; color: var(--fog); cursor: pointer;
-            font: 500 0.93rem/1.3 var(--body);
-            position: relative;
+        @media (min-width: 980px) {
+            /* The picture fills the whole height of the preset list beside it */
+            .reel-stage { aspect-ratio: auto; min-height: 400px; align-self: stretch; }
+            .reel-stage .layers { position: absolute; inset: 0; }
         }
-        .reel-list button span { display: block; font-size: 0.78rem; color: #6f7f7b; }
-        .reel-list button:hover { background: #1c2830; color: var(--bone); }
-        .reel-list button[aria-pressed="true"] { background: #1f2c34; color: var(--bone); }
-        .reel-list button[aria-pressed="true"]::before {
-            content: ""; position: absolute; left: 5px; top: 9px; bottom: 9px; width: 3px; border-radius: 2px; background: var(--red);
-        }
-        .reel-more { padding: 6px 16px 12px; font-size: 0.85rem; color: var(--fog); margin: 0; }
-        @media (max-width: 979px) { .reel-more { display: none; } }
 
         /* ---------- Sections ---------- */
-        section { padding: clamp(56px, 8vw, 104px) 0; border-top: 1px solid var(--line); }
-        .section-intro { max-width: 62ch; margin-bottom: clamp(28px, 4vw, 48px); }
+        section { padding: clamp(64px, 9vw, 120px) 0; }
+        .section-intro { max-width: 60ch; margin-bottom: clamp(32px, 4vw, 52px); }
+
+        /* Scroll reveal: each block fades up once when it comes into view (only with JS, so nothing is hidden without it) */
+        .js [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: var(--delay, 0s); }
+        .js [data-reveal].visible { opacity: 1; transform: none; }
 
         /* How it works: a real sequence, so it's numbered */
-        .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); counter-reset: step; }
-        .steps li { counter-increment: step; padding-top: 18px; border-top: 2px solid var(--line); }
-        .steps li::before { content: counter(step); display: block; font: 700 3.2rem/1 var(--display); color: var(--red); margin-bottom: 10px; }
-        .steps h3 { font-size: 1.45rem; }
-        .steps p { color: var(--fog); margin: 0; }
+        .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 36px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); counter-reset: step; }
+        .steps li { counter-increment: step; }
+        .steps li::before {
+            content: counter(step); display: grid; place-items: center;
+            width: 36px; height: 36px; border-radius: 50%; margin-bottom: 18px;
+            border: 1px solid var(--line); color: var(--red); font-weight: 700; font-size: 0.9rem;
+        }
+        .steps p { color: var(--muted); margin: 0; font-size: 0.95rem; }
 
-        /* Features: one row per main feature, screenshot beside the text */
-        .feature { display: grid; gap: 24px 56px; align-items: center; grid-template-columns: 1fr; padding: 28px 0; }
+        /* Features */
+        .feature { display: grid; gap: 24px 64px; align-items: center; grid-template-columns: 1fr; padding: 32px 0; }
         @media (min-width: 900px) {
-            .feature { grid-template-columns: 1fr 1.25fr; }
+            .feature { grid-template-columns: 1fr 1.3fr; }
             .feature:nth-of-type(even) .feature-text { order: 2; }
         }
-        .feature-text ul { margin: 0; padding-left: 1.1em; color: var(--fog); }
-        .feature-text li { margin-bottom: 6px; }
-        .feature-text li::marker { color: var(--red); }
-        .shot { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
-        .shot img { width: 100%; }
+        .feature-text h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
+        .feature-text ul { margin: 0; padding: 0; list-style: none; color: var(--muted); }
+        .feature-text li { padding: 7px 0 7px 22px; position: relative; font-size: 0.96rem; }
+        .feature-text li::before { content: ""; position: absolute; left: 0; top: 0.95em; width: 8px; height: 2px; background: var(--red); border-radius: 2px; }
+        .shot { margin: 0; border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .9); }
+        .shot img { width: 100%; transition: transform 1.2s var(--ease); }
+        .shot:hover img { transform: scale(1.02); }
 
-        .extras { display: grid; gap: 22px 40px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 44px; }
-        .extras h3 { font-size: 1.35rem; }
-        .extras p { color: var(--fog); margin: 0; font-size: 0.95rem; }
+        .extras { display: grid; gap: 28px 40px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-top: 56px; }
+        .extras p { color: var(--muted); margin: 0; font-size: 0.93rem; }
 
         /* Stores table */
         .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.97rem; }
-        th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
-        th { font-weight: 600; color: var(--fog); }
-        td code, p code { font-size: 0.86em; background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th, td { text-align: left; padding: 16px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+        th { font-weight: 600; color: var(--muted); font-size: 0.85rem; }
+        td code, p code { font-size: 0.85em; background: var(--surface); padding: 3px 7px; border-radius: 5px; }
 
         /* Download */
-        .download-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 8px 0 26px; }
-        .download-option { border: 1px solid var(--line); border-radius: 12px; padding: 24px; background: var(--surface); }
-        .download-option.recommended { border-color: var(--red); }
-        .download-option h3 { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-        .tag { font: 600 0.78rem/1 var(--body); color: var(--bone); background: var(--red); padding: 5px 8px; border-radius: 4px; }
-        .download-option p { color: var(--fog); }
-        .callout { border-left: 3px solid var(--ember); padding: 4px 0 4px 18px; color: var(--fog); max-width: 75ch; }
+        .download-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 8px 0 28px; }
+        .download-option { border-radius: 16px; padding: 28px; background: var(--surface); border: 1px solid transparent; transition: border-color .3s, transform .3s var(--ease); }
+        .download-option:hover { border-color: var(--line); transform: translateY(-2px); }
+        .download-option.recommended { border-color: rgba(215, 38, 61, .55); }
+        .download-option h3 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 1.2rem; }
+        .tag { font: 600 0.72rem/1 var(--font); color: #fff; background: var(--red); padding: 5px 8px; border-radius: 5px; letter-spacing: 0; }
+        .download-option p { color: var(--muted); font-size: 0.94rem; }
+        .callout { border-left: 2px solid var(--focus); padding: 2px 0 2px 18px; color: var(--muted); max-width: 75ch; font-size: 0.93rem; }
 
-        /* FAQ */
-        details { border-bottom: 1px solid var(--line); padding: 4px 0; max-width: 80ch; }
-        summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+        /* FAQ: smooth open/close */
+        .faq { max-width: 780px; }
+        details { border-bottom: 1px solid var(--line); }
+        summary { cursor: pointer; padding: 20px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
         summary::-webkit-details-marker { display: none; }
-        summary::after { content: "+"; font: 600 1.4rem/1 var(--display); color: var(--fog); }
-        details[open] summary::after { content: "−"; }
-        details p { color: var(--fog); }
+        summary::after {
+            content: ""; flex: none; width: 10px; height: 10px;
+            border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+            transform: rotate(45deg) translateY(-3px); transition: transform .3s var(--ease);
+        }
+        details[open] summary::after { transform: rotate(-135deg) translateY(-3px); }
+        details p { color: var(--muted); margin: 0; padding-bottom: 20px; }
+        details[open] p { animation: caption .4s var(--ease); }
 
         /* Submit form */
-        form { display: grid; gap: 16px; max-width: 640px; }
-        label { font-weight: 600; font-size: 0.95rem; }
-        .hint { display: block; font-weight: 400; color: var(--fog); font-size: 0.85rem; }
+        form { display: grid; gap: 18px; max-width: 620px; }
+        label { font-weight: 600; font-size: 0.92rem; }
+        .hint { display: block; font-weight: 400; color: var(--muted); font-size: 0.82rem; }
         input[type="text"], input[type="url"], textarea {
-            width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 8px;
-            border: 1px solid var(--line); background: #0d1316; color: var(--bone); font: inherit;
+            width: 100%; margin-top: 8px; padding: 13px 14px; border-radius: 10px;
+            border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-weight: 400;
+            transition: border-color .2s, background-color .2s;
         }
-        textarea { min-height: 96px; resize: vertical; }
-        .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--fog); }
-        .check input { margin-top: 5px; accent-color: var(--red); }
-        #responseMessage { color: #8fd19e; }
+        input[type="text"]:focus, input[type="url"]:focus, textarea:focus { border-color: #4a4a57; background: var(--surface-alt); outline: none; }
+        textarea { min-height: 100px; resize: vertical; }
+        .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--muted); }
+        .check input { margin-top: 6px; accent-color: var(--red); }
+        #responseMessage { color: #5fd08a; }
 
         /* Credits */
-        .credits { columns: 2 220px; column-gap: 40px; padding: 0; list-style: none; }
-        .credits li { break-inside: avoid; padding: 6px 0; }
+        .credits { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0 0 28px; list-style: none; }
+        .credits a {
+            display: inline-block; padding: 9px 16px; border-radius: 999px; background: var(--surface);
+            text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: background-color .2s, transform .2s var(--ease);
+        }
+        .credits a:hover { background: var(--surface-alt); transform: translateY(-2px); }
 
         /* Footer */
-        footer { border-top: 1px solid var(--line); padding: 48px 0 56px; color: var(--fog); font-size: 0.88rem; }
+        footer { border-top: 1px solid var(--line); padding: 48px 0 56px; color: var(--muted); font-size: 0.85rem; }
         .footer-top { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-        .social { display: flex; gap: 6px; }
-        .social a { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; color: var(--fog); }
-        .social a:hover { background: var(--surface); color: var(--bone); }
-        .social svg { width: 22px; height: 22px; fill: currentColor; }
+        .social { display: flex; gap: 4px; }
+        .social a { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; color: var(--muted); transition: background-color .2s, color .2s; }
+        .social a:hover { background: var(--surface); color: var(--text); }
+        .social svg { width: 20px; height: 20px; fill: currentColor; }
         footer p { max-width: 90ch; }
+
+        /* Motion off for people who ask for it */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+            .js .rise, .js [data-reveal] { opacity: 1; transform: none; }
+        }
     </style>
 </head>
 
@@ -339,7 +400,7 @@
 
     <a class="skip" href="#main">Skip to content</a>
 
-    <header class="site-header">
+    <header class="site-header" id="top">
         <div class="wrap">
             <a class="brand" href="./" aria-label="DBD Reshade home">
                 <img src="./dbdreshade_logo.png" alt="" width="34" height="34">
@@ -360,10 +421,10 @@
         <div class="hero">
             <div class="wrap">
                 <div class="hero-top">
-                    <h1>ReShade presets for Dead by Daylight, in one click</h1>
+                    <h1 class="rise">ReShade presets for Dead by Daylight, in one click</h1>
                     <div>
-                        <p class="lead">Pick from 139+ presets made by streamers and players, see them on real maps without opening the game, and install them with ReShade in a single click. Free for Windows.</p>
-                        <div class="hero-actions">
+                        <p class="lead rise rise-2">Pick from 139+ presets made by streamers and players, see them on real maps without opening the game, and install them with ReShade in a single click. Free for Windows.</p>
+                        <div class="hero-actions rise rise-3">
                             <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest">
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
                                 Download for Windows
@@ -373,20 +434,24 @@
                                 Source code
                             </a>
                         </div>
-                        <p class="hero-note">Version 2.0. Windows 10 and 11. Steam, Epic Games and Xbox app.</p>
+                        <p class="hero-note rise rise-4">Version 2.0. Windows 10 and 11. Steam, Epic Games and Xbox app.</p>
                     </div>
                 </div>
 
                 <!-- Preset reel: real preset previews, the same ones the app shows -->
-                <div class="reel" role="region" aria-label="Preset previews">
+                <div class="reel rise rise-5" id="reel" role="region" aria-label="Preset previews">
                     <figure class="reel-stage">
-                        <img id="reel-image"
-                             src="./assets/presets/knightlight-stream.webp"
-                             srcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
-                             sizes="(min-width: 980px) 62vw, 100vw"
-                             width="1600" height="900"
-                             alt="Dead by Daylight with the KnightLight Stream ReShade preset"
-                             fetchpriority="high">
+                        <!-- Two layers so presets crossfade into each other -->
+                        <div class="layers">
+                            <img class="shown"
+                                 src="./assets/presets/knightlight-stream.webp"
+                                 srcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
+                                 sizes="(min-width: 980px) 65vw, 100vw"
+                                 width="1600" height="900"
+                                 alt="Dead by Daylight with the KnightLight Stream ReShade preset"
+                                 fetchpriority="high">
+                            <img alt="" width="1600" height="900" sizes="(min-width: 980px) 65vw, 100vw" aria-hidden="true">
+                        </div>
                         <figcaption class="reel-caption" aria-live="polite">
                             <strong id="reel-name">KnightLight Stream</strong>
                             <p id="reel-desc">KnightLight's latest preset, the one used on stream. Works on all maps.</p>
@@ -420,24 +485,24 @@
         <!-- ============ How it works ============ -->
         <section id="how-it-works" aria-labelledby="how-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="how-title">How it works</h2>
                     <p class="lead">No ReShade setup, no copying files into the game folder by hand.</p>
                 </div>
                 <ol class="steps">
-                    <li>
+                    <li data-reveal style="--delay:0.0s">
                         <h3>Download and open</h3>
                         <p>The app finds Dead by Daylight on Steam, Epic Games or the Xbox app by itself.</p>
                     </li>
-                    <li>
+                    <li data-reveal style="--delay:0.1s">
                         <h3>Pick a preset</h3>
                         <p>Search the list, look at the preview, and open the creator's page if you want to know more.</p>
                     </li>
-                    <li>
+                    <li data-reveal style="--delay:0.2s">
                         <h3>Try it on the maps</h3>
                         <p>See the preset with the real ReShade on every realm, before touching your game.</p>
                     </li>
-                    <li>
+                    <li data-reveal style="--delay:0.3s">
                         <h3>Install and play</h3>
                         <p>One click installs ReShade, the effects and the preset. Press Home in game to open ReShade.</p>
                     </li>
@@ -448,12 +513,12 @@
         <!-- ============ Features ============ -->
         <section id="features" aria-labelledby="features-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="features-title">Everything you need for ReShade in Dead by Daylight</h2>
                     <p class="lead">One app to install, preview, create and manage your presets.</p>
                 </div>
 
-                <article class="feature">
+                <article class="feature" data-reveal>
                     <div class="feature-text">
                         <h3>One-click install</h3>
                         <ul>
@@ -469,7 +534,7 @@
                     </figure>
                 </article>
 
-                <article class="feature">
+                <article class="feature" data-reveal>
                     <div class="feature-text">
                         <h3>Try on maps</h3>
                         <ul>
@@ -485,7 +550,7 @@
                     </figure>
                 </article>
 
-                <article class="feature">
+                <article class="feature" data-reveal>
                     <div class="feature-text">
                         <h3>Preset Editor</h3>
                         <ul>
@@ -501,19 +566,19 @@
                 </article>
 
                 <div class="extras">
-                    <div>
+                    <div data-reveal style="--delay:0.00s">
                         <h3>Always up to date</h3>
                         <p>New presets arrive automatically, and the app updates itself with one click.</p>
                     </div>
-                    <div>
+                    <div data-reveal style="--delay:0.08s">
                         <h3>Your own presets</h3>
                         <p>Add any <code>.ini</code> with a description, a source link and a screenshot. Copy presets to any folder.</p>
                     </div>
-                    <div>
+                    <div data-reveal style="--delay:0.16s">
                         <h3>10 languages</h3>
                         <p>English, Italiano, Español, Français, Deutsch, Português, Русский, 简体中文, 日本語 and 한국어.</p>
                     </div>
-                    <div>
+                    <div data-reveal style="--delay:0.24s">
                         <h3>Light on your disk</h3>
                         <p>Previews and map screenshots download only when you look at them, and can be cleared any time.</p>
                     </div>
@@ -524,11 +589,11 @@
         <!-- ============ Supported versions ============ -->
         <section id="supported" aria-labelledby="supported-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="supported-title">Works with every PC version of the game</h2>
                     <p class="lead">Found automatically, or pick the game folder yourself.</p>
                 </div>
-                <div class="table-wrap">
+                <div class="table-wrap" data-reveal>
                     <table>
                         <thead>
                             <tr><th scope="col">Store</th><th scope="col">Where ReShade is installed</th></tr>
@@ -546,30 +611,31 @@
         <!-- ============ Download ============ -->
         <section id="download" aria-labelledby="download-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="download-title">Download DBD Reshade</h2>
                     <p class="lead">Free and open source. Windows 10 or 11, 64-bit. Nothing else to install.</p>
                 </div>
                 <div class="download-grid">
-                    <div class="download-option recommended">
+                    <div class="download-option recommended" data-reveal>
                         <h3>Installer <span class="tag">Recommended</span></h3>
                         <p>Adds DBD Reshade to the Start menu, with an optional desktop icon and an uninstaller.</p>
                         <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade-Setup.exe">Download the installer</a>
                     </div>
-                    <div class="download-option">
+                    <div class="download-option" data-reveal style="--delay:.1s">
                         <h3>Portable</h3>
                         <p>A single file, nothing to install. Put it in any folder and run it.</p>
                         <a class="btn" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade.exe">Download the portable exe</a>
                     </div>
                 </div>
-                <p class="callout">If Windows shows <em>Windows protected your PC</em>, choose <strong>More info</strong> and then <strong>Run anyway</strong>. SmartScreen warns about apps that few people have downloaded yet. Only download DBD Reshade from this site or the <a href="https://github.com/Joolace/dbd-reshade/releases">GitHub releases page</a>.</p>
+                <p class="callout" data-reveal>If Windows shows <em>Windows protected your PC</em>, choose <strong>More info</strong> and then <strong>Run anyway</strong>. SmartScreen warns about apps that few people have downloaded yet. Only download DBD Reshade from this site or the <a href="https://github.com/Joolace/dbd-reshade/releases">GitHub releases page</a>.</p>
             </div>
         </section>
 
         <!-- ============ FAQ ============ -->
         <section id="faq" aria-labelledby="faq-title">
             <div class="wrap">
-                <h2 id="faq-title">Questions</h2>
+                <h2 id="faq-title" data-reveal>Questions</h2>
+                <div class="faq" data-reveal>
                 <details>
                     <summary>Is DBD Reshade free?</summary>
                     <p>Yes. DBD Reshade is free and open source (GPL-3.0). ReShade and the presets are free too.</p>
@@ -598,17 +664,18 @@
                     <summary>How do I remove ReShade from the game?</summary>
                     <p>Run the official installer from <a href="https://reshade.me">reshade.me</a>, select Dead by Daylight and choose Uninstall. Uninstalling DBD Reshade doesn't change the game.</p>
                 </details>
+                </div>
             </div>
         </section>
 
         <!-- ============ Submit a preset ============ -->
         <section id="submit" aria-labelledby="submit-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="submit-title">Submit your preset</h2>
                     <p class="lead">Made a preset you're proud of? Send it in. Once added, it reaches every user automatically.</p>
                 </div>
-                <form id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST">
+                <form data-reveal id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST">
                     <label for="username">Your username
                         <input type="text" id="username" name="username" required autocomplete="nickname">
                     </label>
@@ -636,11 +703,11 @@
         <!-- ============ Credits ============ -->
         <section id="credits" aria-labelledby="credits-title">
             <div class="wrap">
-                <div class="section-intro">
+                <div class="section-intro" data-reveal>
                     <h2 id="credits-title">Made possible by</h2>
                     <p class="lead">The presets come from these creators. Go show them some love.</p>
                 </div>
-                <ul class="credits">
+                <ul class="credits" data-reveal>
                     <li><a href="https://github.com/steaxss/STEAXS-FILTER-PACK">STX</a></li>
                     <li><a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE">April</a></li>
                     <li><a href="https://www.youtube.com/watch?v=4TArEDvT_ec">Aroz</a></li>
@@ -679,46 +746,127 @@
     </footer>
 
     <script>
-        // Preset reel: swap the preview when a preset is chosen. Arrow keys move between presets.
+        // Preset reel: crossfades between presets and moves on by itself every few seconds,
+        // until the visitor picks one. Hover or focus pauses it; reduced motion turns it off.
         (function () {
-            var list = document.getElementById('reel-list');
-            var image = document.getElementById('reel-image');
+            var reel = document.getElementById('reel');
+            var layers = reel.querySelectorAll('.layers img');
+            var caption = reel.querySelector('.reel-caption');
             var name = document.getElementById('reel-name');
             var desc = document.getElementById('reel-desc');
-            var buttons = Array.prototype.slice.call(list.querySelectorAll('button'));
+            var buttons = Array.prototype.slice.call(reel.querySelectorAll('.reel-list button'));
+            var SLIDE = 6000;
+            var front = 0, current = 0, timer = null, started = 0, remaining = SLIDE, userChose = false;
+            var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            function select(button) {
-                if (button.getAttribute('aria-pressed') === 'true') return;
-                buttons.forEach(function (b) { b.setAttribute('aria-pressed', b === button ? 'true' : 'false'); });
+            reel.style.setProperty('--slide', SLIDE + 'ms');
+
+            function show(index) {
+                if (index === current) return;
+                current = index;
+                var button = buttons[index];
+                buttons.forEach(function (b, i) { b.setAttribute('aria-pressed', i === index ? 'true' : 'false'); });
 
                 var base = './assets/presets/' + button.dataset.img;
-                var next = new Image();
-                image.classList.add('loading');
-                next.onload = next.onerror = function () {
-                    image.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
-                    image.src = base + '.webp';
-                    image.alt = 'Dead by Daylight with the ' + button.dataset.alt + ' ReShade preset';
-                    image.classList.remove('loading');
+                var back = layers[1 - front];
+                back.onload = function () {
+                    back.onload = null;
+                    back.alt = 'Dead by Daylight with the ' + button.dataset.alt + ' ReShade preset';
+                    back.removeAttribute('aria-hidden');
+                    layers[front].setAttribute('aria-hidden', 'true');
+                    layers[front].alt = '';
+                    back.classList.add('shown');
+                    layers[front].classList.remove('shown');
+                    front = 1 - front;
                 };
-                next.sizes = image.sizes;
-                next.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
-                next.src = base + '.webp';
+                back.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
+                back.src = base + '.webp';
 
                 name.textContent = button.dataset.alt;
                 desc.textContent = button.dataset.desc;
+                caption.classList.remove('swap'); void caption.offsetWidth; caption.classList.add('swap');
+
+                // Keep the active preset in view in the horizontal list on phones
+                if (window.innerWidth < 980) button.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: calm ? 'auto' : 'smooth' });
+                if (!userChose) schedule(SLIDE);
+            }
+
+            function schedule(ms) {
+                clearTimeout(timer);
+                remaining = ms; started = Date.now();
+                // Restart the progress line on the active button
+                reel.classList.remove('autoplay'); void reel.offsetWidth; reel.classList.add('autoplay');
+                timer = setTimeout(function () { show((current + 1) % buttons.length); }, ms);
+            }
+
+            function pause() {
+                if (userChose || !timer) return;
+                clearTimeout(timer); timer = null;
+                remaining = Math.max(0, remaining - (Date.now() - started));
+                reel.classList.add('paused');
+            }
+
+            function resume() {
+                if (userChose || timer) return;
+                reel.classList.remove('paused');
+                started = Date.now();
+                timer = setTimeout(function () { show((current + 1) % buttons.length); }, remaining);
+            }
+
+            function choose(index) {
+                userChose = true;
+                clearTimeout(timer); timer = null;
+                reel.classList.remove('autoplay', 'paused');
+                show(index);
             }
 
             buttons.forEach(function (button, i) {
-                button.addEventListener('click', function () { select(button); });
+                button.addEventListener('click', function () { choose(i); });
                 button.addEventListener('keydown', function (e) {
                     var step = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : (e.key === 'ArrowUp' || e.key === 'ArrowLeft') ? -1 : 0;
                     if (!step) return;
                     e.preventDefault();
-                    var target = buttons[(i + step + buttons.length) % buttons.length];
-                    target.focus();
-                    select(target);
+                    var target = (i + step + buttons.length) % buttons.length;
+                    buttons[target].focus();
+                    choose(target);
                 });
             });
+
+            // Warm the cache so each crossfade is instant
+            buttons.forEach(function (b) {
+                var img = new Image();
+                img.sizes = layers[0].sizes;
+                img.srcset = './assets/presets/' + b.dataset.img + '-800.webp 800w, ./assets/presets/' + b.dataset.img + '.webp 1600w';
+            });
+
+            if (!calm) {
+                reel.addEventListener('mouseenter', pause);
+                reel.addEventListener('mouseleave', resume);
+                reel.addEventListener('focusin', pause);
+                reel.addEventListener('focusout', resume);
+                document.addEventListener('visibilitychange', function () { document.hidden ? pause() : resume(); });
+                schedule(SLIDE);
+            }
+        })();
+
+        // Blocks fade up once as they scroll into view
+        (function () {
+            var items = document.querySelectorAll('[data-reveal]');
+            if (!('IntersectionObserver' in window)) { items.forEach(function (el) { el.classList.add('visible'); }); return; }
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+                });
+            }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+            items.forEach(function (el) { observer.observe(el); });
+        })();
+
+        // Header gets its border once the page scrolls
+        (function () {
+            var header = document.getElementById('top');
+            function update() { header.classList.toggle('scrolled', window.scrollY > 8); }
+            window.addEventListener('scroll', update, { passive: true });
+            update();
         })();
 
         // Preset form: send without leaving the page.
