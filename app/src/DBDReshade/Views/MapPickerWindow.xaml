@@ -18,7 +18,8 @@
         Foreground="{DynamicResource TextBrush}"
         FontFamily="{DynamicResource AppFont}"
         FontSize="13"
-        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         UseLayoutRounding="True">
 
     <Window.Resources>

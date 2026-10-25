@@ -9,7 +9,8 @@
         ShowInTaskbar="True" Opacity="0"
         FontFamily="{DynamicResource AppFont}"
         Foreground="{DynamicResource TextBrush}"
-        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         UseLayoutRounding="True">
 
     <!-- Start-up screen in the style of Discord's: logo, name, version and what is happening. -->
