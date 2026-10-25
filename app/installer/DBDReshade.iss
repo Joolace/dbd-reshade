@@ -6,7 +6,7 @@
 ; then open this file in Inno Setup and press Compile (the defaults below point at app\publish).
 
 #ifndef MyAppVersion
-  #define MyAppVersion "2.0.0"
+  #define MyAppVersion "2.0.1"
 #endif
 #ifndef SourceExe
   #define SourceExe "..\publish\DBDReshade.exe"
