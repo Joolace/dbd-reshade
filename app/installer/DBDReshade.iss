@@ -1,16 +1,18 @@
 ﻿; Installer for DBD Reshade (Inno Setup 6).
 ; Built by .github/workflows/build-app.yml:
 ;   iscc /DMyAppVersion=2.0.0 /DSourceExe=<path to published DBDReshade.exe> /DOutputDir=<folder> DBDReshade.iss
-; To build it by hand, publish the app first (see README) and run iscc with the same /D values.
+; To build it by hand: from the app folder run
+;   dotnet publish src\DBDReshade\DBDReshade.csproj -c Release -o publish
+; then open this file in Inno Setup and press Compile (the defaults below point at app\publish).
 
 #ifndef MyAppVersion
   #define MyAppVersion "2.0.0"
 #endif
 #ifndef SourceExe
-  #define SourceExe "..\..\publish\DBDReshade.exe"
+  #define SourceExe "..\publish\DBDReshade.exe"
 #endif
 #ifndef OutputDir
-  #define OutputDir "..\..\publish"
+  #define OutputDir "..\publish"
 #endif
 
 #define MyAppName "DBD Reshade"
