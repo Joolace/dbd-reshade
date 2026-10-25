@@ -12,8 +12,6 @@ Pick a preset, try it on real map screenshots without opening the game, install 
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/mC7Eabu3QW)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue?style=for-the-badge)](LICENSE)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3)](https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard)
-[![CodeFactor](https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge)](https://www.codefactor.io/repository/github/joolace/dbd-reshade)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://makeapullrequest.com)
 [![Bugs](https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs)](https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 
