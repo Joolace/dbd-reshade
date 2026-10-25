@@ -48,7 +48,11 @@
         </Style>
 
         <!-- The social icons are white PNGs: used as a mask so they take the theme's text color -->
+        <!-- A Rectangle has no size of its own and the button centers its content: without Width/Height
+             it would be 0×0 and the icon invisible. -->
         <Style x:Key="SocialIcon" TargetType="Rectangle">
+            <Setter Property="Width" Value="22" />
+            <Setter Property="Height" Value="22" />
             <Setter Property="Fill" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
         </Style>
     </Window.Resources>
