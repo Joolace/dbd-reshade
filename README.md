@@ -104,7 +104,7 @@ works from ReShade's own menu in game.
 ### Install Preset
 
 <!-- SCREENSHOT: Install Preset page, highlighting the preset list, preview, Game box and the three buttons -->
-![Install Preset](./screenshots/v2/install-preset-detail.png)
+![Install Preset](./screenshots/1.png)
 
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
 - **Finds the game** on Steam, Epic Games and the Xbox app, or pick the folder by hand
@@ -119,10 +119,10 @@ works from ReShade's own menu in game.
 ### Try on maps
 
 <!-- SCREENSHOT: the map picker window (list of realms + "My screenshots") -->
-![Map picker](./screenshots/v2/map-picker.png)
+![Map picker](./screenshots/8.png)
 
 <!-- SCREENSHOT: the preview window showing a preset on a map, with the red "F1 – Show keys" badge visible -->
-![Map preview](./screenshots/v2/map-preview.png)
+![Map preview](./screenshots/9.png)
 
 - See any preset on **real screenshots of every realm**, with the real ReShade, **without starting the game**
 - Screenshots are downloaded one realm at a time, only when you open it
@@ -133,10 +133,10 @@ works from ReShade's own menu in game.
 ### Preset Editor
 
 <!-- SCREENSHOT: Preset Editor page (steps 1–4) -->
-![Preset Editor](./screenshots/v2/editor.png)
+![Preset Editor](./screenshots/2.png)
 
 <!-- SCREENSHOT: the editor window with the ReShade menu open on a map -->
-![Editing a preset](./screenshots/v2/editor-reshade.png)
+![Editing a preset](./screenshots/5.png)
 
 Create your own preset, live on map screenshots:
 
@@ -151,7 +151,7 @@ Unfinished presets are kept as drafts: type the same name to continue later.
 ### Preset Manager
 
 <!-- SCREENSHOT: Preset Manager page -->
-![Preset Manager](./screenshots/v2/preset-manager.png)
+![Preset Manager](./screenshots/3.png)
 
 - **Add your own presets** (`.ini`) with description, source link and screenshot
 - **Delete presets** you don't use. Deleted official presets don't come back with updates, and can be **restored** at any time with the button at the bottom of the list.
@@ -160,14 +160,14 @@ Unfinished presets are kept as drafts: type the same name to continue later.
 ### Copy Presets
 
 <!-- SCREENSHOT: Copy Presets page -->
-![Copy Presets](./screenshots/v2/copy-presets.png)
+![Copy Presets](./screenshots/4.png)
 
 Copy any selection of presets (or all of them) to a folder, for example to share them or to use them with another game.
 
 ### Settings
 
 <!-- SCREENSHOT: Settings page (language, theme, storage) -->
-![Settings](./screenshots/v2/settings.png)
+![Settings](./screenshots/6.png)
 
 - **Language**: 10 languages, switch instantly. Translations are updated automatically.
 - **Theme**: dark, light, or follow Windows
@@ -183,7 +183,7 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **Light on disk**: previews (about 1 GB in total) and map screenshots are downloaded only when you look at them
 
 <!-- SCREENSHOT (optional): light theme -->
-![Light theme](./screenshots/v2/light-theme.png)
+![Light theme](./screenshots/10.png)
 
 ---
 
