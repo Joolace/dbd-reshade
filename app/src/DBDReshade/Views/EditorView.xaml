@@ -22,7 +22,10 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
+    <!-- Fit or scroll: the page fills the window, but below MinHeight it scrolls instead of cutting off the cards -->
+    <ScrollViewer x:Name="PageScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  Focusable="False">
+    <Grid MinHeight="620" Height="{Binding ViewportHeight, ElementName=PageScroller}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -40,10 +43,11 @@
 
         <!-- ================= Left: 1 name/base, 2 screenshots ================= -->
         <Grid Grid.Row="1">
+            <!-- Minimum heights keep each card's fields and buttons visible; below that the page scrolls -->
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*" MinHeight="270" />
                 <RowDefinition Height="16" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*" MinHeight="200" />
             </Grid.RowDefinitions>
 
             <!-- 1 -->
@@ -207,4 +211,5 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
+    </ScrollViewer>
 </UserControl>
