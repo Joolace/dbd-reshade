@@ -95,7 +95,7 @@ To switch preset, select another one and click **Install preset** again. Every p
 works from ReShade's own menu in game.
 
 <!-- SCREENSHOT: the confirmation dialog after installing ("Preset installed! … Launch Dead by Daylight now?") -->
-![Preset installed](./screenshots/2.png)
+![Preset installed](./screenshots/7.png)
 
 ---
 
