@@ -28,7 +28,7 @@ Pick a preset, try it on real map screenshots without opening the game, install 
 
 ## Contents
 
-- [What's new in 2.0](#whats-new-in-20)
+- [What's new in 2.0.0](#whats-new-in-20)
 - [Download and install](#download-and-install)
 - [Quick start](#quick-start)
 - [Features](#features)
@@ -95,7 +95,7 @@ To switch preset, select another one and click **Install preset** again. Every p
 works from ReShade's own menu in game.
 
 <!-- SCREENSHOT: the confirmation dialog after installing ("Preset installed! … Launch Dead by Daylight now?") -->
-![Preset installed](./screenshots/v2/installed.png)
+![Preset installed](./screenshots/2.png)
 
 ---
 
