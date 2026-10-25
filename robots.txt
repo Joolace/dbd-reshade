@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://joolace.github.io/dbd-reshade/sitemap.xml

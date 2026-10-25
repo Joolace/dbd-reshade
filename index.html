@@ -1,564 +1,753 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReShade Installer for Dead by Daylight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script>
-        window.addEventListener("load", function() {
-            let preloader = document.getElementById("preloader");
-            preloader.classList.add("hidden");
-            setTimeout(() => {
-                preloader.style.display = "none";
-            }, 500); 
-        });
+    <!-- ============ SEO ============ -->
+    <title>DBD Reshade – Free ReShade Presets for Dead by Daylight</title>
+    <meta name="description" content="Install the best ReShade presets for Dead by Daylight in one click. 139+ presets, preview them on real maps without opening the game, create your own. Free for Windows.">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="author" content="Joolace">
+    <link rel="canonical" href="https://joolace.github.io/dbd-reshade/">
+    <meta name="theme-color" content="#10161a">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="./favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="./dbdreshade_logo.png">
+
+    <!-- Open Graph / social previews -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DBD Reshade">
+    <meta property="og:title" content="DBD Reshade – Free ReShade Presets for Dead by Daylight">
+    <meta property="og:description" content="139+ ReShade presets for Dead by Daylight, installed in one click. Try them on real maps first, or make your own.">
+    <meta property="og:url" content="https://joolace.github.io/dbd-reshade/">
+    <meta property="og:image" content="https://joolace.github.io/dbd-reshade/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Dead by Daylight with the KnightLight Stream ReShade preset">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DBD Reshade – Free ReShade Presets for Dead by Daylight">
+    <meta name="twitter:description" content="139+ ReShade presets for Dead by Daylight, installed in one click.">
+    <meta name="twitter:image" content="https://joolace.github.io/dbd-reshade/assets/og-image.jpg">
+
+    <!-- Structured data: the app, the FAQ and the site (rich results in Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://joolace.github.io/dbd-reshade/#app",
+          "name": "DBD Reshade",
+          "description": "ReShade installer and preset manager for Dead by Daylight: one-click install, 139+ presets, preview on real map screenshots, preset editor.",
+          "applicationCategory": "UtilitiesApplication",
+          "applicationSubCategory": "Game mod tool",
+          "operatingSystem": "Windows 10, Windows 11",
+          "softwareVersion": "2.0.0",
+          "softwareRequirements": "Windows 10 or 11 (64-bit), Dead by Daylight on Steam, Epic Games or the Xbox app",
+          "downloadUrl": "https://github.com/Joolace/dbd-reshade/releases/latest",
+          "installUrl": "https://github.com/Joolace/dbd-reshade/releases/latest",
+          "url": "https://joolace.github.io/dbd-reshade/",
+          "image": "https://joolace.github.io/dbd-reshade/assets/og-image.jpg",
+          "screenshot": "https://joolace.github.io/dbd-reshade/assets/presets/knightlight-stream.webp",
+          "inLanguage": ["en", "it", "es", "fr", "de", "pt", "ru", "zh", "ja", "ko"],
+          "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+          "isAccessibleForFree": true,
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+          "author": { "@type": "Person", "name": "Joolace", "url": "https://github.com/Joolace" },
+          "sameAs": ["https://github.com/Joolace/dbd-reshade"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://joolace.github.io/dbd-reshade/#website",
+          "url": "https://joolace.github.io/dbd-reshade/",
+          "name": "DBD Reshade",
+          "publisher": { "@type": "Person", "name": "Joolace" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Is DBD Reshade free?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. DBD Reshade is free and open source (GPL-3.0). ReShade and the presets are free too." } },
+            { "@type": "Question", "name": "Does it work with the Steam, Epic and Xbox versions of Dead by Daylight?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. It finds Dead by Daylight on Steam, Epic Games and the Xbox app / PC Game Pass automatically, or you can pick the game folder by hand." } },
+            { "@type": "Question", "name": "Can I see a preset before installing it?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. Try on maps shows any preset with the real ReShade on screenshots of every realm, without starting the game. You can also use your own screenshots." } },
+            { "@type": "Question", "name": "Can I get banned for using ReShade in Dead by Daylight?",
+              "acceptedAnswer": { "@type": "Answer", "text": "ReShade is widely used by Dead by Daylight players and streamers, but there is no guarantee. Use it at your own risk." } },
+            { "@type": "Question", "name": "Why does Windows SmartScreen warn about the app?",
+              "acceptedAnswer": { "@type": "Answer", "text": "SmartScreen warns about apps that few people have downloaded yet. Download it only from the official GitHub releases page, then choose More info and Run anyway." } }
+          ]
+        }
+      ]
+    }
     </script>
 
+    <!-- ============ Analytics, ads and cookie consent (unchanged from the previous site) ============ -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2663593414064181" crossorigin="anonymous"></script>
-
-    <!-- Cookie Script -->
     <script type="text/javascript" charset="UTF-8" src="//cdn.cookie-script.com/s/fd3c2521d51143bba00b59efdcbe5fc0.js"></script>
-
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
+            w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
             j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
             f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', 'GTM-WV6FRF33');
     </script>
-    <!-- End Google Tag Manager -->
-
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BMHYGH19CZ"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'G-BMHYGH19CZ');
     </script>
 
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="ReShade Installer for Dead by Daylight simplifies the installation and configuration of ReShade for the game, offering features like automatic detection, preset management, and a user-friendly GUI.">
-    <meta name="keywords" content="ReShade, Dead by Daylight, Installer, Game Modding, Preset Management, GUI, PowerShell Script, Automatic Detection">
-    <meta name="author" content="Joolace">
+    <!-- ============ Fonts: Barlow Condensed (headlines, like the game's UI) + Montserrat (the app's font) ============ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Open Graph Meta Tags for Social Media -->
-    <meta property="og:title" content="ReShade Installer for Dead by Daylight">
-    <meta property="og:description" content="Simplify ReShade installation and configuration for Dead by Daylight with automatic detection, preset management, and a user-friendly GUI.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/Joolace/dbd-reshade/main/dbdreshade_logo.png">
-    <meta property="og:url" content="https://joolace.github.io/dbd-reshade/">
-    <meta property="og:type" content="website">
-
-    <!-- Favicon -->
-    <link rel="icon" href="https://raw.githubusercontent.com/Joolace/dbd-reshade/main/favicon.ico" type="image/x-icon">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
-    <!-- GLightbox CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
+    <!-- The first preset preview is the largest element above the fold: fetch it early -->
+    <link rel="preload" as="image" href="./assets/presets/knightlight-stream.webp"
+          imagesrcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
+          imagesizes="(min-width: 980px) 62vw, 100vw">
 
     <style>
+        :root {
+            /* The fog of the Entity's realms, bone-white hooks, and the app's own red */
+            --night: #10161a;
+            --surface: #162027;
+            --line: #26343c;
+            --fog: #93a39f;
+            --bone: #ece6d6;
+            --red: #d42a3c;
+            --red-hover: #e53d4f;
+            --ember: #e8a33d;
+
+            --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+            --body: "Montserrat", "Segoe UI", system-ui, sans-serif;
+
+            --wrap: 1180px;
+            --gutter: clamp(16px, 4vw, 40px);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
         body {
-            font-family: 'Open Sans', sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: #fff;
-        }
-        
-        header {
-            background: transparent;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        header img {
-            width: 150px;
-            margin-bottom: 10px;
-        }
-        
-        header h1 {
-            margin: 0;
-            font-size: 3em;
-            font-weight: bold;
-        }
-        
-        main {
-            padding: 20px;
-            max-width: 900px;
-            margin: 20px auto;
-            background: #11111170;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-        
-        h2,
-        h3 {
-            color: #fff;
-        }
-        
-        a {
-            color: #1e90ff;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            text-decoration: underline;
-        }
-        
-        pre {
-            background: #222;
-            color: #fff;
-            padding: 10px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px 0;
-            background: #1e90ff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        
-        .button:hover {
-            background: #0a74da;
-        }
-        
-        .credits a {
-            display: block;
-            margin: 5px 0;
+            background: var(--night);
+            color: var(--bone);
+            font: 400 16px/1.65 var(--body);
+            -webkit-font-smoothing: antialiased;
         }
 
-        ::selection{
-            background-color: white;
-            color: black;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px 10px;
-            background: transparent;
-            color: #fff;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-content: center;
-            align-items: center;
-            justify-content: center;
-        }
+        img { max-width: 100%; height: auto; display: block; }
+        a { color: var(--bone); text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--bone) 40%, transparent); }
+        a:hover { text-decoration-color: var(--red); }
+        :focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 4px; }
 
-        footer p{
-            font-size: 0.8rem;
-            max-width: 900px;
-        }
-        
-        .social-icons {
-            margin-top: 10px;
-        }
-        
-        .social-icons a {
-            color: #fff;
-            font-size: 1.5em;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-        
-        .social-icons a:hover {
-            color: #1e90ff;
-        }
-        
-        .disclaimer {
-            background: #11111170;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border: 1px solid #444;
-        }
-        
-        .disclaimer p {
-            margin: 0;
-            font-size: 0.9em;
-        }
-        
-        .discord-section {
-            background: #11111170;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border: 1px solid #444;
-        }
-        
-        .discord-section h2 {
-            margin-top: 0;
-        }
-        
-        .discord-section a.button {
-            background: #7289da;
-            color: #fff;
-        }
-        
-        .discord-section a.button:hover {
-            background: #5a6eaa;
-        }
-        
-        #submit-preset {
-            background: #11111170;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border: 1px solid #444;
-            text-align: left;
-        }
+        .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 
-        #presetForm {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 100%;
-            margin: 0 auto;
+        .skip {
+            position: absolute; left: -9999px; top: 8px; z-index: 10;
+            background: var(--bone); color: var(--night); padding: 8px 14px; border-radius: 6px;
         }
+        .skip:focus { left: 8px; }
 
-        #presetForm textarea {
-            width: 100%;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background: #111;
-            color: white;
+        h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; margin: 0; letter-spacing: 0.005em; }
+        h2 { font-size: clamp(2.2rem, 4.5vw, 3.2rem); margin-bottom: 0.4em; }
+        h3 { font-size: 1.6rem; margin-bottom: 0.3em; }
+        p { margin: 0 0 1em; }
+        .lead { font-size: 1.1rem; color: var(--fog); max-width: 60ch; }
+        .muted { color: var(--fog); }
+
+        /* ---------- Buttons ---------- */
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 13px 22px; border-radius: 8px;
+            font: 600 0.98rem/1 var(--body); text-decoration: none; cursor: pointer;
+            border: 1px solid var(--line); background: var(--surface); color: var(--bone);
+            transition: background-color .15s, border-color .15s;
         }
-        #presetForm button {
-            background: #1e90ff;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-family: 'Open Sans', sans-serif;
-            text-transform: uppercase;
+        .btn:hover { border-color: var(--fog); }
+        .btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
+        .btn-primary:hover { background: var(--red-hover); border-color: var(--red-hover); }
+        .btn svg { width: 18px; height: 18px; flex: none; }
+
+        /* ---------- Header ---------- */
+        .site-header { border-bottom: 1px solid var(--line); }
+        .site-header .wrap { display: flex; align-items: center; gap: 28px; min-height: 68px; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.5rem/1 var(--display); }
+        .brand img { width: 34px; height: 34px; }
+        .nav { display: flex; gap: 24px; margin-left: auto; }
+        .nav a { text-decoration: none; color: var(--fog); font-weight: 500; font-size: 0.95rem; }
+        .nav a:hover { color: var(--bone); }
+        .site-header .btn { padding: 10px 16px; }
+        @media (max-width: 760px) { .nav { display: none; } .site-header .btn { margin-left: auto; } }
+
+        /* ---------- Hero ---------- */
+        .hero { padding: clamp(32px, 5vw, 64px) 0 clamp(48px, 7vw, 88px); }
+        .hero h1 {
+            font-size: clamp(2.8rem, 6.2vw, 5.4rem);
             font-weight: 700;
+            line-height: 0.95;
+            max-width: 16ch;
+            margin: 0;
+            text-wrap: balance;
         }
-        
-        #presetForm button:hover {
-            background: #0a74da;
-        }
+        .hero-top { display: grid; gap: 24px 48px; grid-template-columns: 1fr; align-items: end; }
+        @media (min-width: 980px) { .hero-top { grid-template-columns: 1.1fr 1fr; } }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 14px; }
+        .hero-note { font-size: 0.88rem; color: var(--fog); margin: 0; }
 
-        #preloader {
-             position: fixed;
-             width: 100%;
-             height: 100%;
-             background: #000;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             z-index: 9999;
-             transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        /* The preset reel: the page's one bold element. Pick a preset, see what the game looks like. */
+        .reel {
+            margin-top: clamp(32px, 5vw, 56px);
+            display: grid; gap: 0;
+            grid-template-columns: minmax(0, 1fr); /* minmax: the scrolling preset list must not widen the page */
+            border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+            background: var(--surface);
         }
-
-        #preloader.hidden {
-            opacity: 0;
-            visibility: hidden;
+        @media (min-width: 980px) { .reel { grid-template-columns: minmax(0, 1fr) 300px; } }
+        .reel-stage { position: relative; aspect-ratio: 16 / 9; background: #0c1114; margin: 0; }
+        .reel-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .25s ease; }
+        /* Wide screens: the picture fills the whole height of the preset list beside it */
+        @media (min-width: 980px) { .reel-stage { aspect-ratio: auto; min-height: 420px; align-self: stretch; } }
+        .reel-stage img.loading { opacity: 0.35; }
+        @media (prefers-reduced-motion: reduce) { .reel-stage img { transition: none; } }
+        .reel-caption {
+            position: absolute; left: 0; right: 0; bottom: 0;
+            padding: 48px 22px 18px;
+            background: linear-gradient(transparent, rgba(8, 12, 14, 0.88));
         }
-            
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Small screens: the caption goes under the picture so the picture stays visible */
+        @media (max-width: 979px) {
+            .reel-stage { aspect-ratio: auto; }
+            .reel-stage img { position: static; aspect-ratio: 16 / 9; height: auto; }
+            .reel-caption { position: static; background: none; padding: 14px 16px 2px; }
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        @media screen and (max-width: 767px) {
-            header h1 {
-                font-size: 2em;
-            }
-        }
-        
-        .screenshots-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .screenshots-gallery a {
-            display: inline-block;
-            border: 1px solid #333;
-            border-radius: 5px;
-            overflow: hidden;
-            transition: transform 0.2s ease-in-out;
-        }
-        
-        .screenshots-gallery a:hover {
-            transform: scale(1.05);
-        }
-        
-        .screenshots-gallery img {
-            display: block;
-            width: 150px;
-            height: auto;
-        }
-        
-        .video-container {
+        .reel-caption strong { display: block; font: 600 1.7rem/1.1 var(--display); }
+        .reel-caption p { margin: 4px 0 0; font-size: 0.9rem; color: #c9cfc9; max-width: 70ch; }
+        .reel-list { list-style: none; margin: 0; padding: 10px; border-top: 1px solid var(--line); display: flex; gap: 6px; overflow-x: auto; }
+        @media (min-width: 980px) { .reel-list { flex-direction: column; border-top: 0; border-left: 1px solid var(--line); overflow: visible; } }
+        .reel-list button {
+            width: 100%; text-align: left; white-space: nowrap;
+            padding: 8px 14px 8px 16px; border-radius: 8px; border: 0;
+            background: transparent; color: var(--fog); cursor: pointer;
+            font: 500 0.93rem/1.3 var(--body);
             position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
         }
-        
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .reel-list button span { display: block; font-size: 0.78rem; color: #6f7f7b; }
+        .reel-list button:hover { background: #1c2830; color: var(--bone); }
+        .reel-list button[aria-pressed="true"] { background: #1f2c34; color: var(--bone); }
+        .reel-list button[aria-pressed="true"]::before {
+            content: ""; position: absolute; left: 5px; top: 9px; bottom: 9px; width: 3px; border-radius: 2px; background: var(--red);
         }
+        .reel-more { padding: 6px 16px 12px; font-size: 0.85rem; color: var(--fog); margin: 0; }
+        @media (max-width: 979px) { .reel-more { display: none; } }
+
+        /* ---------- Sections ---------- */
+        section { padding: clamp(56px, 8vw, 104px) 0; border-top: 1px solid var(--line); }
+        .section-intro { max-width: 62ch; margin-bottom: clamp(28px, 4vw, 48px); }
+
+        /* How it works: a real sequence, so it's numbered */
+        .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); counter-reset: step; }
+        .steps li { counter-increment: step; padding-top: 18px; border-top: 2px solid var(--line); }
+        .steps li::before { content: counter(step); display: block; font: 700 3.2rem/1 var(--display); color: var(--red); margin-bottom: 10px; }
+        .steps h3 { font-size: 1.45rem; }
+        .steps p { color: var(--fog); margin: 0; }
+
+        /* Features: one row per main feature, screenshot beside the text */
+        .feature { display: grid; gap: 24px 56px; align-items: center; grid-template-columns: 1fr; padding: 28px 0; }
+        @media (min-width: 900px) {
+            .feature { grid-template-columns: 1fr 1.25fr; }
+            .feature:nth-of-type(even) .feature-text { order: 2; }
+        }
+        .feature-text ul { margin: 0; padding-left: 1.1em; color: var(--fog); }
+        .feature-text li { margin-bottom: 6px; }
+        .feature-text li::marker { color: var(--red); }
+        .shot { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+        .shot img { width: 100%; }
+
+        .extras { display: grid; gap: 22px 40px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 44px; }
+        .extras h3 { font-size: 1.35rem; }
+        .extras p { color: var(--fog); margin: 0; font-size: 0.95rem; }
+
+        /* Stores table */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.97rem; }
+        th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+        th { font-weight: 600; color: var(--fog); }
+        td code, p code { font-size: 0.86em; background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+
+        /* Download */
+        .download-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 8px 0 26px; }
+        .download-option { border: 1px solid var(--line); border-radius: 12px; padding: 24px; background: var(--surface); }
+        .download-option.recommended { border-color: var(--red); }
+        .download-option h3 { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+        .tag { font: 600 0.78rem/1 var(--body); color: var(--bone); background: var(--red); padding: 5px 8px; border-radius: 4px; }
+        .download-option p { color: var(--fog); }
+        .callout { border-left: 3px solid var(--ember); padding: 4px 0 4px 18px; color: var(--fog); max-width: 75ch; }
+
+        /* FAQ */
+        details { border-bottom: 1px solid var(--line); padding: 4px 0; max-width: 80ch; }
+        summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: "+"; font: 600 1.4rem/1 var(--display); color: var(--fog); }
+        details[open] summary::after { content: "−"; }
+        details p { color: var(--fog); }
+
+        /* Submit form */
+        form { display: grid; gap: 16px; max-width: 640px; }
+        label { font-weight: 600; font-size: 0.95rem; }
+        .hint { display: block; font-weight: 400; color: var(--fog); font-size: 0.85rem; }
+        input[type="text"], input[type="url"], textarea {
+            width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 8px;
+            border: 1px solid var(--line); background: #0d1316; color: var(--bone); font: inherit;
+        }
+        textarea { min-height: 96px; resize: vertical; }
+        .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--fog); }
+        .check input { margin-top: 5px; accent-color: var(--red); }
+        #responseMessage { color: #8fd19e; }
+
+        /* Credits */
+        .credits { columns: 2 220px; column-gap: 40px; padding: 0; list-style: none; }
+        .credits li { break-inside: avoid; padding: 6px 0; }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--line); padding: 48px 0 56px; color: var(--fog); font-size: 0.88rem; }
+        .footer-top { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+        .social { display: flex; gap: 6px; }
+        .social a { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; color: var(--fog); }
+        .social a:hover { background: var(--surface); color: var(--bone); }
+        .social svg { width: 22px; height: 22px; fill: currentColor; }
+        footer p { max-width: 90ch; }
     </style>
 </head>
 
 <body>
-    <div id="preloader">
-        <div class="spinner"></div>
-    </div>
-    
-    <video id="background-video" autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
-        <source src="./media/video-background.webm" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WV6FRF33"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WV6FRF33" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <header>
-        <img src="https://raw.githubusercontent.com/Joolace/dbd-reshade/main/dbdreshade_logo.png" alt="ReShade Logo">
-        <h1>ReShade Installer for Dead by Daylight</h1>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+        <div class="wrap">
+            <a class="brand" href="./" aria-label="DBD Reshade home">
+                <img src="./dbdreshade_logo.png" alt="" width="34" height="34">
+                DBD Reshade
+            </a>
+            <nav class="nav" aria-label="Main">
+                <a href="#how-it-works">How it works</a>
+                <a href="#features">Features</a>
+                <a href="#faq">FAQ</a>
+                <a href="#submit">Submit a preset</a>
+            </nav>
+            <a class="btn btn-primary" href="#download">Download</a>
+        </div>
     </header>
 
-    <main>
-        <section>
-            <h2>Overview</h2>
-            <a href="https://www.codefactor.io/repository/github/joolace/dbd-reshade"><img src="https://www.codefactor.io/repository/github/joolace/dbd-reshade/badge" alt="CodeFactor" /></a>
-            <a href="https://app.codacy.com/gh/Joolace/dbd-reshade/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img src="https://app.codacy.com/project/badge/Grade/948e6cfe64064b90abc7ccca25817af3" /></a>
-            <a href="https://github.com/Joolace/dbd-reshade/issues?q=is%3Aissue+is%3Aopen+label%3Abug"><img src="https://img.shields.io/github/issues/Joolace/dbd-reshade/bug?label=bugs" alt="GitHub issues by-label bug"></a>
-            <a href="https://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"></a>
-            <p>The <strong>ReShade Installer for Dead by Daylight</strong> is a PowerShell script designed to simplify the installation and configuration of ReShade for the game <em>Dead by Daylight</em>. This tool automates the process of downloading and
-                installing ReShade, setting up the preset files, and configuring the necessary settings.</p>
-        </section>
+    <main id="main">
+        <!-- ============ Hero ============ -->
+        <div class="hero">
+            <div class="wrap">
+                <div class="hero-top">
+                    <h1>ReShade presets for Dead by Daylight, in one click</h1>
+                    <div>
+                        <p class="lead">Pick from 139+ presets made by streamers and players, see them on real maps without opening the game, and install them with ReShade in a single click. Free for Windows.</p>
+                        <div class="hero-actions">
+                            <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zM11.5 4.4 21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.4z"/></svg>
+                                Download for Windows
+                            </a>
+                            <a class="btn" href="https://github.com/Joolace/dbd-reshade">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.4-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>
+                                Source code
+                            </a>
+                        </div>
+                        <p class="hero-note">Version 2.0. Windows 10 and 11. Steam, Epic Games and Xbox app.</p>
+                    </div>
+                </div>
 
-        <section>
-            <h2>Screenshots</h2>
-            <div class="screenshots-gallery">
-                <a href="./screenshots/bootscreen.png" class="glightbox" data-gallery="dbd-gallery" data-title="DBD Boot Screen">
-                    <img src="./screenshots/bootscreen.png" alt="DBD Boot Screen" width="150">
-                </a>
-                <a href="./screenshots/dbdreshade.png" class="glightbox" data-gallery="dbd-gallery" data-title="DBD Main Menu">
-                    <img src="./screenshots/dbdreshade.png" alt="DBD Main Menu" width="150">
-                </a>
-                <a href="./screenshots/dbdreshadepresetmanager.png" class="glightbox" data-gallery="dbd-gallery" data-title="DBD Presets Manager">
-                    <img src="./screenshots/dbdreshadepresetmanager.png" alt="DBD Presets Manager" width="150">
-                </a>
-                <a href="./screenshots/dbdcopypresets.png" class="glightbox" data-gallery="dbd-gallery" data-title="DBD Copy All Presets">
-                    <img src="./screenshots/dbdcopypresets.png" alt="DBD Copy All Presets" width="150">
-                </a>
+                <!-- Preset reel: real preset previews, the same ones the app shows -->
+                <div class="reel" role="region" aria-label="Preset previews">
+                    <figure class="reel-stage">
+                        <img id="reel-image"
+                             src="./assets/presets/knightlight-stream.webp"
+                             srcset="./assets/presets/knightlight-stream-800.webp 800w, ./assets/presets/knightlight-stream.webp 1600w"
+                             sizes="(min-width: 980px) 62vw, 100vw"
+                             width="1600" height="900"
+                             alt="Dead by Daylight with the KnightLight Stream ReShade preset"
+                             fetchpriority="high">
+                        <figcaption class="reel-caption" aria-live="polite">
+                            <strong id="reel-name">KnightLight Stream</strong>
+                            <p id="reel-desc">KnightLight's latest preset, the one used on stream. Works on all maps.</p>
+                        </figcaption>
+                    </figure>
+                    <div>
+                        <ul class="reel-list" id="reel-list">
+                            <li><button type="button" aria-pressed="true" data-img="knightlight-stream" data-alt="KnightLight Stream"
+                                    data-desc="KnightLight's latest preset, the one used on stream. Works on all maps.">KnightLight Stream<span>KnightLight</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="stx-universal" data-alt="STX Universal"
+                                    data-desc="A Twitch-friendly preset for every map, balancing visibility and style.">STX Universal<span>STX</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="april-yamaoka" data-alt="April, Yamaoka Estate"
+                                    data-desc="Sharper detail and lighting on Yamaoka Estate, without extra filters.">April, Yamaoka Estate<span>April</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="koda-eyrie-of-crows" data-alt="Koda, Eyrie of Crows"
+                                    data-desc="Better colour balance and sharpness on Eyrie of Crows.">Koda, Eyrie of Crows<span>Koda</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="momoseventh-haddonfield" data-alt="MomoSeventh, Haddonfield"
+                                    data-desc="Clearer lighting and map detail on Haddonfield.">MomoSeventh, Haddonfield<span>MomoSeventh</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="trolling-prophet-red-forest" data-alt="Trolling Prophet, Red Forest"
+                                    data-desc="Richer colours and sharper details in the Red Forest.">Trolling Prophet, Red Forest<span>Trolling Prophet</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="hens-dark-maps" data-alt="Hens, Dark Maps"
+                                    data-desc="Brings out the details on the darkest maps.">Hens, Dark Maps<span>Hens</span></button></li>
+                            <li><button type="button" aria-pressed="false" data-img="faelayis" data-alt="Faelayis"
+                                    data-desc="Balanced colour, sharpness and visibility for players and streamers.">Faelayis<span>Faelayis</span></button></li>
+                        </ul>
+                        <p class="reel-more">And 130 more in the app.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ How it works ============ -->
+        <section id="how-it-works" aria-labelledby="how-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="how-title">How it works</h2>
+                    <p class="lead">No ReShade setup, no copying files into the game folder by hand.</p>
+                </div>
+                <ol class="steps">
+                    <li>
+                        <h3>Download and open</h3>
+                        <p>The app finds Dead by Daylight on Steam, Epic Games or the Xbox app by itself.</p>
+                    </li>
+                    <li>
+                        <h3>Pick a preset</h3>
+                        <p>Search the list, look at the preview, and open the creator's page if you want to know more.</p>
+                    </li>
+                    <li>
+                        <h3>Try it on the maps</h3>
+                        <p>See the preset with the real ReShade on every realm, before touching your game.</p>
+                    </li>
+                    <li>
+                        <h3>Install and play</h3>
+                        <p>One click installs ReShade, the effects and the preset. Press Home in game to open ReShade.</p>
+                    </li>
+                </ol>
             </div>
         </section>
 
-        <section>
-            <h2>Features</h2>
-            <ul>
-                <li><strong>Automatic Detection</strong>: Finds the Dead by Daylight installation directory from both Steam and Epic Games.</li>
-                <li><strong>ReShade Installation</strong>: Downloads and installs ReShade if not already present.</li>
-                <li><strong>Preset Management</strong>: Allows users to select and apply ReShade presets.</li>
-                <li><strong>GUI Interface</strong>: Provides a user-friendly graphical interface for managing presets and installation.</li>
-                <li><strong>Copy All Presets</strong>: Copy the presets you prefer, you can copy all presets or copy the ones you want.</li>
-            </ul>
-        </section>
+        <!-- ============ Features ============ -->
+        <section id="features" aria-labelledby="features-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="features-title">Everything you need for ReShade in Dead by Daylight</h2>
+                    <p class="lead">One app to install, preview, create and manage your presets.</p>
+                </div>
 
-        <section>
-            <h2>Requirements</h2>
-            <ul>
-                <li><strong>PowerShell</strong>: This script is designed to run on PowerShell (Windows only).</li>
-                <li><strong>.NET Framework</strong>: Required for Windows Forms.</li>
-                <li><strong>Dead by Daylight</strong>: The game must be installed either via Steam or Epic Games.</li>
-            </ul>
-        </section>
+                <article class="feature">
+                    <div class="feature-text">
+                        <h3>One-click install</h3>
+                        <ul>
+                            <li>Installs the latest ReShade, and offers to update it when a new version is out</li>
+                            <li>Downloads the effects your presets need from ReShade's official packages</li>
+                            <li>Won't install while the game is running, and won't overwrite another mod's files</li>
+                            <li>Launch game button opens Steam, Epic or Xbox and starts Dead by Daylight</li>
+                        </ul>
+                    </div>
+                    <figure class="shot" style="margin:0;">
+                        <!-- Screenshot: the Install Preset page -->
+                        <img src="./screenshots/v2/install-preset.png" alt="DBD Reshade Install Preset page with a preset selected" width="1180" height="780" loading="lazy" onerror="this.closest('figure').remove()">
+                    </figure>
+                </article>
 
-        <section>
-            <h2>Installation</h2>
-            <ol>
-                <li><strong>Clone the Repository</strong>:
-                    <pre><code>git clone https://github.com/Joolace/dbd-reshade.git</code></pre>
-                </li>
-                <li><strong>Navigate to the Script Directory</strong>:
-                    <pre><code>cd dbd-reshade</code></pre>
-                </li>
-                <li><strong>Run the Script</strong>: Open PowerShell as Administrator and execute the script:
-                    <pre><code>.\dbdreshade.ps1</code></pre>
-                </li>
-            </ol>
-        </section>
+                <article class="feature">
+                    <div class="feature-text">
+                        <h3>Try on maps</h3>
+                        <ul>
+                            <li>See any preset on real screenshots of every realm, with the real ReShade</li>
+                            <li>No need to start the game or queue for a match</li>
+                            <li>Add your own screenshots to test on your favourite spots</li>
+                            <li>Press F1 for all the keys</li>
+                        </ul>
+                    </div>
+                    <figure class="shot" style="margin:0;">
+                        <!-- Screenshot: the map preview window -->
+                        <img src="./screenshots/v2/map-preview.png" alt="A ReShade preset previewed on a Dead by Daylight map screenshot" width="1600" height="900" loading="lazy" onerror="this.closest('figure').remove()">
+                    </figure>
+                </article>
 
-        <section>
-            <h2>Usage</h2>
-            <ol>
-                <li><strong>Launch the GUI</strong>: When you run the script, a GUI window will appear.</li>
-                <li><strong>Select a Preset</strong>: Choose a preset from the list in the GUI.</li>
-                <li><strong>Select Installation Folder</strong>: Click on the "Select Folder" button to choose the destination folder for the preset.</li>
-                <li><strong>Install or Change Preset</strong>: Click on the "Install or Change Preset" button to apply the selected preset.</li>
-                <li><strong>Log Output</strong>: The GUI includes a log box to display real-time log information during installation.</li>
-            </ol>
-        </section>
+                <article class="feature">
+                    <div class="feature-text">
+                        <h3>Preset Editor</h3>
+                        <ul>
+                            <li>Create your own preset with the full ReShade menu, live on map screenshots</li>
+                            <li>Start from scratch or from any preset in the library</li>
+                            <li>Take a screenshot to use as its preview, then save it to your library</li>
+                        </ul>
+                    </div>
+                    <figure class="shot" style="margin:0;">
+                        <!-- Screenshot: the Preset Editor page -->
+                        <img src="./screenshots/v2/editor.png" alt="DBD Reshade Preset Editor" width="1180" height="780" loading="lazy" onerror="this.closest('figure').remove()">
+                    </figure>
+                </article>
 
-        <section>
-            <h2>Video Tutorial</h2>
-            <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/OUUZ9shTAnk?si=epbiKzab2waks3n1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"
-                    allowfullscreen>
-                </iframe>
+                <div class="extras">
+                    <div>
+                        <h3>Always up to date</h3>
+                        <p>New presets arrive automatically, and the app updates itself with one click.</p>
+                    </div>
+                    <div>
+                        <h3>Your own presets</h3>
+                        <p>Add any <code>.ini</code> with a description, a source link and a screenshot. Copy presets to any folder.</p>
+                    </div>
+                    <div>
+                        <h3>10 languages</h3>
+                        <p>English, Italiano, Español, Français, Deutsch, Português, Русский, 简体中文, 日本語 and 한국어.</p>
+                    </div>
+                    <div>
+                        <h3>Light on your disk</h3>
+                        <p>Previews and map screenshots download only when you look at them, and can be cleared any time.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section>
-            <h2>Troubleshooting</h2>
-            <ul>
-                <li><strong>Error Retrieving ReShade URL</strong>: Ensure you have an active internet connection and the URL to ReShade is accessible.</li>
-                <li><strong>ReShade Installation Failure</strong>: Make sure you have sufficient permissions and the game directory is correctly identified.</li>
-                <li><strong>Missing Presets or Media</strong>: Verify that the <code>presets</code> and <code>media</code> directories are present in the same location as the script.</li>
-            </ul>
+        <!-- ============ Supported versions ============ -->
+        <section id="supported" aria-labelledby="supported-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="supported-title">Works with every PC version of the game</h2>
+                    <p class="lead">Found automatically, or pick the game folder yourself.</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th scope="col">Store</th><th scope="col">Where ReShade is installed</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Steam</td><td><code>DeadByDaylight\Binaries\Win64</code></td></tr>
+                            <tr><td>Epic Games</td><td><code>DeadByDaylight\Binaries\EGS</code></td></tr>
+                            <tr><td>Xbox app and PC Game Pass</td><td><code>Content</code>, next to <code>gamelaunchhelper.exe</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
-        <section>
-            <h2>Download</h2>
-            <p>To get started with the ReShade Installer for Dead by Daylight, download the latest version from the link below:</p>
-            <a href="https://github.com/Joolace/dbd-reshade/releases" class="button" download>Download</a>
-            <p>This executable has been verified on <a href="https://www.virustotal.com/gui/file/95ad54f71a4a52a4f89db43735c300e2f9b5880a04cc35883e3217fa181f9b61?nocache=1" target="_blank" rel="noopener">VirusTotal</a>. If your antivirus detects it as a virus, it's
-                likely a false positive. The code is open-source and can be reviewed <a href="https://github.com/Joolace/dbd-reshade" target="_blank" rel="noopener">here</a>.</p>
+        <!-- ============ Download ============ -->
+        <section id="download" aria-labelledby="download-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="download-title">Download DBD Reshade</h2>
+                    <p class="lead">Free and open source. Windows 10 or 11, 64-bit. Nothing else to install.</p>
+                </div>
+                <div class="download-grid">
+                    <div class="download-option recommended">
+                        <h3>Installer <span class="tag">Recommended</span></h3>
+                        <p>Adds DBD Reshade to the Start menu, with an optional desktop icon and an uninstaller.</p>
+                        <a class="btn btn-primary" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade-Setup.exe">Download the installer</a>
+                    </div>
+                    <div class="download-option">
+                        <h3>Portable</h3>
+                        <p>A single file, nothing to install. Put it in any folder and run it.</p>
+                        <a class="btn" href="https://github.com/Joolace/dbd-reshade/releases/latest/download/DBDReshade.exe">Download the portable exe</a>
+                    </div>
+                </div>
+                <p class="callout">If Windows shows <em>Windows protected your PC</em>, choose <strong>More info</strong> and then <strong>Run anyway</strong>. SmartScreen warns about apps that few people have downloaded yet. Only download DBD Reshade from this site or the <a href="https://github.com/Joolace/dbd-reshade/releases">GitHub releases page</a>.</p>
+            </div>
         </section>
 
-        <section>
-            <h2>Credits</h2>
-            <p>A special thanks to the creators of the following presets for <em>Dead by Daylight</em>, which are included in this repository:</p>
-            <ul class="credits">
-                <li><strong>STX</strong>: <a href="https://github.com/steaxss/STEAXS-FILTER-PACK" target="_blank">steaxss</a></li>
-                <li><strong>April</strong>: <a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE" target="_blank">april</a></li>
-                <li><strong>Aroz</strong>: <a href="https://www.youtube.com/watch?v=4TArEDvT_ec&t=30s" target="_blank">Aroz</a></li>
-                <li><strong>Azef</strong>: <a href="https://www.youtube.com/watch?v=FUelIy0sGOk" target="_blank">azef</a></li>
-                <li><strong>Faelayis</strong>: <a href="https://github.com/Faelayis/dbd-reshade" target="_blank">Faelayis</a></li>
-                <li><strong>Henz</strong>: <a href="https://discord.com/invite/HxjbEKuvZY" target="_blank">Henz</a></li>
-                <li><strong>KnightLight</strong>: <a href="https://www.twitch.tv/knightlight" target="_blank">KnightLight</a></li>
-                <li><strong>Koda</strong>: <a href="https://discord.com/invite/bNvWEde5Vr" target="_blank">Koda</a></li>
-                <li><strong>MomoSeventh</strong>: <a href="https://www.twitch.tv/momoseventh/" target="_blank">MomoSeventh</a></li>
-                <li><strong>NUGGETZ</strong>: <a href="https://www.youtube.com/watch?v=Qs28LJTro70" target="_blank">NUGGETZ</a></li>
-            </ul>
-            <p>Please refer to the respective preset files in the <a href="https://github.com/Joolace/dbd-reshade/tree/main/Presets" target="_blank" rel="noopener">Presets directory</a> for detailed credits and information.</p>
+        <!-- ============ FAQ ============ -->
+        <section id="faq" aria-labelledby="faq-title">
+            <div class="wrap">
+                <h2 id="faq-title">Questions</h2>
+                <details>
+                    <summary>Is DBD Reshade free?</summary>
+                    <p>Yes. DBD Reshade is free and open source (GPL-3.0). ReShade and the presets are free too.</p>
+                </details>
+                <details>
+                    <summary>Does it work with the Steam, Epic and Xbox versions?</summary>
+                    <p>Yes. It finds Dead by Daylight on Steam, Epic Games and the Xbox app / PC Game Pass automatically, or you can pick the game folder by hand.</p>
+                </details>
+                <details>
+                    <summary>Can I see a preset before installing it?</summary>
+                    <p>Yes. Try on maps shows any preset with the real ReShade on screenshots of every realm, without starting the game. You can also use your own screenshots.</p>
+                </details>
+                <details>
+                    <summary>Can I get banned for using ReShade?</summary>
+                    <p>ReShade is widely used by Dead by Daylight players and streamers, but there is no guarantee. Use it at your own risk.</p>
+                </details>
+                <details>
+                    <summary>Why does Windows SmartScreen warn about the app?</summary>
+                    <p>SmartScreen warns about apps that few people have downloaded yet. Download it only from the official GitHub releases page, then choose More info and Run anyway.</p>
+                </details>
+                <details>
+                    <summary>The preset is installed but nothing changes in game</summary>
+                    <p>Close the game, click Install preset again and start the game. Press Home: if the ReShade menu opens, the preset is active. If not, use Report a bug in the app and send us the log on Discord.</p>
+                </details>
+                <details>
+                    <summary>How do I remove ReShade from the game?</summary>
+                    <p>Run the official installer from <a href="https://reshade.me">reshade.me</a>, select Dead by Daylight and choose Uninstall. Uninstalling DBD Reshade doesn't change the game.</p>
+                </details>
+            </div>
         </section>
 
-        <section>
-            <h2>Contributing</h2>
-            <p>Contributions are welcome! If you have any bug reports, feature requests, or improvements, please open an issue or submit a pull request.</p>
+        <!-- ============ Submit a preset ============ -->
+        <section id="submit" aria-labelledby="submit-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="submit-title">Submit your preset</h2>
+                    <p class="lead">Made a preset you're proud of? Send it in. Once added, it reaches every user automatically.</p>
+                </div>
+                <form id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST">
+                    <label for="username">Your username
+                        <input type="text" id="username" name="username" required autocomplete="nickname">
+                    </label>
+                    <label for="description">Preset description
+                        <textarea id="description" name="description" required></textarea>
+                    </label>
+                    <label for="screenshot">Preview screenshot link
+                        <span class="hint">Google Drive, Mega, Mediafire… at 2560×1440.</span>
+                        <input type="url" id="screenshot" name="screenshot" required placeholder="https://">
+                    </label>
+                    <label for="presetfile">Preset file (.ini) link
+                        <span class="hint">Google Drive, Mega, Mediafire…</span>
+                        <input type="url" id="presetfile" name="presetfile" required placeholder="https://">
+                    </label>
+                    <label class="check">
+                        <input type="checkbox" id="terms" required>
+                        <span>I have read and understood the <a href="./terms-conditions.html">terms and conditions</a>.</span>
+                    </label>
+                    <div><button type="submit" class="btn btn-primary">Send preset</button></div>
+                    <p id="responseMessage" role="status" hidden></p>
+                </form>
+            </div>
         </section>
 
-        <section>
-            <h2>License</h2>
-            <p>This project is licensed under the GNU General Public License (GPL) - see the <a href="LICENSE" target="_blank">LICENSE</a> file for details.</p>
-        </section>
-
-        <section class="disclaimer">
-            <h2>Disclaimer</h2>
-            <p>This software is provided "as-is" without warranty of any kind. The authors are not responsible for any damages, issues or bans that may arise from the use of this software. Use it at your own risk.</p>
-        </section>
-
-        <section class="discord-section">
-            <h2>Join Our Discord</h2>
-            <p>Join our Discord server to stay updated on the latest news, updates, and to get support from our community and the developers. Whether you have questions or just want to chat with fellow users, our Discord is the place to be!</p>
-            <a href="https://discord.gg/RB85R838K9" class="button" target="_blank">Join the Discord Server</a>
-        </section>
-
-        <section id="submit-preset">
-            <h2>Submit Your Preset</h2>
-            <form id="presetForm" action="https://formspree.io/f/mkgjgygz" method="POST" enctype="multipart/form-data">
-                <label for="username">Your username</label>
-                <textarea id="username" name="username" required></textarea>
-        
-                <label for="description">Preset description</label>
-                <textarea id="description" name="description" required></textarea>
-        
-                <label for="screenshot">Screenshot preset (Paste the link, Google Drive, Mega, Mediafire etc. 2560x1440 format.)</label>
-                <textarea id="screenshot" name="screenshot" required></textarea>
-        
-                <label for="presetFile">File .ini (Paste the link, Google Drive, Mega, Mediafire etc.)</label>
-                <textarea id="presetfile" name="presetfile" required></textarea>
-        
-                <label>
-                    <input type="checkbox" id="terms" required>
-                    By clicking here, I state that I have read and understood the <a href="./terms-conditions.html">terms and conditions</a>.
-                </label>
-        
-                <button type="submit" class="button">Submit</button>
-            </form>
-            <p id="responseMessage" style="display:none; color:lightgreen;"></p>
-        </section>
-
-        <section>
-            <h2>Contact</h2>
-            <ul>
-                <li><strong>Twitch</strong>: <a href="https://twitch.tv/joolace_" target="_blank">Joolace_</a></li>
-                <li><strong>GitHub</strong>: <a href="https://github.com/Joolace" target="_blank">Joolace</a></li>
-            </ul>
+        <!-- ============ Credits ============ -->
+        <section id="credits" aria-labelledby="credits-title">
+            <div class="wrap">
+                <div class="section-intro">
+                    <h2 id="credits-title">Made possible by</h2>
+                    <p class="lead">The presets come from these creators. Go show them some love.</p>
+                </div>
+                <ul class="credits">
+                    <li><a href="https://github.com/steaxss/STEAXS-FILTER-PACK">STX</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=2_YQ_rWiKFE">April</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=4TArEDvT_ec">Aroz</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=FUelIy0sGOk">Azef</a></li>
+                    <li><a href="https://github.com/Faelayis/dbd-reshade">Faelayis</a></li>
+                    <li><a href="https://discord.com/invite/HxjbEKuvZY">Henz</a></li>
+                    <li><a href="https://www.twitch.tv/knightlight">KnightLight</a></li>
+                    <li><a href="https://discord.com/invite/bNvWEde5Vr">Koda</a></li>
+                    <li><a href="https://www.twitch.tv/momoseventh/">MomoSeventh</a></li>
+                    <li><a href="https://discord.com/invite/bNvWEde5Vr">Trolling Prophets</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=Qs28LJTro70">NUGGETZ</a></li>
+                </ul>
+                <p class="muted">Built on <a href="https://reshade.me">ReShade</a> by crosire, with effects by CeeJay.dk (SweetFX), prod80, BlueSkyDefender, Lord of Lunacy, Fubaxiusz, SirCobra, Marty McFly and more.</p>
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>This program is not affiliated with, endorsed, sponsored, or approved in any way by Behaviour Interactive Inc. or the creators of Dead by Daylight. All trademarks, trade names, and related content of Dead by Daylight are the property of their respective owners. This program is created solely for educational purposes and to enhance user experience. By using this program, you acknowledge and agree to do so at your own risk. © 2025 Joolace. All rights reserved. </p>
-        <div class="social-icons">
-            <a href="https://discord.gg/RB85R838K9" target="_blank"><i class="fab fa-discord"></i></a>
-            <a href="https://www.instagram.com/joolace" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.twitch.tv/joolace_" target="_blank"><i class="fab fa-twitch"></i></a>
-            <a href="https://www.youtube.com/@Joolace" target="_blank"><i class="fab fa-youtube"></i></a>
-            <a href="https://github.com/Joolace" target="_blank"><i class="fab fa-github"></i></a>
+        <div class="wrap">
+            <div class="footer-top">
+                <a class="brand" href="./">
+                    <img src="./dbdreshade_logo.png" alt="" width="34" height="34" loading="lazy">
+                    DBD Reshade
+                </a>
+                <nav class="social" aria-label="Social links">
+                    <a href="https://discord.gg/mC7Eabu3QW" aria-label="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.4 18.4 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.4C.6 9 -.3 13.6.1 18.1a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.8 19.8 0 0 0 6-3c.5-5.2-.8-9.7-3.6-13.7zM8 15.4c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg></a>
+                    <a href="https://github.com/Joolace/dbd-reshade" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.2-3.1-.1-.4-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></a>
+                    <a href="https://www.twitch.tv/joolace_" aria-label="Twitch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.3 2 3 5.4v14h4.7V22h2.7l2.6-2.6h3.8L22 14.2V2zm16 11.4-3 3h-4.7l-2.6 2.6v-2.6H6V3.8h14.3zM17.4 7h-1.8v5.2h1.8zm-4.8 0h-1.8v5.2h1.8z"/></svg></a>
+                    <a href="https://www.youtube.com/@Joolace" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1 31.4 31.4 0 0 0 .5-5.8 31.4 31.4 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6z"/></svg></a>
+                    <a href="https://www.instagram.com/joolace" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+                </nav>
+            </div>
+            <p>DBD Reshade is a fan project, not affiliated with, endorsed, sponsored or approved by Behaviour Interactive Inc. Dead by Daylight and all related content are trademarks of their respective owners. Use it at your own risk: the author is not responsible for bans or other consequences.</p>
+            <p>© <span id="year">2026</span> Joolace. Released under the <a href="https://github.com/Joolace/dbd-reshade/blob/wpf-app/LICENSE">GPL-3.0 license</a>. <a href="./terms-conditions.html">Terms and conditions</a>.</p>
         </div>
     </footer>
 
-    <!-- GLightbox JS -->
-    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
     <script>
-        const lightbox = GLightbox({
-            touchNavigation: true,
-            loop: true,
-        });
+        // Preset reel: swap the preview when a preset is chosen. Arrow keys move between presets.
+        (function () {
+            var list = document.getElementById('reel-list');
+            var image = document.getElementById('reel-image');
+            var name = document.getElementById('reel-name');
+            var desc = document.getElementById('reel-desc');
+            var buttons = Array.prototype.slice.call(list.querySelectorAll('button'));
+
+            function select(button) {
+                if (button.getAttribute('aria-pressed') === 'true') return;
+                buttons.forEach(function (b) { b.setAttribute('aria-pressed', b === button ? 'true' : 'false'); });
+
+                var base = './assets/presets/' + button.dataset.img;
+                var next = new Image();
+                image.classList.add('loading');
+                next.onload = next.onerror = function () {
+                    image.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
+                    image.src = base + '.webp';
+                    image.alt = 'Dead by Daylight with the ' + button.dataset.alt + ' ReShade preset';
+                    image.classList.remove('loading');
+                };
+                next.sizes = image.sizes;
+                next.srcset = base + '-800.webp 800w, ' + base + '.webp 1600w';
+                next.src = base + '.webp';
+
+                name.textContent = button.dataset.alt;
+                desc.textContent = button.dataset.desc;
+            }
+
+            buttons.forEach(function (button, i) {
+                button.addEventListener('click', function () { select(button); });
+                button.addEventListener('keydown', function (e) {
+                    var step = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : (e.key === 'ArrowUp' || e.key === 'ArrowLeft') ? -1 : 0;
+                    if (!step) return;
+                    e.preventDefault();
+                    var target = buttons[(i + step + buttons.length) % buttons.length];
+                    target.focus();
+                    select(target);
+                });
+            });
+        })();
+
+        // Preset form: send without leaving the page.
+        (function () {
+            var form = document.getElementById('presetForm');
+            var message = document.getElementById('responseMessage');
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var button = form.querySelector('button[type="submit"]');
+                button.disabled = true;
+                fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } })
+                    .then(function (response) {
+                        message.hidden = false;
+                        if (response.ok) {
+                            message.textContent = 'Preset sent. Thanks! We\'ll take a look and add it if it fits.';
+                            form.reset();
+                        } else {
+                            message.textContent = 'The preset couldn\'t be sent. Check the links and try again, or send it on Discord.';
+                        }
+                    })
+                    .catch(function () {
+                        message.hidden = false;
+                        message.textContent = 'The preset couldn\'t be sent: check your connection and try again.';
+                    })
+                    .finally(function () { button.disabled = false; });
+            });
+        })();
+
+        document.getElementById('year').textContent = new Date().getFullYear();
     </script>
-
 </body>
-
 </html>
