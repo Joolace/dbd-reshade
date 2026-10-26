@@ -69,4 +69,4 @@ You need a free [Cloudflare account](https://dash.cloudflare.com/sign-up) and
 | Request | Answer |
 |---|---|
 | `POST /v1/install` with `{"preset": "<file name>.ini", "client": "<uuid>"}` | `204` counted (or already counted), `400` invalid, `429` too many requests |
-| `GET /v1/top` | `{"updated": "<time>", "presets": {"<file name>": <installs>}}`, cached for 10 minutes |
+| `GET /v1/top` | `{"updated": "<time>", "presets": {"<file name>": <installs>}}` |

@@ -35,17 +35,20 @@ public sealed class StatsService
 
     public event EventHandler? Updated;
 
-    /// <summary>Loads the ranking: from the local copy if recent, otherwise from the service.</summary>
-    public async Task LoadAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Loads the ranking: from the local copy if recent (and not empty), otherwise from the service.
+    /// <paramref name="force"/> skips the local copy (used right after an install, to show it at once).
+    /// </summary>
+    public async Task LoadAsync(bool force = false, CancellationToken ct = default)
     {
         if (!IsAvailable) return;
 
-        var cached = ReadCache();
+        var cached = force ? null : ReadCache();
         if (cached is not null)
         {
             Counts = cached.Value.Counts;
             Updated?.Invoke(this, EventArgs.Empty);
-            if (DateTime.UtcNow - cached.Value.SavedUtc < CacheFor) return;
+            if (Counts.Count > 0 && DateTime.UtcNow - cached.Value.SavedUtc < CacheFor) return;
         }
 
         try
@@ -79,7 +82,13 @@ public sealed class StatsService
             using var response = await _http.PostAsJsonAsync($"{AppInfo.StatsUrl.TrimEnd('/')}/v1/install",
                 new { preset = presetFileName, client = _settings.Current.ClientId });
             if (!response.IsSuccessStatusCode)
+            {
                 _log.Info($"Community ranking: install not counted ({(int)response.StatusCode}).");
+                return;
+            }
+
+            // Show the new count right away instead of waiting for the next refresh.
+            await LoadAsync(force: true);
         }
         catch (Exception ex)
         {

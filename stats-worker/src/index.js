@@ -13,7 +13,6 @@
 
 const PRESETS_URL = "https://raw.githubusercontent.com/Joolace/dbd-reshade/wpf-app/media/presets.json";
 const DAILY_LIMIT = 60;
-const TOP_CACHE_SECONDS = 600;
 const CLIENT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default {
@@ -21,7 +20,7 @@ export default {
         const url = new URL(request.url);
         try {
             if (url.pathname === "/v1/install" && request.method === "POST") return await install(request, env);
-            if (url.pathname === "/v1/top" && request.method === "GET") return await top(request, env, ctx);
+            if (url.pathname === "/v1/top" && request.method === "GET") return await top(request, env);
             return json({ error: "not found" }, 404);
         } catch (err) {
             console.error(err);
@@ -75,23 +74,14 @@ async function install(request, env) {
     return new Response(null, { status: 204 });
 }
 
-async function top(request, env, ctx) {
-    // Served from Cloudflare's cache for a few minutes: the database is read rarely.
-    const cache = caches.default;
-    const key = new Request(new URL("/v1/top", request.url).toString(), { method: "GET" });
-    const cached = await cache.match(key);
-    if (cached) return cached;
-
+async function top(request, env) {
+    // Read straight from the database: it's one cheap query, and the app itself only asks every few hours.
+    // (No edge cache: it kept serving an old, empty list right after the first installs.)
     const { results } = await env.DB.prepare(
         "SELECT preset, installs FROM counts WHERE installs > 0 ORDER BY installs DESC LIMIT 500"
     ).all();
     const presets = Object.fromEntries(results.map(r => [r.preset, r.installs]));
-
-    const response = json({ updated: new Date().toISOString(), presets }, 200, {
-        "Cache-Control": `public, max-age=${TOP_CACHE_SECONDS}`,
-    });
-    ctx.waitUntil(cache.put(key, response.clone()));
-    return response;
+    return json({ updated: new Date().toISOString(), presets }, 200, { "Cache-Control": "no-store" });
 }
 
 /** File names in the repository's presets.json (fetched at most once an hour thanks to Cloudflare's cache). */
