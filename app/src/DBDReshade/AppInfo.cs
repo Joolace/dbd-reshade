@@ -46,7 +46,7 @@ public static class AppInfo
     /// Address of the community ranking service (stats-worker/ in the repository, a Cloudflare Worker).
     /// Empty = the ranking is off. Set it after deploying the worker (see stats-worker/README.md).
     /// </summary>
-    public const string StatsUrl = "";
+    public const string StatsUrl = "https://dbdreshade-stats.gleminem1.workers.dev";
 
     /// <summary>Dead by Daylight Steam AppID.</summary>
     public const int SteamAppId = 381210;
