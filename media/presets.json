@@ -933,37 +933,37 @@
     "0.KL_Stream.ini": {
         "description": "Latest Knightlight preset. All maps. (Used in streaming)",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "0.KL_Stream.png",
+        "preset-preview": "0.KL_Stream.jpg",
         "author": "KnightLight"
     },
     "end.ini": {
         "description": "Latest Knightlight preset. All maps. (Similar to 0.KL_Stream.ini)",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "end.png",
+        "preset-preview": "end.jpg",
         "author": "KnightLight"
     },
     "TWD.ini": {
         "description": "Knightlight preset for TWD Map.",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "TWD.png",
+        "preset-preview": "TWD.jpg",
         "author": "KnightLight"
     },
     "Stream.ini": {
         "description": "Knightlight preset for Streams.",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "Stream.png",
+        "preset-preview": "Stream.jpg",
         "author": "KnightLight"
     },
     "Event.ini": {
         "description": "Knightlight preset for Halloween 2026 Event.",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "Event.png",
+        "preset-preview": "Event.jpg",
         "author": "KnightLight"
     },
     "Event Menu_S.ini": {
         "description": "Knightlight preset for Halloween 2026 Event.",
         "videoLink": "https://discord.gg/N8eExDuVUe",
-        "preset-preview": "Event Menu_S.png",
+        "preset-preview": "Event Menu_S.jpg",
         "author": "KnightLight"
     }
 }
