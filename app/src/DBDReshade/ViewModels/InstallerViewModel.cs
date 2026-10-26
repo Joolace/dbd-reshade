@@ -25,14 +25,16 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly MapPreviewService _mapPreview;
     private readonly GameLauncher _launcher;
     private readonly BackupService _backups;
+    private readonly StatsService _stats;
     private CancellationTokenSource? _previewCts;
     private string? _previewMessageKey;
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
         ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview,
-        GameLauncher launcher, BackupService backups)
+        GameLauncher launcher, BackupService backups, StatsService stats)
     {
+        _stats = stats;
         _launcher = launcher;
         _backups = backups;
         _maps = maps;
@@ -54,8 +56,37 @@ public sealed partial class InstallerViewModel : ObservableObject
         _sync.Synced += (_, result) => OnSynced(result);
         Loc.Changed += (_, _) => OnLanguageChanged();
 
+        _stats.Updated += (_, _) => System.Windows.Application.Current?.Dispatcher.Invoke(ApplyRanking);
+
         ReloadPresets();
         DetectInstallations();
+        _ = _stats.LoadAsync();
+    }
+
+    // ---- Community ranking ------------------------------------------------------------------
+
+    /// <summary>How many of the most installed presets get the 🔥 badge.</summary>
+    private const int PopularCount = 10;
+
+    /// <summary>The ranking has data, so the "Most used" filter is offered.</summary>
+    public bool HasRanking => _stats.Counts.Count > 0;
+
+    /// <summary>Copies the community install counts onto the presets (official presets only).</summary>
+    private void ApplyRanking()
+    {
+        var counts = _stats.Counts;
+        var popular = counts.Where(c => c.Value > 0).OrderByDescending(c => c.Value).Take(PopularCount)
+            .Select(c => c.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var preset in Presets)
+        {
+            var installs = !preset.IsCustom && counts.TryGetValue(preset.FileName, out var n) ? n : 0;
+            preset.Installs = installs;
+            preset.IsPopular = installs > 0 && popular.Contains(preset.FileName);
+        }
+
+        OnPropertyChanged(nameof(HasRanking));
+        RebuildFilterOptions();
     }
 
     private void OnLanguageChanged()
@@ -82,6 +113,7 @@ public sealed partial class InstallerViewModel : ObservableObject
 
     private const string ShowFavorites = "favorites";
     private const string ShowNew = "new";
+    private const string ShowPopular = "popular";
 
     /// <summary>The style labels presets.json may use; others are shown as written.</summary>
     private static readonly string[] KnownStyles = { "bright", "dark", "competitive", "cinematic" };
@@ -106,6 +138,16 @@ public sealed partial class InstallerViewModel : ObservableObject
     private void FiltersChanged()
     {
         if (_rebuildingFilters) return;
+
+        // "Most used" also sorts by installs; the other filters keep the library order.
+        var sortByInstalls = SelectedShow?.Value == ShowPopular;
+        if (sortByInstalls != (PresetsView.SortDescriptions.Count > 0))
+        {
+            PresetsView.SortDescriptions.Clear();
+            if (sortByInstalls)
+                PresetsView.SortDescriptions.Add(new SortDescription(nameof(Preset.Installs), ListSortDirection.Descending));
+        }
+
         PresetsView.Refresh();
         OnPropertyChanged(nameof(HasActiveFilters));
         OnPropertyChanged(nameof(VisibleCount));
@@ -130,6 +172,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         {
             ShowFavorites when !p.IsFavorite => false,
             ShowNew when !p.IsNew => false,
+            ShowPopular when p.Installs <= 0 => false,
             _ => (SelectedAuthor?.Value is not { } author || string.Equals(p.Author, author, StringComparison.OrdinalIgnoreCase))
                  && (SelectedMap?.Value is not { } map || string.Equals(p.Map, map, StringComparison.OrdinalIgnoreCase))
                  && (SelectedStyle?.Value is not { } style || p.Tags.Contains(style)),
@@ -147,7 +190,8 @@ public sealed partial class InstallerViewModel : ObservableObject
                 new FilterOption(null, Loc.Get("Inst.Filter.All")),
                 new FilterOption(ShowFavorites, Loc.Get("Inst.Filter.Favorites")),
                 new FilterOption(ShowNew, Loc.Get("Inst.Filter.New")),
-            }, v => SelectedShow = v);
+            }.Concat(HasRanking ? new[] { new FilterOption(ShowPopular, Loc.Get("Inst.Filter.Popular")) } : Array.Empty<FilterOption>()),
+                v => SelectedShow = v);
 
             Fill(AuthorOptions, SelectedAuthor,
                 Presets.Select(p => p.Author).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase)
@@ -258,7 +302,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         var selected = SelectedPreset?.FileName;
         Presets.Clear();
         foreach (var preset in _repository.Presets) Presets.Add(preset);
-        RebuildFilterOptions();
+        ApplyRanking(); // also rebuilds the filters
 
         SelectedPreset = Presets.FirstOrDefault(p => p.FileName == selected) ?? Presets.FirstOrDefault();
     }
@@ -583,6 +627,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             ProgressValue = 100;
 
             _log.Success($"Preset {preset.DisplayName} installed!");
+            if (!preset.IsCustom) _ = _stats.ReportInstallAsync(preset.FileName);
             var launchNow = Dialogs.Confirm(Loc.Format("Inst.DoneLaunch", preset.DisplayName));
             if (missingHere.Count > 0)
                 Dialogs.Warning(Loc.Format("Inst.EffectsMissing", string.Join(", ", missingHere)));

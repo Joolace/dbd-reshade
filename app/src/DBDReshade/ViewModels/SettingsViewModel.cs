@@ -52,6 +52,24 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public string DataFolder => AppPaths.DataRoot;
 
+    // ---- Privacy ----------------------------------------------------------------------------
+
+    /// <summary>The community ranking service is set up (AppInfo.StatsUrl).</summary>
+    public bool RankingAvailable => StatsService.IsAvailable;
+
+    /// <summary>Send anonymous install counts to the community ranking.</summary>
+    public bool ShareUsage
+    {
+        get => _settings.Current.ShareUsage;
+        set
+        {
+            if (_settings.Current.ShareUsage == value) return;
+            _settings.Current.ShareUsage = value;
+            _settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
     public string VersionText => AppInfo.VersionText;
 
     // ---- Theme ----------------------------------------------------------------------------

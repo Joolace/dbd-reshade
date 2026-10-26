@@ -253,5 +253,10 @@
   "Edit.Propose": "Für die Bibliothek vorschlagen",
   "Edit.ProposeTip": "Sende dein Preset, damit es für alle in die offizielle Bibliothek kommt",
   "Edit.ProposeInfo": "Dein Preset wird mit Screenshot und Beschreibung in ein .zip gepackt, und sein Ordner wird geöffnet.\n\nDann öffnet sich GitHub mit einem vorbereiteten Vorschlag: Zieh das .zip in das Textfeld und klicke auf Create. Du brauchst ein kostenloses GitHub-Konto; du kannst das .zip auch auf unserem Discord teilen.\n\nFortfahren?",
-  "Edit.ProposeFailed": "Der Vorschlag konnte nicht vorbereitet werden.\n\n{0}"
+  "Edit.ProposeFailed": "Der Vorschlag konnte nicht vorbereitet werden.\n\n{0}",
+  "Inst.Filter.Popular": "🔥 Am meisten genutzt",
+  "Inst.PopularTip": "Gehört zu den von der Community am häufigsten installierten Presets",
+  "Set.Privacy": "Datenschutz",
+  "Set.ShareUsage": "Installationen anonym für die Community-Rangliste teilen",
+  "Set.ShareUsageText": "Wenn du ein offizielles Preset installierst, sendet die App nur den Dateinamen und eine zufällige ID dieser Installation, damit es nur einmal gezählt wird. Es werden keine Konten, Namen oder IP-Adressen gespeichert. Die Zahlen speisen den Filter „Am meisten genutzt“."
 }

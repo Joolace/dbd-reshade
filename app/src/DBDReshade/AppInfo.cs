@@ -42,6 +42,12 @@ public static class AppInfo
     public const string PortableAssetName = "DBDReshade.exe";
     public const string SetupAssetName = "DBDReshade-Setup.exe";
 
+    /// <summary>
+    /// Address of the community ranking service (stats-worker/ in the repository, a Cloudflare Worker).
+    /// Empty = the ranking is off. Set it after deploying the worker (see stats-worker/README.md).
+    /// </summary>
+    public const string StatsUrl = "";
+
     /// <summary>Dead by Daylight Steam AppID.</summary>
     public const int SteamAppId = 381210;
 }

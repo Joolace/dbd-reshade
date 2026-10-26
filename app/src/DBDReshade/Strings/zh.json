@@ -253,5 +253,10 @@
   "Edit.Propose": "提交到预设库",
   "Edit.ProposeTip": "提交你的预设，加入官方预设库供所有人使用",
   "Edit.ProposeInfo": "你的预设会连同截图和说明打包成 .zip，并打开其所在文件夹。\n\n随后会打开已填好的 GitHub 提交页面：把 .zip 拖到文本框中并点击 Create。需要免费的 GitHub 账号；也可以在我们的 Discord 分享该 .zip。\n\n继续吗？",
-  "Edit.ProposeFailed": "无法准备提交内容。\n\n{0}"
+  "Edit.ProposeFailed": "无法准备提交内容。\n\n{0}",
+  "Inst.Filter.Popular": "🔥 最常用",
+  "Inst.PopularTip": "社区安装次数最多的预设之一",
+  "Set.Privacy": "隐私",
+  "Set.ShareUsage": "匿名分享安装次数用于社区排行",
+  "Set.ShareUsageText": "安装官方预设时，应用只发送文件名和本次安装的随机 ID，因此只计数一次。不会保存账户、名字或 IP 地址。这些计数用于“最常用”筛选。"
 }

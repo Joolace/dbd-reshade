@@ -60,6 +60,11 @@
                         Visibility="{Binding IsNew, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{DynamicResource Common.New}" FontSize="10" Foreground="{DynamicResource OnAccentBrush}" FontWeight="SemiBold" />
                 </Border>
+                <Border DockPanel.Dock="Right" Background="{DynamicResource SurfaceBrush}" CornerRadius="4"
+                        Padding="6,1" VerticalAlignment="Center" Margin="4,0,0,0" ToolTip="{DynamicResource Inst.PopularTip}"
+                        Visibility="{Binding IsPopular, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding InstallsText}" FontSize="10" Foreground="{DynamicResource TextBrush}" />
+                </Border>
                 <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
             </DockPanel>
         </DataTemplate>

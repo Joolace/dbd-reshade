@@ -101,6 +101,18 @@ public sealed partial class Preset : ObservableObject
     /// <summary>Arrived with a recent sync (shown with a "New" badge for a few days).</summary>
     public bool IsNew { get; init; }
 
+    /// <summary>Installs counted by the community ranking (0 = none or ranking off).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(InstallsText))]
+    private int _installs;
+
+    /// <summary>Among the most installed presets: shown with a 🔥 badge.</summary>
+    [ObservableProperty]
+    private bool _isPopular;
+
+    /// <summary>"🔥 950", "🔥 1.2k".</summary>
+    public string InstallsText => "🔥 " + (Installs >= 1000 ? (Installs / 1000.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "k" : Installs.ToString());
+
     public string? Author => string.IsNullOrWhiteSpace(Metadata?.Author) ? null : Metadata!.Author!.Trim();
 
     public string? Map => string.IsNullOrWhiteSpace(Metadata?.Map) ? null : Metadata!.Map!.Trim();
@@ -181,6 +193,12 @@ public sealed class AppSettings
 
     /// <summary>Preset file names the user starred.</summary>
     public List<string> Favorites { get; set; } = new();
+
+    /// <summary>Send anonymous install counts to the community ranking (Settings, on by default).</summary>
+    public bool ShareUsage { get; set; } = true;
+
+    /// <summary>Random id of this installation for the ranking (counted once per preset; stored hashed on the server).</summary>
+    public string? ClientId { get; set; }
 
     /// <summary>Presets that arrived with a sync, and when (they get a "New" badge for a few days).</summary>
     public Dictionary<string, DateTime> NewPresets { get; set; } = new(StringComparer.OrdinalIgnoreCase);

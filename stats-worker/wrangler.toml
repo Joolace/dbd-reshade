@@ -1,0 +1,17 @@
+# Cloudflare Worker for the DBD Reshade community ranking. Setup: see README.md in this folder.
+name = "dbdreshade-stats"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dbdreshade-stats"
+# Paste here the id printed by:  npx wrangler d1 create dbdreshade-stats
+database_id = "PASTE-YOUR-DATABASE-ID-HERE"
+
+# Once a day: delete yesterday's rate-limit rows.
+[triggers]
+crons = ["17 3 * * *"]
+
+[observability]
+enabled = true

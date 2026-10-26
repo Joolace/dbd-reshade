@@ -4,11 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:DBDReshade.ViewModels"
+             xmlns:h="clr-namespace:DBDReshade.Helpers"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
              d:DesignWidth="900" d:DesignHeight="600">
 
     <UserControl.Resources>
+        <h:BoolToVisibilityConverter x:Key="BoolToVis" />
         <!-- Horizontal "segmented" choice built on ListBox, so selection logic stays in the view model -->
         <Style x:Key="ChoiceList" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
             <Setter Property="ItemsPanel">
@@ -167,6 +169,18 @@
                                        Margin="0,2,0,0" />
                         </StackPanel>
                     </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Privacy: community ranking (hidden while the ranking service isn't set up) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16"
+                    Visibility="{Binding RankingAvailable, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Set.Privacy}" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Set.ShareUsageText}" TextWrapping="Wrap" Margin="0,0,0,12" />
+                    <CheckBox IsChecked="{Binding ShareUsage}">
+                        <TextBlock Text="{DynamicResource Set.ShareUsage}" TextWrapping="Wrap" />
+                    </CheckBox>
                 </StackPanel>
             </Border>
 

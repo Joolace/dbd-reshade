@@ -253,5 +253,10 @@
   "Edit.Propose": "라이브러리에 제안",
   "Edit.ProposeTip": "프리셋을 보내 모두가 쓰는 공식 라이브러리에 추가되도록 제안",
   "Edit.ProposeInfo": "프리셋이 스크린샷, 설명과 함께 .zip으로 묶이고 해당 폴더가 열립니다.\n\n그다음 미리 작성된 GitHub 제출 페이지가 열립니다. .zip을 텍스트 상자에 끌어다 놓고 Create를 누르세요. 무료 GitHub 계정이 필요하며, .zip을 Discord에서 공유할 수도 있습니다.\n\n계속할까요?",
-  "Edit.ProposeFailed": "제출을 준비할 수 없습니다.\n\n{0}"
+  "Edit.ProposeFailed": "제출을 준비할 수 없습니다.\n\n{0}",
+  "Inst.Filter.Popular": "🔥 인기",
+  "Inst.PopularTip": "커뮤니티에서 가장 많이 설치된 프리셋 중 하나",
+  "Set.Privacy": "개인정보",
+  "Set.ShareUsage": "커뮤니티 순위를 위해 설치 수를 익명으로 공유",
+  "Set.ShareUsageText": "공식 프리셋을 설치하면 앱은 파일 이름과 이 설치의 임의 ID만 보내며, 한 번만 집계됩니다. 계정, 이름, IP 주소는 저장되지 않습니다. 이 수치는 '인기' 필터에 사용됩니다."
 }

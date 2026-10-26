@@ -253,5 +253,10 @@
   "Edit.Propose": "Proponer para la biblioteca",
   "Edit.ProposeTip": "Envía tu preset para que se añada a la biblioteca oficial para todos",
   "Edit.ProposeInfo": "Tu preset se empaquetará en un .zip con su captura y descripción, y se abrirá su carpeta.\n\nLuego se abre GitHub con la propuesta ya rellenada: arrastra el .zip al cuadro de texto y pulsa Create. Necesitas una cuenta gratuita de GitHub; también puedes compartir el .zip en nuestro Discord.\n\n¿Continuar?",
-  "Edit.ProposeFailed": "No se pudo preparar la propuesta.\n\n{0}"
+  "Edit.ProposeFailed": "No se pudo preparar la propuesta.\n\n{0}",
+  "Inst.Filter.Popular": "🔥 Más usados",
+  "Inst.PopularTip": "Entre los presets más instalados por la comunidad",
+  "Set.Privacy": "Privacidad",
+  "Set.ShareUsage": "Compartir de forma anónima las instalaciones para el ranking de la comunidad",
+  "Set.ShareUsageText": "Al instalar un preset oficial, la app solo envía el nombre del archivo y un id aleatorio de esta instalación, para contarlo una sola vez. No se guardan cuentas, nombres ni direcciones IP. Los recuentos alimentan el filtro \"Más usados\"."
 }

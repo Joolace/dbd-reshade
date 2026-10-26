@@ -108,6 +108,7 @@ works from ReShade's own menu in game.
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
 - **Favorites and filters**: star the presets you like, and filter by author, map and style (bright, dark, competitive, cinematic)
 - **New badge**: presets that just arrived are marked for a few days, and the app tells you how many came in
+- **🔥 Most used**: see which presets the community installs the most (anonymous, can be turned off in Settings)
 - **Finds the game** on Steam, Epic Games and the Xbox app, or pick the folder by hand
 - **Installs ReShade** automatically, always the latest version from [reshade.me](https://reshade.me)
 - **Keeps ReShade up to date**: if a newer version is out, the app offers to update it (settings, presets and effects are kept)
@@ -178,6 +179,7 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **Theme**: dark, light, or follow Windows
 - **Storage**: see how much space previews, map screenshots, logs and temporary files use, and free it with one click.
   Your presets, drafts and screenshots are never deleted.
+- **Privacy**: choose whether to share anonymous install counts for the *Most used* ranking
 - **Help translate** and **Report a bug** links
 
 ### And also
@@ -230,6 +232,15 @@ please tell us on Discord.
 ---
 
 ## FAQ and troubleshooting
+
+<details>
+<summary><b>What does the "Most used" ranking collect?</b></summary>
+
+When you install an **official** preset, the app sends only the preset's file name and a random id of your
+installation (so the same install isn't counted twice). No account, name, e-mail or IP address is stored, and
+your own custom presets are never sent. You can turn it off in **Settings → Privacy**. The service is open source:
+see [`stats-worker/`](./stats-worker).
+</details>
 
 <details>
 <summary><b>Is it bannable?</b></summary>
@@ -371,6 +382,7 @@ dotnet publish src\DBDReshade\DBDReshade.csproj -c Release -o publish
 - [`Presets/`](./Presets), [`media/`](./media): presets, previews and their descriptions, synced by the app
 - [`Maps/`](./Maps): map screenshots for *Try on maps*, one folder per realm
 - [`translations/`](./translations): interface translations
+- [`stats-worker/`](./stats-worker): the tiny Cloudflare Worker behind the *Most used* ranking
 - [`tools/validate.py`](./tools/validate.py): checks presets, translations and maps (also run on every pull request)
 
 Contributions are welcome: open an issue or a pull request.
