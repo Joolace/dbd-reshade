@@ -82,7 +82,21 @@ public partial class App : Application
         var window = new MainWindow { DataContext = main };
         MainWindow = window; // before the splash closes, or closing it would end the app
         window.Show();
+        BringToFront(window);
         await splash.CloseWithFadeAsync();
+    }
+
+    /// <summary>
+    /// The app starts after the administrator prompt, and Windows then often refuses to give it the focus,
+    /// so the window would open behind the others. Briefly making it "always on top" raises it anyway.
+    /// </summary>
+    private static void BringToFront(Window window)
+    {
+        if (window.WindowState == WindowState.Minimized) window.WindowState = WindowState.Normal;
+        window.Topmost = true;
+        window.Activate();
+        window.Topmost = false;
+        window.Focus();
     }
 
     /// <summary>Shows a status line and lets the start-up screen repaint before the next step.</summary>

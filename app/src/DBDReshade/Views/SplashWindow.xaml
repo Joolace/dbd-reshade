@@ -6,7 +6,7 @@
         Width="320" Height="380"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="True" Opacity="0"
+        ShowInTaskbar="True" Opacity="0" Topmost="True"
         FontFamily="{DynamicResource AppFont}"
         Foreground="{DynamicResource TextBrush}"
         TextOptions.TextFormattingMode="Ideal"

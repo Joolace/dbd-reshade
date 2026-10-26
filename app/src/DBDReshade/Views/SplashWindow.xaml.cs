@@ -10,6 +10,9 @@ public partial class SplashWindow : Window
     {
         InitializeComponent();
         VersionText.Text = AppInfo.VersionText;
+        // Always on top (see Topmost in the XAML) and asks for the focus: after the administrator prompt
+        // Windows may not give it, but the splash still shows above the other windows.
+        ContentRendered += (_, _) => Activate();
     }
 
     public string Status
