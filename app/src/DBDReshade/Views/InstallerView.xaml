@@ -16,6 +16,49 @@
         <h:NullToVisibilityConverter x:Key="NullToCollapsed" Invert="True" />
         <h:BoolToVisibilityConverter x:Key="BoolToVis" />
         <h:BoolToVisibilityConverter x:Key="InvBoolToVis" Invert="True" />
+        <h:InverseBool x:Key="Inverse" />
+
+        <!-- "Filters" button: looks like a normal button, accent border while the panel is open -->
+        <Style x:Key="FilterToggle" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource TextMutedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- One column of the filter panel: a list of choices, long names wrap instead of being cut -->
+        <Style x:Key="FilterList" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+            <Setter Property="MaxHeight" Value="300" />
+            <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Star: outline, or filled in the accent color when the preset is a favorite -->
         <Style x:Key="StarText" TargetType="TextBlock" BasedOn="{StaticResource Icon}">
@@ -107,40 +150,104 @@
                     </DockPanel>
                 </Border>
 
-                <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                <!-- Search + Filters button; the filters open in a panel, so nothing gets cut in the narrow list -->
+                <Grid x:Name="SearchRow" DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Padding="30,7,8,7" />
                     <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="13" Margin="10,0,0,0"
                                HorizontalAlignment="Left" Foreground="{DynamicResource TextMutedBrush}" IsHitTestVisible="False" />
                     <TextBlock Text="{DynamicResource Inst.Search}" Margin="31,0,0,0" VerticalAlignment="Center"
-                               Foreground="{DynamicResource TextMutedBrush}" IsHitTestVisible="False"
+                               Foreground="{DynamicResource TextMutedBrush}" IsHitTestVisible="False" TextTrimming="CharacterEllipsis"
                                Visibility="{Binding SearchText, Converter={StaticResource NullToCollapsed}}" />
+
+                    <!-- Not clickable while the panel is open: a click outside closes it, and this would reopen it -->
+                    <ToggleButton Grid.Column="1" Margin="6,0,0,0" Style="{StaticResource FilterToggle}"
+                                  ToolTip="{DynamicResource Inst.FiltersTip}"
+                                  IsChecked="{Binding IsFilterPanelOpen}"
+                                  IsHitTestVisible="{Binding IsFilterPanelOpen, Converter={StaticResource Inverse}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE71C;" FontSize="12" Margin="0,0,6,0" />
+                            <TextBlock Text="{DynamicResource Inst.Filters}" VerticalAlignment="Center" />
+                            <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" MinWidth="16" Height="16"
+                                    Padding="4,0" Margin="6,0,0,0" VerticalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActiveFilterCount}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding ActiveFilterCount}" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <Popup IsOpen="{Binding IsFilterPanelOpen}" StaysOpen="False" AllowsTransparency="True"
+                           PlacementTarget="{Binding ElementName=SearchRow}" Placement="Bottom" VerticalOffset="6"
+                           PopupAnimation="Fade">
+                        <Border Margin="0,0,12,12" Padding="16" CornerRadius="10" BorderThickness="1" Width="600"
+                                Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.35" />
+                            </Border.Effect>
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Padding="6"
+                                            ToolTip="{DynamicResource Common.Close}" Command="{Binding CloseFilterPanelCommand}">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="10" />
+                                    </Button>
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" VerticalAlignment="Center"
+                                            Margin="0,0,12,0" Content="{DynamicResource Inst.Filter.Clear}" Command="{Binding ClearFiltersCommand}"
+                                            Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock Text="{DynamicResource Inst.Filters}" Style="{StaticResource SectionTitle}" Margin="0"
+                                               VerticalAlignment="Center" />
+                                </DockPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.8*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="1.2*" />
+                                    </Grid.ColumnDefinitions>
+                                    <DockPanel>
+                                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource Muted}" FontSize="11" Margin="10,0,0,6"
+                                                   Text="{DynamicResource Inst.Filter.Show}" />
+                                        <ListBox Style="{StaticResource FilterList}" ItemsSource="{Binding ShowOptions}"
+                                                 SelectedItem="{Binding SelectedShow}" />
+                                    </DockPanel>
+                                    <DockPanel Grid.Column="2">
+                                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource Muted}" FontSize="11" Margin="10,0,0,6"
+                                                   Text="{DynamicResource Inst.Filter.Author}" />
+                                        <ListBox Style="{StaticResource FilterList}" ItemsSource="{Binding AuthorOptions}"
+                                                 SelectedItem="{Binding SelectedAuthor}" />
+                                    </DockPanel>
+                                    <DockPanel Grid.Column="4">
+                                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource Muted}" FontSize="11" Margin="10,0,0,6"
+                                                   Text="{DynamicResource Inst.Filter.Map}" />
+                                        <ListBox Style="{StaticResource FilterList}" ItemsSource="{Binding MapOptions}"
+                                                 SelectedItem="{Binding SelectedMap}" />
+                                    </DockPanel>
+                                </Grid>
+                            </DockPanel>
+                        </Border>
+                    </Popup>
                 </Grid>
 
-                <!-- Filters: show (all / favorites / new), author, map, style -->
-                <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="6" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <ComboBox ItemsSource="{Binding ShowOptions}" SelectedItem="{Binding SelectedShow}"
-                              ToolTip="{DynamicResource Inst.Filter.ShowTip}" />
-                    <ComboBox Grid.Column="2" ItemsSource="{Binding AuthorOptions}" SelectedItem="{Binding SelectedAuthor}"
-                              ToolTip="{DynamicResource Inst.Filter.AuthorTip}" />
-                    <ComboBox Grid.Row="2" ItemsSource="{Binding MapOptions}" SelectedItem="{Binding SelectedMap}"
-                              ToolTip="{DynamicResource Inst.Filter.MapTip}" />
-                    <ComboBox Grid.Row="2" Grid.Column="2" ItemsSource="{Binding StyleOptions}" SelectedItem="{Binding SelectedStyle}"
-                              ToolTip="{DynamicResource Inst.Filter.StyleTip}" />
-                    <Button Grid.Row="3" Grid.ColumnSpan="3" Style="{StaticResource LinkButton}" HorizontalAlignment="Right"
-                            Margin="0,6,2,0" FontSize="11" Content="{DynamicResource Inst.Filter.Clear}" Command="{Binding ClearFiltersCommand}"
-                            Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVis}}" />
-                </Grid>
+                <!-- Active filters at a glance, with a quick way to clear them -->
+                <DockPanel DockPanel.Dock="Top" Margin="4,-4,4,10"
+                           Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVis}}">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" FontSize="11" Margin="8,0,0,0"
+                            Content="{DynamicResource Inst.Filter.Clear}" Command="{Binding ClearFiltersCommand}" />
+                    <TextBlock Text="{Binding ActiveFiltersText}" Style="{StaticResource Muted}" FontSize="11"
+                               TextTrimming="CharacterEllipsis" ToolTip="{Binding ActiveFiltersText}" />
+                </DockPanel>
 
                 <Grid DockPanel.Dock="Bottom" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>

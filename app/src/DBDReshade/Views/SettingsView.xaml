@@ -11,6 +11,7 @@
 
     <UserControl.Resources>
         <h:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <h:NullToVisibilityConverter x:Key="NullToVis" />
         <!-- Horizontal "segmented" choice built on ListBox, so selection logic stays in the view model -->
         <Style x:Key="ChoiceList" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
             <Setter Property="ItemsPanel">
@@ -122,8 +123,10 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -134,26 +137,58 @@
                         <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding PreviewsSize}" />
                         <Button Grid.Row="0" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearPreviewsCommand}" MinWidth="110" />
+                        <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource GhostButton}" Margin="6,0,0,8"
+                                ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding OpenStorageFolderCommand}" CommandParameter="previews">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                        </Button>
 
                         <TextBlock Grid.Row="1" Text="{DynamicResource Set.Maps}" VerticalAlignment="Center" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding MapsSize}" />
                         <Button Grid.Row="1" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearMapsCommand}" MinWidth="110" />
+                        <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource GhostButton}" Margin="6,0,0,8"
+                                ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding OpenStorageFolderCommand}" CommandParameter="maps">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                        </Button>
 
                         <TextBlock Grid.Row="2" Text="{DynamicResource Set.Logs}" VerticalAlignment="Center" />
                         <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding LogsSize}" />
                         <Button Grid.Row="2" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearLogsCommand}" MinWidth="110" />
+                        <Button Grid.Row="2" Grid.Column="3" Style="{StaticResource GhostButton}" Margin="6,0,0,8"
+                                ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding OpenStorageFolderCommand}" CommandParameter="logs">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                        </Button>
 
                         <TextBlock Grid.Row="3" Text="{DynamicResource Set.Temp}" VerticalAlignment="Center" />
                         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding TempSize}" />
-                        <Button Grid.Row="3" Grid.Column="2" Content="{DynamicResource Set.Clear}"
+                        <Button Grid.Row="3" Grid.Column="2" Content="{DynamicResource Set.Clear}" Margin="0,0,0,8"
                                 Command="{Binding ClearTempCommand}" MinWidth="110" />
+                        <Button Grid.Row="3" Grid.Column="3" Style="{StaticResource GhostButton}" Margin="6,0,0,8"
+                                ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding OpenStorageFolderCommand}" CommandParameter="temp">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                        </Button>
+
+                        <TextBlock Grid.Row="4" Text="{DynamicResource Set.OfflineFiles}" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource SizeText}" Text="{Binding OfflineSize}" />
+                        <Button Grid.Row="4" Grid.Column="2" Content="{DynamicResource Set.Clear}"
+                                Command="{Binding ClearOfflineCommand}" MinWidth="110" />
+                        <Button Grid.Row="4" Grid.Column="3" Style="{StaticResource GhostButton}" Margin="6,0,0,0"
+                                ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding OpenStorageFolderCommand}" CommandParameter="offline">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                        </Button>
                     </Grid>
 
                     <Rectangle Height="1" Fill="{DynamicResource BorderBrush}" Margin="0,14" />
 
                     <DockPanel>
+                        <Button DockPanel.Dock="Right" Margin="8,0,0,0" ToolTip="{DynamicResource Set.OpenCacheTip}"
+                                Command="{Binding OpenStorageFolderCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Set.OpenData}" />
+                            </StackPanel>
+                        </Button>
                         <Button DockPanel.Dock="Right" Style="{StaticResource DangerButton}" MinWidth="110"
                                 Command="{Binding ClearAllCommand}">
                             <StackPanel Orientation="Horizontal">
@@ -167,8 +202,46 @@
                             </TextBlock>
                             <TextBlock Text="{Binding FreedText}" Foreground="{DynamicResource SuccessBrush}" FontSize="12"
                                        Margin="0,2,0,0" />
+                            <TextBlock Text="{Binding DataFolder}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0"
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding DataFolder}" />
                         </StackPanel>
                     </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Offline use: download everything once, then the app works without internet -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Offline.Title}" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Offline.Text}" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Style="{StaticResource PrimaryButton}" Padding="16,8" FontSize="13"
+                                    Command="{Binding DownloadOfflineCommand}"
+                                    Visibility="{Binding IsDownloadingOffline, Converter={x:Static h:InverseBoolToVisibility.Instance}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE896;" FontSize="13" Margin="0,0,8,0" />
+                                    <TextBlock Text="{DynamicResource Offline.Download}" />
+                                </StackPanel>
+                            </Button>
+                            <Button Content="{DynamicResource Offline.Cancel}" Command="{Binding CancelOfflineCommand}"
+                                    Visibility="{Binding IsDownloadingOffline, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="{Binding OfflineLastText}" />
+                            <TextBlock Text="{DynamicResource Offline.NeedsInternet}" Style="{StaticResource Muted}" FontSize="12"
+                                       Margin="0,2,0,0" TextWrapping="Wrap"
+                                       Visibility="{Binding IsOnline, Converter={x:Static h:InverseBoolToVisibility.Instance}}" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <StackPanel Margin="0,12,0,0" Visibility="{Binding OfflineStatus, Converter={StaticResource NullToVis}}">
+                        <ProgressBar Value="{Binding OfflineProgress}" Maximum="100" Margin="0,0,0,6"
+                                     Visibility="{Binding IsDownloadingOffline, Converter={StaticResource BoolToVis}}" />
+                        <TextBlock Text="{Binding OfflineStatus}" Style="{StaticResource Muted}" FontSize="12"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
@@ -184,26 +257,126 @@
                 </StackPanel>
             </Border>
 
-            <!-- Data -->
+            <!-- About -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border.Resources>
+                    <Style x:Key="InfoLabel" TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+                        <Setter Property="Margin" Value="0,0,16,6" />
+                        <Setter Property="VerticalAlignment" Value="Top" />
+                    </Style>
+                    <Style x:Key="InfoValue" TargetType="TextBlock">
+                        <Setter Property="Margin" Value="0,0,0,6" />
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                    <Style x:Key="InfoLink" TargetType="Button" BasedOn="{StaticResource LinkButton}">
+                        <Setter Property="Margin" Value="0,0,0,6" />
+                        <Setter Property="HorizontalAlignment" Value="Left" />
+                        <Setter Property="Command" Value="{Binding OpenLinkCommand}" />
+                    </Style>
+                </Border.Resources>
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource Set.Data}" Style="{StaticResource SectionTitle}" />
-                    <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Set.DataText}" />
-                    <TextBlock Text="{Binding DataFolder}" Margin="0,6,0,12" TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="{DynamicResource Set.OpenData}" Command="{Binding OpenDataFolderCommand}" />
-                        <Button Style="{StaticResource GhostButton}" Margin="8,0,0,0" Command="{Binding ReportBugCommand}">
+                    <TextBlock Text="{DynamicResource Set.AboutTitle}" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+
+                    <!-- Logo, name, version -->
+                    <DockPanel Margin="0,0,0,16">
+                        <Image DockPanel.Dock="Left" Source="/Assets/logo.png" Width="56" Height="56" Margin="0,0,14,0"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="DBD Reshade" FontSize="18" FontWeight="Bold" />
+                            <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Set.Tagline}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.Developer}" />
+                        <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource InfoLink}"
+                                Content="{Binding DeveloperName}" CommandParameter="{Binding DeveloperUrl}" />
+
+                        <TextBlock Grid.Row="1" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.Version}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoValue}" Text="{Binding BuildText}" />
+
+                        <TextBlock Grid.Row="2" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.License}" />
+                        <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource InfoLink}"
+                                Content="{Binding LicenseName}" CommandParameter="{Binding LicenseUrl}" />
+
+                        <TextBlock Grid.Row="3" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.PoweredBy}" />
+                        <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource InfoLink}"
+                                Content="{DynamicResource Set.ReShadeCredit}" CommandParameter="{Binding ReShadeUrl}" />
+
+                        <TextBlock Grid.Row="4" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.Thanks}" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource InfoValue}" Text="{DynamicResource Set.ThanksText}" />
+
+                        <TextBlock Grid.Row="5" Style="{StaticResource InfoLabel}" Text="{DynamicResource Set.Changelog}" />
+                        <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource InfoLink}"
+                                Content="{DynamicResource Set.ReleaseNotes}" Command="{Binding ShowWhatsNewCommand}" />
+                    </Grid>
+
+                    <Rectangle Height="1" Fill="{DynamicResource BorderBrush}" Margin="0,10,0,14" />
+
+                    <!-- Links -->
+                    <WrapPanel>
+                        <WrapPanel.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource GhostButton}">
+                                <Setter Property="Margin" Value="0,0,6,6" />
+                                <Setter Property="Command" Value="{Binding OpenLinkCommand}" />
+                            </Style>
+                        </WrapPanel.Resources>
+                        <Button CommandParameter="{Binding RepoUrl}">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="16" Height="16" Margin="0,0,8,0">
+                                    <Border.Background><ImageBrush ImageSource="/Assets/Icons/github.png" Stretch="Uniform" /></Border.Background>
+                                </Border>
+                                <TextBlock Text="GitHub" />
+                            </StackPanel>
+                        </Button>
+                        <Button CommandParameter="{Binding WebsiteUrl}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE774;" FontSize="13" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Set.Website}" />
+                            </StackPanel>
+                        </Button>
+                        <Button CommandParameter="{Binding DiscordUrl}">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="16" Height="16" Margin="0,0,8,0">
+                                    <Border.Background><ImageBrush ImageSource="/Assets/Icons/discord.png" Stretch="Uniform" /></Border.Background>
+                                </Border>
+                                <TextBlock Text="Discord" />
+                            </StackPanel>
+                        </Button>
+                        <Button CommandParameter="{Binding TwitchUrl}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE714;" FontSize="13" Margin="0,0,8,0" />
+                                <TextBlock Text="Twitch" />
+                            </StackPanel>
+                        </Button>
+                        <Button CommandParameter="{Binding InstagramUrl}">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="16" Height="16" Margin="0,0,8,0">
+                                    <Border.Background><ImageBrush ImageSource="/Assets/Icons/instagram.png" Stretch="Uniform" /></Border.Background>
+                                </Border>
+                                <TextBlock Text="Instagram" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ReportBugCommand}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Icon}" Text="&#xEBE8;" FontSize="13" Margin="0,0,8,0" />
                                 <TextBlock Text="{DynamicResource Footer.ReportBug}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource GhostButton}" Margin="8,0,0,0" Command="{Binding OpenRepositoryCommand}">
-                            <TextBlock>
-                                <Run Text="{DynamicResource Set.About}" /> <Run Text="{Binding VersionText, Mode=OneWay}" />
-                            </TextBlock>
-                        </Button>
-                    </StackPanel>
+                    </WrapPanel>
                 </StackPanel>
             </Border>
         </StackPanel>

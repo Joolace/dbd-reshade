@@ -103,6 +103,14 @@
                     </Border>
 
                     <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Margin="0,0,0,2" ToolTip="{DynamicResource Footer.WhatsNewTip}" Command="{Binding ShowWhatsNewCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE789;" FontSize="13" Margin="0,0,8,0" />
+                            <TextBlock Text="{DynamicResource Footer.WhatsNew}" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Margin="0,0,0,8" ToolTip="{DynamicResource Footer.ReportBugTip}" Command="{Binding ReportBugCommand}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Icon}" Text="&#xEBE8;" FontSize="13" Margin="0,0,8,0" />
@@ -159,14 +167,37 @@
         <!-- ================= Content ================= -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <ContentControl Content="{Binding SelectedPage.Page}" Focusable="False" Margin="28,24,28,16" />
+            <!-- Offline banner: what still works, and a way to try again -->
+            <Border Visibility="{Binding IsOffline, Converter={StaticResource BoolToVis}}"
+                    Background="{DynamicResource BannerBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="0,0,0,1" Padding="20,10">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="18"
+                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,12,0" VerticalAlignment="Center" />
+                    <Button DockPanel.Dock="Right" Margin="12,0,0,0" Padding="12,6" VerticalAlignment="Center"
+                            Command="{Binding RetryConnectionCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="12" Margin="0,0,8,0" />
+                            <TextBlock Text="{DynamicResource Net.Retry}" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Net.Offline}" FontWeight="SemiBold" />
+                        <TextBlock Text="{DynamicResource Net.OfflineText}" Style="{StaticResource Muted}" FontSize="12"
+                                   TextWrapping="Wrap" Margin="0,2,0,0" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <ContentControl Grid.Row="1" Content="{Binding SelectedPage.Page}" Focusable="False" Margin="28,24,28,16" />
 
             <!-- Log panel -->
-            <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
+            <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}"
                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
                 <DockPanel>
                     <DockPanel DockPanel.Dock="Top" Margin="20,6,12,6">

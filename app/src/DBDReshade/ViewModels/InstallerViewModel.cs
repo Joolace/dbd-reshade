@@ -115,23 +115,17 @@ public sealed partial class InstallerViewModel : ObservableObject
     private const string ShowNew = "new";
     private const string ShowPopular = "popular";
 
-    /// <summary>The style labels presets.json may use; others are shown as written.</summary>
-    private static readonly string[] KnownStyles = { "bright", "dark", "competitive", "cinematic" };
-
     public ObservableCollection<FilterOption> ShowOptions { get; } = new();
     public ObservableCollection<FilterOption> AuthorOptions { get; } = new();
     public ObservableCollection<FilterOption> MapOptions { get; } = new();
-    public ObservableCollection<FilterOption> StyleOptions { get; } = new();
 
     [ObservableProperty] private FilterOption? _selectedShow;
     [ObservableProperty] private FilterOption? _selectedAuthor;
     [ObservableProperty] private FilterOption? _selectedMap;
-    [ObservableProperty] private FilterOption? _selectedStyle;
 
     partial void OnSelectedShowChanged(FilterOption? value) => FiltersChanged();
     partial void OnSelectedAuthorChanged(FilterOption? value) => FiltersChanged();
     partial void OnSelectedMapChanged(FilterOption? value) => FiltersChanged();
-    partial void OnSelectedStyleChanged(FilterOption? value) => FiltersChanged();
 
     private bool _rebuildingFilters;
 
@@ -150,12 +144,29 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         PresetsView.Refresh();
         OnPropertyChanged(nameof(HasActiveFilters));
+        OnPropertyChanged(nameof(ActiveFilterCount));
+        OnPropertyChanged(nameof(ActiveFiltersText));
         OnPropertyChanged(nameof(VisibleCount));
     }
 
     public bool HasActiveFilters =>
         SelectedShow?.Value is not null || SelectedAuthor?.Value is not null
-        || SelectedMap?.Value is not null || SelectedStyle?.Value is not null;
+        || SelectedMap?.Value is not null;
+
+    /// <summary>How many filters are on (shown on the Filters button).</summary>
+    public int ActiveFilterCount =>
+        (SelectedShow?.Value is null ? 0 : 1) + (SelectedAuthor?.Value is null ? 0 : 1) + (SelectedMap?.Value is null ? 0 : 1);
+
+    /// <summary>"★ Favorites · Koda · Coldwind Farm": the filters that are on, under the search box.</summary>
+    public string ActiveFiltersText => string.Join(" · ",
+        new[] { SelectedShow, SelectedAuthor, SelectedMap }.Where(o => o?.Value is not null).Select(o => o!.Label));
+
+    /// <summary>The filter panel is open.</summary>
+    [ObservableProperty]
+    private bool _isFilterPanelOpen;
+
+    [RelayCommand]
+    private void CloseFilterPanel() => IsFilterPanelOpen = false;
 
     /// <summary>Presets shown with the current search and filters.</summary>
     public int VisibleCount => PresetsView.Cast<object>().Count();
@@ -174,8 +185,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             ShowNew when !p.IsNew => false,
             ShowPopular when p.Installs <= 0 => false,
             _ => (SelectedAuthor?.Value is not { } author || string.Equals(p.Author, author, StringComparison.OrdinalIgnoreCase))
-                 && (SelectedMap?.Value is not { } map || string.Equals(p.Map, map, StringComparison.OrdinalIgnoreCase))
-                 && (SelectedStyle?.Value is not { } style || p.Tags.Contains(style)),
+                 && (SelectedMap?.Value is not { } map || string.Equals(p.Map, map, StringComparison.OrdinalIgnoreCase)),
         };
     }
 
@@ -206,13 +216,6 @@ public sealed partial class InstallerViewModel : ObservableObject
                     .Select(m => new FilterOption(m, m))
                     .Prepend(new FilterOption(null, Loc.Get("Inst.Filter.AllMaps"))),
                 v => SelectedMap = v);
-
-            Fill(StyleOptions, SelectedStyle,
-                KnownStyles.Concat(Presets.SelectMany(p => p.Tags)).Distinct()
-                    .Where(t => KnownStyles.Contains(t) || Presets.Any(p => p.Tags.Contains(t)))
-                    .Select(t => new FilterOption(t, KnownStyles.Contains(t) ? Loc.Get($"Inst.Style.{t}") : t))
-                    .Prepend(new FilterOption(null, Loc.Get("Inst.Filter.AllStyles"))),
-                v => SelectedStyle = v);
         }
         finally
         {
@@ -237,7 +240,6 @@ public sealed partial class InstallerViewModel : ObservableObject
         SelectedShow = ShowOptions.FirstOrDefault();
         SelectedAuthor = AuthorOptions.FirstOrDefault();
         SelectedMap = MapOptions.FirstOrDefault();
-        SelectedStyle = StyleOptions.FirstOrDefault();
         SearchText = "";
         _rebuildingFilters = false;
         FiltersChanged();
@@ -347,7 +349,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         {
             if (!cts.IsCancellationRequested)
             {
-                SetPreviewMessage("Inst.PreviewFailed");
+                SetPreviewMessage(ex is HttpRequestException ? "Inst.PreviewOffline" : "Inst.PreviewFailed");
                 _log.Warning($"Preview for {preset.DisplayName} failed: {ex.Message}");
             }
         }
@@ -637,6 +639,11 @@ public sealed partial class InstallerViewModel : ObservableObject
         {
             _log.Error(ex.Message);
             Dialogs.Error(Loc.Format("Inst.AccessDenied", ex.Message));
+        }
+        catch (HttpRequestException ex)
+        {
+            _log.Error($"Installation failed, no connection: {ex.Message}");
+            Dialogs.Error(Loc.Get("Inst.NoInternet"));
         }
         catch (Exception ex)
         {

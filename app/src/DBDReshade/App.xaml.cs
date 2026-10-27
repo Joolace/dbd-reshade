@@ -54,6 +54,9 @@ public partial class App : Application
         var mapPreview = new MapPreviewService(reshade, shaders, _log);
         var updater = new UpdateService(_log);
         var packages = new PresetPackageService(_log);
+        var changelog = new ChangelogService(_log);
+        var network = new NetworkService(_log);
+        var offline = new OfflineService(sync, translations, repository, github, maps, reshade, shaders, _log);
 
         await Step(splash, "Splash.Game");
         var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log), new BackupService(_log), new StatsService(settings, _log));
@@ -62,12 +65,14 @@ public partial class App : Application
             new PresetManagerViewModel(repository, sync, packages, _log),
             new CopyPresetsViewModel(repository, _log),
             new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, packages, _log),
-            new SettingsViewModel(settings, storage),
-            github, sync, translations, updater, _log);
+            new SettingsViewModel(settings, storage, changelog, offline, network),
+            github, sync, translations, updater, _log, changelog, settings, network);
 
         // Like Discord: look for a new version before opening, without making anyone wait for long.
         await Step(splash, "Splash.Updates");
-        var updateCheck = main.CheckForUpdateAsync();
+        // A quick connection check first: offline, the update check below is skipped and the app says so.
+        await Task.WhenAny(network.CheckAsync(), Task.Delay(TimeSpan.FromSeconds(3)));
+        var updateCheck = network.IsOnline ? main.CheckForUpdateAsync() : Task.CompletedTask;
         await Task.WhenAny(updateCheck, Task.Delay(UpdateCheckLimit));
         if (main.AvailableUpdate is { } update)
         {
@@ -84,6 +89,9 @@ public partial class App : Application
         window.Show();
         BringToFront(window);
         await splash.CloseWithFadeAsync();
+
+        // First start after an update: show what changed.
+        main.ShowWhatsNewIfUpdated();
     }
 
     /// <summary>

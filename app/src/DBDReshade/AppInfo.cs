@@ -6,7 +6,7 @@ namespace DBDReshade;
 public static class AppInfo
 {
     public static Version Version { get; } =
-        Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(2, 0, 2);
+        Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(2, 0, 3);
 
     public static string VersionText => $"v{Version.ToString(3)}";
 
@@ -29,6 +29,13 @@ public static class AppInfo
     public const string RepoUrl = "https://github.com/Joolace/dbd-reshade";
     public const string DiscordUrl = "https://discord.gg/mC7Eabu3QW";
     public const string InstagramUrl = "https://www.instagram.com/joolace";
+    public const string TwitchUrl = "https://twitch.tv/joolace_";
+    public const string WebsiteUrl = "https://joolace.github.io/dbd-reshade/";
+    public const string DeveloperName = "Joolace";
+    public const string DeveloperUrl = "https://github.com/Joolace";
+    public const string ReleasesUrl = RepoUrl + "/releases";
+    public const string LicenseUrl = RepoUrl + "/blob/" + DefaultBranch + "/LICENSE";
+    public const string LicenseName = "GNU GPL v3.0";
 
     /// <summary>Folder of the repository holding the community translations (one JSON per language).</summary>
     public const string TranslationsFolder = "translations";

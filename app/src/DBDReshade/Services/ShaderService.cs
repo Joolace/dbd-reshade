@@ -132,6 +132,52 @@ public sealed partial class ShaderService
         return files;
     }
 
+    // ---- Offline use ----------------------------------------------------------------------------
+
+    private static string OfflinePackagePath(EffectPackage package) =>
+        Path.Combine(AppPaths.OfflineEffectsDirectory,
+            string.Concat(package.Name.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c)) + ".zip");
+
+    /// <summary>
+    /// Saves ReShade's effect list and the packages the given presets (and the editor) use, so presets can
+    /// be installed without internet. Packages already saved are skipped.
+    /// </summary>
+    public async Task DownloadForOfflineAsync(IEnumerable<string> presetFiles, IProgress<ShaderProgress>? progress = null,
+        CancellationToken ct = default)
+    {
+        var text = await Http.Client.GetStringAsync(PackageListUrl, ct);
+        Directory.CreateDirectory(AppPaths.OfflineEffectsDirectory);
+        await File.WriteAllTextAsync(AppPaths.OfflineEffectListFile, text, ct);
+        var packages = ParsePackages(text);
+        _packages = packages;
+
+        var needed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var preset in presetFiles) needed.UnionWith(EffectFilesOf(preset));
+        var wanted = packages
+            .Where(p => p.Required || EditorPackages.Contains(p.Name) || p.EffectFiles.Any(needed.Contains))
+            .ToList();
+
+        for (var i = 0; i < wanted.Count; i++)
+        {
+            var package = wanted[i];
+            var index = i;
+            var target = OfflinePackagePath(package);
+            progress?.Report(new ShaderProgress(package.Name, index, wanted.Count, 0));
+            if (File.Exists(target)) continue;
+            try
+            {
+                await Http.DownloadFileAsync(package.DownloadUrl, target,
+                    new System.Progress<double>(p => progress?.Report(new ShaderProgress(package.Name, index, wanted.Count, p))), ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _log.Warning($"Effects from {package.Name} could not be saved for offline use: {ex.Message}");
+            }
+        }
+        progress?.Report(new ShaderProgress("", wanted.Count, wanted.Count, 1));
+        _log.Info($"Effects saved for offline use: {wanted.Count} package(s).");
+    }
+
     // ---- Package list -------------------------------------------------------------------------
 
     private async Task<IReadOnlyList<EffectPackage>> GetPackagesAsync(CancellationToken ct)
@@ -142,6 +188,11 @@ public sealed partial class ShaderService
         try
         {
             text = await Http.Client.GetStringAsync(PackageListUrl, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException && File.Exists(AppPaths.OfflineEffectListFile))
+        {
+            _log.Warning($"ReShade's effect list is unavailable, using the copy saved for offline use: {ex.Message}");
+            text = await File.ReadAllTextAsync(AppPaths.OfflineEffectListFile, ct);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -208,10 +259,22 @@ public sealed partial class ShaderService
             progress?.Report(new ShaderProgress(package.Name, index, packages.Count, 0));
 
             var zip = Path.Combine(AppPaths.TempDirectory, $"effects-{i}.zip");
+            var saved = OfflinePackagePath(package);
             try
             {
-                await Http.DownloadFileAsync(package.DownloadUrl, zip,
-                    new System.Progress<double>(p => progress?.Report(new ShaderProgress(package.Name, index, packages.Count, p))), ct);
+                try
+                {
+                    await Http.DownloadFileAsync(package.DownloadUrl, zip,
+                        new System.Progress<double>(p => progress?.Report(new ShaderProgress(package.Name, index, packages.Count, p))), ct);
+                    // Keep the offline copy current when there is one.
+                    if (File.Exists(saved)) File.Copy(zip, saved, overwrite: true);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException && File.Exists(saved))
+                {
+                    // No internet: use the copy saved by "Download everything for offline use".
+                    _log.Warning($"{package.Name} unavailable online ({ex.Message}): using the saved copy.");
+                    File.Copy(saved, zip, overwrite: true);
+                }
                 var count = await Task.Run(() => Extract(zip, package, exeFolder), ct);
                 _log.Info($"Installed {count} effect file(s) from {package.Name}.");
             }

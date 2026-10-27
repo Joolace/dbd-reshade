@@ -106,7 +106,7 @@ works from ReShade's own menu in game.
 ![Install Preset](./screenshots/1.png)
 
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
-- **Favorites and filters**: star the presets you like, and filter by author, map and style (bright, dark, competitive, cinematic)
+- **Favorites and filters**: star the presets you like, then open **Filters** to show only favorites, new or most used presets, by author or by map
 - **New badge**: presets that just arrived are marked for a few days, and the app tells you how many came in
 - **🔥 Most used**: see which presets the community installs the most (anonymous, can be turned off in Settings)
 - **Finds the game** on Steam, Epic Games and the Xbox app, or pick the folder by hand
@@ -178,15 +178,19 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **Language**: 10 languages, switch instantly. Translations are updated automatically.
 - **Theme**: dark, light, or follow Windows
 - **Storage**: see how much space previews, map screenshots, logs and temporary files use, and free it with one click.
-  Your presets, drafts and screenshots are never deleted.
+  Your presets, drafts and screenshots are never deleted. Each folder can be opened from here.
+- **Offline use**: download everything once (presets, previews, map screenshots, ReShade and the effects) and use the app without internet
 - **Privacy**: choose whether to share anonymous install counts for the *Most used* ranking
-- **Help translate** and **Report a bug** links
+- **About**: developer, version, license, credits and links (GitHub, website, Discord, Twitch, Instagram, report a bug)
+- **Help translate** link
 
 ### And also
 
 - **Automatic preset updates**: new and updated presets arrive at startup, without updating the app
 - **One-click app updates**: when a new version is out, a banner appears in the sidebar. Click **Update now**.
+- **What's new**: after an update the app shows what changed, and the **What's new** button in the sidebar opens the changelog any time
 - **Report a bug**: opens our Discord and the logs folder, so you can attach today's log
+- **Works offline**: if there's no connection a banner tells you what still works, and the app catches up by itself when you're back online
 - **Light on disk**: previews (about 1 GB in total) and map screenshots are downloaded only when you look at them
 
 <!-- SCREENSHOT (optional): light theme -->
@@ -232,6 +236,14 @@ please tell us on Discord.
 ---
 
 ## FAQ and troubleshooting
+
+<details>
+<summary><b>Can I use it without internet?</b></summary>
+
+Yes. Go to **Settings → Offline use** and click **Download everything** once (about 1-2 GB the first time). The app
+saves every preset, preview, map screenshot, ReShade's setup and the effects the presets use, so installing presets
+and *Try on maps* work offline. Run it again from time to time to get what's new.
+</details>
 
 <details>
 <summary><b>What does the "Most used" ranking collect?</b></summary>

@@ -9,8 +9,12 @@ public sealed class SettingsService
 
     public AppSettings Current { get; private set; } = new();
 
+    /// <summary>No settings file yet: the app has never run on this PC (not an update).</summary>
+    public bool IsFirstRun { get; private set; }
+
     public void Load()
     {
+        IsFirstRun = !File.Exists(AppPaths.SettingsFile);
         try
         {
             if (File.Exists(AppPaths.SettingsFile))

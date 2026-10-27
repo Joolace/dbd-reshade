@@ -78,6 +78,28 @@ public sealed partial class ReShadeService
         }
     }
 
+    /// <summary>The ReShade setup saved for offline use, if any (the newest one).</summary>
+    public static string? OfflineSetup =>
+        Directory.Exists(AppPaths.OfflineDirectory)
+            ? Directory.EnumerateFiles(AppPaths.OfflineDirectory, "ReShade_Setup*.exe").OrderByDescending(f => f).FirstOrDefault()
+            : null;
+
+    /// <summary>Saves the latest ReShade setup for installs without internet (skipped if it's already there).</summary>
+    public async Task DownloadSetupForOfflineAsync(IProgress<double>? progress = null, CancellationToken ct = default)
+    {
+        var url = await GetLatestSetupUrlAsync(ct);
+        Directory.CreateDirectory(AppPaths.OfflineDirectory);
+        var target = Path.Combine(AppPaths.OfflineDirectory, Path.GetFileName(new Uri(url).LocalPath));
+        if (!File.Exists(target))
+        {
+            _log.Info($"Saving ReShade for offline use: {url}");
+            await Http.DownloadFileAsync(url, target, progress, ct);
+        }
+        foreach (var old in Directory.EnumerateFiles(AppPaths.OfflineDirectory, "ReShade_Setup*.exe").Where(f => f != target).ToList())
+            try { File.Delete(old); } catch (IOException) { /* in use */ }
+        progress?.Report(1);
+    }
+
     /// <summary>Finds the newest "ReShade_Setup_X.Y.Z.exe" (not the Addon build) linked from reshade.me.</summary>
     public async Task<string> GetLatestSetupUrlAsync(CancellationToken ct = default) =>
         (await GetLatestAsync(ct)).Url;
@@ -200,7 +222,20 @@ public sealed partial class ReShadeService
     public async Task InstallForExecutableAsync(string exe, IProgress<double>? progress = null, CancellationToken ct = default)
     {
         _log.Info("Fetching the latest version of ReShade…");
-        var url = await GetLatestSetupUrlAsync(ct);
+        string url;
+        try
+        {
+            url = await GetLatestSetupUrlAsync(ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException && OfflineSetup is { } offline)
+        {
+            // No internet: use the setup saved by "Download everything for offline use".
+            _log.Warning($"reshade.me unavailable ({ex.Message}): installing the saved {Path.GetFileName(offline)}.");
+            await RunSetupAsync(offline, exe, ct);
+            progress?.Report(1);
+            _log.Success("ReShade installed.");
+            return;
+        }
 
         var tempDir = AppPaths.TempDirectory;
         Directory.CreateDirectory(tempDir);

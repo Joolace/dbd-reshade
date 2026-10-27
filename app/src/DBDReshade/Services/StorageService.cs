@@ -1,8 +1,8 @@
 namespace DBDReshade.Services;
 
-public sealed record StorageInfo(long PreviewsBytes, long MapsBytes, long LogsBytes, long TempBytes)
+public sealed record StorageInfo(long PreviewsBytes, long MapsBytes, long LogsBytes, long TempBytes, long OfflineBytes)
 {
-    public long TotalBytes => PreviewsBytes + MapsBytes + LogsBytes + TempBytes;
+    public long TotalBytes => PreviewsBytes + MapsBytes + LogsBytes + TempBytes + OfflineBytes;
 }
 
 /// <summary>
@@ -25,7 +25,8 @@ public sealed class StorageService
         CachedPreviews().Sum(Size),
         MapFiles().Sum(Size),
         OldLogs().Sum(Size),
-        TempFiles().Sum(Size));
+        TempFiles().Sum(Size),
+        OfflineService.OfflineBytes());
 
     /// <returns>Bytes freed.</returns>
     public long ClearPreviews() => DeleteAll(CachedPreviews(), "preview cache");
@@ -43,7 +44,15 @@ public sealed class StorageService
 
     public long ClearTemp() => DeleteAll(TempFiles(), "temporary files");
 
-    public long ClearAll() => ClearPreviews() + ClearMaps() + ClearLogs() + ClearTemp();
+    /// <summary>ReShade's setup and the effect packages saved for offline use.</summary>
+    public long ClearOffline()
+    {
+        var freed = DeleteAll(Files(AppPaths.OfflineDirectory, recursive: true), "offline resources");
+        DeleteEmptyFolders(AppPaths.OfflineDirectory);
+        return freed;
+    }
+
+    public long ClearAll() => ClearPreviews() + ClearMaps() + ClearLogs() + ClearTemp() + ClearOffline();
 
     private static IEnumerable<FileInfo> MapFiles() =>
         Files(AppPaths.MapsDirectory, recursive: true).Concat(Files(AppPaths.ViewerDirectory, recursive: true));

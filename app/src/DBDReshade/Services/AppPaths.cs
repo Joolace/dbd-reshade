@@ -34,6 +34,11 @@ public static class AppPaths
     /// <summary>Translations downloaded from GitHub (override the ones built into the exe).</summary>
     public static string TranslationsDirectory => Path.Combine(DataRoot, "Translations");
 
+    /// <summary>"Download everything for offline use": ReShade's setup and the effect packages, kept for installs without internet.</summary>
+    public static string OfflineDirectory => Path.Combine(DataRoot, "Offline");
+    public static string OfflineEffectsDirectory => Path.Combine(OfflineDirectory, "Effects");
+    public static string OfflineEffectListFile => Path.Combine(OfflineDirectory, "EffectPackages.ini");
+
     /// <summary>Downloads that are only needed for a moment (the ReShade setup).</summary>
     public static string TempDirectory => Path.Combine(Path.GetTempPath(), "DBDReshade");
 

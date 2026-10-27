@@ -194,6 +194,12 @@ public sealed class AppSettings
     /// <summary>Preset file names the user starred.</summary>
     public List<string> Favorites { get; set; } = new();
 
+    /// <summary>When "Download everything for offline use" last finished (UTC).</summary>
+    public DateTime? OfflineDownloadedUtc { get; set; }
+
+    /// <summary>Last version whose "What's new" was shown: after an update, the window opens once on start.</summary>
+    public string? LastSeenVersion { get; set; }
+
     /// <summary>Send anonymous install counts to the community ranking (Settings, on by default).</summary>
     public bool ShareUsage { get; set; } = true;
 

@@ -36,6 +36,9 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly UpdateService _updater;
     private readonly LogService _log;
     private readonly PresetManagerViewModel _manager;
+    private readonly ChangelogService _changelog;
+    private readonly SettingsService _settings;
+    private readonly NetworkService _network;
 
     public MainViewModel(
         InstallerViewModel installer,
@@ -47,8 +50,16 @@ public sealed partial class MainViewModel : ObservableObject
         PresetSyncService sync,
         TranslationSyncService translations,
         UpdateService updater,
-        LogService log)
+        LogService log,
+        ChangelogService changelog,
+        SettingsService settingsService,
+        NetworkService network)
     {
+        _network = network;
+        _isOffline = !network.IsOnline;
+        network.Changed += (_, online) => System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => OnNetworkChanged(online));
+        _changelog = changelog;
+        _settings = settingsService;
         _updater = updater;
         _manager = manager;
         _github = github;
@@ -100,6 +111,64 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isLogExpanded = true;
+
+    // ---- Connection ---------------------------------------------------------------------------
+
+    /// <summary>No internet: a banner says what still works.</summary>
+    [ObservableProperty]
+    private bool _isOffline;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RetryConnectionCommand))]
+    private bool _isCheckingConnection;
+
+    private void OnNetworkChanged(bool online)
+    {
+        var wasOffline = IsOffline;
+        IsOffline = !online;
+        // Back online: catch up on what was skipped (new presets, translations, app updates).
+        if (wasOffline && online)
+            _ = Task.WhenAll(SyncPresetsQuietlyAsync(), SyncTranslationsQuietlyAsync(), CheckForUpdateAsync());
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRetryConnection))]
+    private async Task RetryConnectionAsync()
+    {
+        IsCheckingConnection = true;
+        try
+        {
+            await _network.CheckAsync();
+            await Task.Delay(400); // let the banner visibly react, even when the answer is instant
+        }
+        finally
+        {
+            IsCheckingConnection = false;
+        }
+    }
+
+    private bool CanRetryConnection() => !IsCheckingConnection;
+
+    /// <summary>Opens the "What's new" window (sidebar button).</summary>
+    [RelayCommand]
+    private void ShowWhatsNew() => Views.WhatsNewWindow.Open(_changelog);
+
+    /// <summary>
+    /// After an update, opens "What's new" once. Not on the very first run (nothing changed for a new user):
+    /// that version is just remembered.
+    /// </summary>
+    public void ShowWhatsNewIfUpdated()
+    {
+        var current = AppInfo.Version.ToString(3);
+        var last = _settings.Current.LastSeenVersion;
+        if (last == current) return;
+
+        _settings.Current.LastSeenVersion = current;
+        _settings.Save();
+        if (last is null && _settings.IsFirstRun) return;
+
+        _log.Info($"Updated to {AppInfo.VersionText}: showing what's new.");
+        Views.WhatsNewWindow.Open(_changelog, justUpdated: true);
+    }
 
     /// <summary>Runs once when the main window has been shown.</summary>
     public async Task InitializeAsync()
