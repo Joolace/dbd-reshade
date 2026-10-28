@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DBD Reshade overlay</title>
+<style>
+  @font-face { font-family: "Montserrat"; src: url("/font.ttf") format("truetype"); }
+  :root { --accent: #e5484d; --bg: rgba(14, 14, 18, .78); --text: #f2f2f5; --muted: rgba(242, 242, 245, .62); }
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  body { font-family: "Montserrat", "Segoe UI", sans-serif; color: var(--text); padding: 12px; }
+  body.light { --bg: rgba(255, 255, 255, .86); --text: #15151a; --muted: rgba(21, 21, 26, .6); }
+  body.right { display: flex; justify-content: flex-end; }
+
+  .badge { display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px;
+           background: var(--bg); border-radius: 14px; border-left: 3px solid var(--accent);
+           box-shadow: 0 6px 24px rgba(0, 0, 0, .35); backdrop-filter: blur(8px);
+           opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+  .badge.show { opacity: 1; transform: none; }
+  .badge img { width: 40px; height: 40px; object-fit: contain; }
+  .label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .preset { font-size: 17px; font-weight: 700; line-height: 1.25; max-width: 520px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .author { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .preset.swap { animation: swap .5s ease; }
+  @keyframes swap { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: none; } }
+
+  /* style=minimal: just a line of text */
+  body.minimal .badge { background: none; box-shadow: none; border: 0; padding: 0; backdrop-filter: none;
+                        text-shadow: 0 1px 4px rgba(0, 0, 0, .8); }
+  body.minimal img { width: 26px; height: 26px; }
+  body.minimal .preset { font-size: 15px; }
+</style>
+</head>
+<body>
+  <div class="badge" id="badge">
+    <img src="/logo.png" alt="">
+    <div>
+      <div class="label" id="label">DBD Reshade</div>
+      <div class="preset" id="preset"></div>
+      <div class="author" id="author"></div>
+    </div>
+  </div>
+<script>
+  // Options from the app; the URL can override them: ?style=minimal&theme=light&align=right
+  const query = new URLSearchParams(location.search);
+  const badge = document.getElementById("badge");
+  const presetEl = document.getElementById("preset");
+  const authorEl = document.getElementById("author");
+  const labelEl = document.getElementById("label");
+  let lastPreset = null;
+
+  async function refresh() {
+    try {
+      const s = await (await fetch("/status", { cache: "no-store" })).json();
+      const style = query.get("style") || s.style;
+      const theme = query.get("theme") || s.theme;
+      document.body.className = [style, theme, query.get("align") || s.align].join(" ");
+      labelEl.textContent = s.label;
+
+      const preset = s.showPreset ? (s.preset || "") : "";
+      if (preset !== lastPreset) {
+        presetEl.textContent = preset || s.tagline;
+        presetEl.classList.remove("swap"); void presetEl.offsetWidth; presetEl.classList.add("swap");
+        lastPreset = preset;
+      }
+      authorEl.textContent = s.showPreset && s.showAuthor && s.author ? s.author : "";
+      authorEl.style.display = authorEl.textContent ? "" : "none";
+      // ?preview=1 (the app's "Open in browser"): always visible, even with the game closed.
+      badge.classList.toggle("show", s.visible || query.has("preview"));
+    } catch {
+      badge.classList.remove("show"); // the app is closed
+    }
+  }
+  refresh();
+  setInterval(refresh, 2000);
+</script>
+</body>
+</html>

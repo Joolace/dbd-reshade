@@ -113,6 +113,17 @@ public sealed partial class Preset : ObservableObject
     /// <summary>"🔥 950", "🔥 1.2k".</summary>
     public string InstallsText => "🔥 " + (Installs >= 1000 ? (Installs / 1000.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture) + "k" : Installs.ToString());
 
+    /// <summary>Estimated FPS cost (light / medium / heavy) from the effects the preset turns on.</summary>
+    public PerformanceInfo Performance => PerformanceRating.Rate(FilePath);
+
+    public PerformanceLevel PerformanceLevel => Performance.Level;
+
+    public string PerformanceText => Loc.Get($"Perf.{Performance.Level}");
+
+    public string PerformanceTip => Performance.HeaviestEffects.Count == 0
+        ? Loc.Get("Perf.TipLight")
+        : Loc.Format("Perf.Tip", string.Join(", ", Performance.HeaviestEffects));
+
     public string? Author => string.IsNullOrWhiteSpace(Metadata?.Author) ? null : Metadata!.Author!.Trim();
 
     public string? Map => string.IsNullOrWhiteSpace(Metadata?.Map) ? null : Metadata!.Map!.Trim();
@@ -194,6 +205,15 @@ public sealed class AppSettings
     /// <summary>Preset file names the user starred.</summary>
     public List<string> Favorites { get; set; } = new();
 
+    /// <summary>The last preset installed in each game folder (key: game root path), to notice when a game update breaks it.</summary>
+    public Dictionary<string, InstallRecord> Installs { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Overlay for streamers (OBS browser source).</summary>
+    public OverlaySettings Overlay { get; set; } = new();
+
+    /// <summary>Keyboard shortcuts that switch preset in game (ReShade's PresetShortcutKeys).</summary>
+    public List<PresetHotkey> Hotkeys { get; set; } = new();
+
     /// <summary>When "Download everything for offline use" last finished (UTC).</summary>
     public DateTime? OfflineDownloadedUtc { get; set; }
 
@@ -208,4 +228,46 @@ public sealed class AppSettings
 
     /// <summary>Presets that arrived with a sync, and when (they get a "New" badge for a few days).</summary>
     public Dictionary<string, DateTime> NewPresets { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+}
+
+/// <summary>What the app installed in a game folder, checked on start to catch a game update that undid it.</summary>
+public sealed class InstallRecord
+{
+    public string PresetFileName { get; set; } = "";
+
+    /// <summary>Full path of the preset copy ReShade uses.</summary>
+    public string PresetPath { get; set; } = "";
+
+    /// <summary>Size and date of the game exe when installed: a change means the game was updated.</summary>
+    public string? GameStamp { get; set; }
+}
+
+/// <summary>A key (Windows virtual-key code plus modifiers) that switches to a preset in game.</summary>
+public sealed class PresetHotkey
+{
+    public string PresetFileName { get; set; } = "";
+    public int Key { get; set; }
+    public bool Ctrl { get; set; }
+    public bool Shift { get; set; }
+    public bool Alt { get; set; }
+}
+
+/// <summary>Settings of the streamer overlay (Settings → Streamer overlay).</summary>
+public sealed class OverlaySettings
+{
+    public bool Enabled { get; set; }
+    public int Port { get; set; } = 7373;
+    public bool ShowPreset { get; set; } = true;
+    public bool ShowAuthor { get; set; } = true;
+    /// <summary>Hide the overlay while Dead by Daylight is closed.</summary>
+    public bool OnlyWhilePlaying { get; set; } = true;
+    /// <summary>"card" or "minimal".</summary>
+    public string Style { get; set; } = "card";
+    /// <summary>"dark" or "light".</summary>
+    public string Theme { get; set; } = "dark";
+    public bool AlignRight { get; set; }
+    /// <summary>Show the overlay preview inside Settings.</summary>
+    public bool ShowInAppPreview { get; set; } = true;
+    /// <summary>Also write the text to a file, for a "Text (GDI+)" source.</summary>
+    public bool WriteTextFile { get; set; }
 }

@@ -80,12 +80,8 @@ public static class Shell
     /// Bug reports go to Discord: explains what to send, then opens Discord and the logs folder
     /// so today's log file can be attached right away.
     /// </summary>
-    public static void ReportBug()
-    {
-        Dialogs.Info(Services.Loc.Get("App.ReportBugInfo"));
-        Open(AppInfo.DiscordUrl);
-        Open(Services.AppPaths.LogsDirectory);
-    }
+    /// <summary>Opens "Report a problem" (it becomes a GitHub issue; falls back to Discord without the service).</summary>
+    public static void ReportBug() => Views.ReportWindow.Open();
 
     /// <summary>Opens Explorer with the file selected.</summary>
     public static void ShowInFolder(string path)
@@ -108,7 +104,20 @@ public static class Shell
             // The app runs as administrator: links go through Explorer so the browser / Discord open
             // normally, not as administrator. Folders and files open directly.
             if (Uri.TryCreate(target, UriKind.Absolute, out var uri) && !uri.IsFile)
-                Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { target }, UseShellExecute = false });
+            {
+                // Explorer reads its argument as a path: an address with "?…" or a port (localhost:7373)
+                // isn't one, and it would open the Documents folder instead. An Internet shortcut (.url)
+                // always opens in the default browser.
+                var argument = target;
+                if (uri.Scheme is "http" or "https")
+                {
+                    var folder = Path.Combine(Path.GetTempPath(), "DBDReshade");
+                    Directory.CreateDirectory(folder);
+                    argument = Path.Combine(folder, $"link-{Guid.NewGuid():N}.url"); // one per click: Explorer reads it a moment later
+                    File.WriteAllText(argument, $"[InternetShortcut]\r\nURL={uri.AbsoluteUri}\r\n");
+                }
+                Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { argument }, UseShellExecute = false });
+            }
             else
                 Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
         }
@@ -328,5 +337,89 @@ public static class FileDrop
             window.Dispatcher.BeginInvoke(new Action(() => onDrop(files)));
             return IntPtr.Zero;
         });
+    }
+}
+
+/// <summary>
+/// A box that records a keyboard shortcut: click it and press a key (with Ctrl / Shift / Alt if wanted).
+/// Backspace or Delete clears it, Esc leaves it as it was. Values are Windows virtual-key codes, as ReShade uses.
+/// </summary>
+public sealed class HotkeyBox : System.Windows.Controls.TextBox
+{
+    public static readonly DependencyProperty KeyCodeProperty = DependencyProperty.Register(nameof(KeyCode), typeof(int),
+        typeof(HotkeyBox), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, _) => ((HotkeyBox)d).Refresh()));
+    public static readonly DependencyProperty CtrlProperty = DependencyProperty.Register(nameof(Ctrl), typeof(bool),
+        typeof(HotkeyBox), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, _) => ((HotkeyBox)d).Refresh()));
+    public static readonly DependencyProperty ShiftProperty = DependencyProperty.Register(nameof(Shift), typeof(bool),
+        typeof(HotkeyBox), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, _) => ((HotkeyBox)d).Refresh()));
+    public static readonly DependencyProperty AltProperty = DependencyProperty.Register(nameof(Alt), typeof(bool),
+        typeof(HotkeyBox), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, _) => ((HotkeyBox)d).Refresh()));
+
+    public int KeyCode { get => (int)GetValue(KeyCodeProperty); set => SetValue(KeyCodeProperty, value); }
+    public bool Ctrl { get => (bool)GetValue(CtrlProperty); set => SetValue(CtrlProperty, value); }
+    public bool Shift { get => (bool)GetValue(ShiftProperty); set => SetValue(ShiftProperty, value); }
+    public bool Alt { get => (bool)GetValue(AltProperty); set => SetValue(AltProperty, value); }
+
+    public HotkeyBox()
+    {
+        IsReadOnly = true;
+        IsReadOnlyCaretVisible = false;
+        Cursor = System.Windows.Input.Cursors.Hand;
+        GotKeyboardFocus += (_, _) => Refresh();
+        LostKeyboardFocus += (_, _) => Refresh();
+        Loaded += (_, _) => Refresh();
+        Services.Loc.Changed += (_, _) => Refresh();
+    }
+
+    protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+    {
+        e.Handled = true;
+        var key = e.Key == System.Windows.Input.Key.System ? e.SystemKey : e.Key;
+        switch (key)
+        {
+            case System.Windows.Input.Key.LeftCtrl or System.Windows.Input.Key.RightCtrl
+                or System.Windows.Input.Key.LeftShift or System.Windows.Input.Key.RightShift
+                or System.Windows.Input.Key.LeftAlt or System.Windows.Input.Key.RightAlt
+                or System.Windows.Input.Key.LWin or System.Windows.Input.Key.RWin:
+                return; // wait for the real key
+            case System.Windows.Input.Key.Escape:
+            case System.Windows.Input.Key.Tab:
+                System.Windows.Input.Keyboard.ClearFocus();
+                return;
+            case System.Windows.Input.Key.Back or System.Windows.Input.Key.Delete:
+                KeyCode = 0; Ctrl = Shift = Alt = false;
+                return;
+        }
+
+        var modifiers = System.Windows.Input.Keyboard.Modifiers;
+        Ctrl = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Control);
+        Shift = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift);
+        Alt = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Alt);
+        KeyCode = System.Windows.Input.KeyInterop.VirtualKeyFromKey(key);
+        System.Windows.Input.Keyboard.ClearFocus();
+    }
+
+    private void Refresh() =>
+        Text = KeyCode == 0
+            ? Services.Loc.Get(IsKeyboardFocused ? "Hotkeys.PressKey" : "Hotkeys.NoKey")
+            : Format(KeyCode, Ctrl, Shift, Alt);
+
+    /// <summary>"Ctrl + Shift + F5"</summary>
+    public static string Format(int vk, bool ctrl, bool shift, bool alt)
+    {
+        var key = System.Windows.Input.KeyInterop.KeyFromVirtualKey(vk);
+        var name = key switch
+        {
+            >= System.Windows.Input.Key.D0 and <= System.Windows.Input.Key.D9 => ((int)(key - System.Windows.Input.Key.D0)).ToString(),
+            >= System.Windows.Input.Key.NumPad0 and <= System.Windows.Input.Key.NumPad9 => "Num " + (int)(key - System.Windows.Input.Key.NumPad0),
+            System.Windows.Input.Key.None => $"#{vk}",
+            _ => key.ToString(),
+        };
+        var parts = new List<string>();
+        if (ctrl) parts.Add("Ctrl");
+        if (shift) parts.Add("Shift");
+        if (alt) parts.Add("Alt");
+        parts.Add(name);
+        return string.Join(" + ", parts);
     }
 }

@@ -26,14 +26,16 @@ public sealed partial class InstallerViewModel : ObservableObject
     private readonly GameLauncher _launcher;
     private readonly BackupService _backups;
     private readonly StatsService _stats;
+    private readonly HotkeyService _hotkeys;
     private CancellationTokenSource? _previewCts;
     private string? _previewMessageKey;
 
     public InstallerViewModel(
         PresetRepository repository, PresetSyncService sync, GameLocator locator, ReShadeService reshade,
         ShaderService shaders, GitHubService github, SettingsService settings, LogService log, MapService maps, MapPreviewService mapPreview,
-        GameLauncher launcher, BackupService backups, StatsService stats)
+        GameLauncher launcher, BackupService backups, StatsService stats, HotkeyService hotkeys)
     {
+        _hotkeys = hotkeys;
         _stats = stats;
         _launcher = launcher;
         _backups = backups;
@@ -61,6 +63,9 @@ public sealed partial class InstallerViewModel : ObservableObject
         ReloadPresets();
         DetectInstallations();
         _ = _stats.LoadAsync();
+
+        // Shortcuts saved while the game was open (or before a game update) are written now.
+        if (_hotkeys.Hotkeys.Count > 0) _hotkeys.Apply();
     }
 
     // ---- Community ranking ------------------------------------------------------------------
@@ -114,6 +119,7 @@ public sealed partial class InstallerViewModel : ObservableObject
     private const string ShowFavorites = "favorites";
     private const string ShowNew = "new";
     private const string ShowPopular = "popular";
+    private const string ShowLight = "light";
 
     public ObservableCollection<FilterOption> ShowOptions { get; } = new();
     public ObservableCollection<FilterOption> AuthorOptions { get; } = new();
@@ -184,6 +190,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             ShowFavorites when !p.IsFavorite => false,
             ShowNew when !p.IsNew => false,
             ShowPopular when p.Installs <= 0 => false,
+            ShowLight when p.PerformanceLevel != PerformanceLevel.Light => false,
             _ => (SelectedAuthor?.Value is not { } author || string.Equals(p.Author, author, StringComparison.OrdinalIgnoreCase))
                  && (SelectedMap?.Value is not { } map || string.Equals(p.Map, map, StringComparison.OrdinalIgnoreCase)),
         };
@@ -200,6 +207,7 @@ public sealed partial class InstallerViewModel : ObservableObject
                 new FilterOption(null, Loc.Get("Inst.Filter.All")),
                 new FilterOption(ShowFavorites, Loc.Get("Inst.Filter.Favorites")),
                 new FilterOption(ShowNew, Loc.Get("Inst.Filter.New")),
+                new FilterOption(ShowLight, Loc.Get("Inst.Filter.Light")),
             }.Concat(HasRanking ? new[] { new FilterOption(ShowPopular, Loc.Get("Inst.Filter.Popular")) } : Array.Empty<FilterOption>()),
                 v => SelectedShow = v);
 
@@ -447,6 +455,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             _settings.Current.LastGamePath = value.RootPath;
             _settings.Save();
         }
+        _hotkeys.SetTarget(value, DestinationFolder);
         RefreshReShadeStatus();
     }
 
@@ -492,6 +501,7 @@ public sealed partial class InstallerViewModel : ObservableObject
             IsReShadeInstalled = false;
             ReShadeStatus = Loc.Get("Inst.NoGame");
             CurrentPresetName = null;
+            HealthMessage = null;
             return;
         }
 
@@ -503,6 +513,112 @@ public sealed partial class InstallerViewModel : ObservableObject
 
         var current = _reshade.GetCurrentPresetPath(SelectedInstallation);
         CurrentPresetName = string.IsNullOrWhiteSpace(current) ? null : Path.GetFileNameWithoutExtension(current);
+        CheckGameHealth();
+    }
+
+    // ---- After a game update ------------------------------------------------------------------
+
+    /// <summary>"Dead by Daylight was updated and ReShade is no longer installed…" (null = all fine).</summary>
+    [ObservableProperty]
+    private string? _healthMessage;
+
+    /// <summary>Size and date of the game exe: they change when the game updates.</summary>
+    private static string? GameStamp(GameInstallation game)
+    {
+        try
+        {
+            return game.GameExecutable is { } exe && new FileInfo(exe) is { Exists: true } info
+                ? $"{info.Length}|{info.LastWriteTimeUtc.Ticks}"
+                : null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private InstallRecord? RecordFor(GameInstallation game) =>
+        _settings.Current.Installs.FirstOrDefault(r => string.Equals(r.Key, game.RootPath, StringComparison.OrdinalIgnoreCase)).Value;
+
+    private void RecordInstall(GameInstallation game, string presetFileName, string presetPath)
+    {
+        ForgetInstall(game);
+        _settings.Current.Installs[game.RootPath] = new InstallRecord
+        {
+            PresetFileName = presetFileName, PresetPath = presetPath, GameStamp = GameStamp(game),
+        };
+        _settings.Save();
+    }
+
+    /// <summary>
+    /// Compares what the app installed with what's there now. Game updates (or Steam's "verify files")
+    /// can remove ReShade's DLL, its settings, the effects or the preset: then a banner offers to repair it.
+    /// </summary>
+    private void CheckGameHealth()
+    {
+        var previous = HealthMessage;
+        HealthMessage = null;
+        if (SelectedInstallation is not { } game || RecordFor(game) is not { } record) return;
+        if (ReShadeService.IsGameRunning(game)) return;
+
+        var stamp = GameStamp(game);
+        var updated = stamp is not null && record.GameStamp is not null && stamp != record.GameStamp;
+
+        var problems = new List<string>();
+        if (!_reshade.IsInstalled(game)) problems.Add(Loc.Get("Health.NoReShade"));
+        else
+        {
+            if (!File.Exists(game.ReShadeIniPath)) problems.Add(Loc.Get("Health.NoIni"));
+            if (!File.Exists(Path.Combine(game.BinariesDirectory, "reshade-shaders", "Shaders", "ReShade.fxh")))
+                problems.Add(Loc.Get("Health.NoEffects"));
+        }
+        if (!string.IsNullOrEmpty(record.PresetPath) && !File.Exists(record.PresetPath)) problems.Add(Loc.Get("Health.NoPreset"));
+
+        if (problems.Count == 0)
+        {
+            if (updated)
+            {
+                _log.Success("Dead by Daylight was updated: ReShade and the preset are still in place.");
+                record.GameStamp = stamp;
+                _settings.Save();
+            }
+            return;
+        }
+
+        var message = Loc.Format(updated ? "Health.Updated" : "Health.Broken", string.Join(", ", problems));
+        if (message != previous)
+            _log.Warning($"Game check: {string.Join("; ", problems)}{(updated ? " (after a game update)" : "")}");
+        HealthMessage = message;
+    }
+
+    /// <summary>Installs again the last preset (with ReShade and the effects) to fix what the update removed.</summary>
+    [RelayCommand]
+    private async Task RepairAsync()
+    {
+        if (SelectedInstallation is not { } game || RecordFor(game) is not { } record) return;
+        var preset = Presets.FirstOrDefault(p => string.Equals(p.FileName, record.PresetFileName, StringComparison.OrdinalIgnoreCase));
+        if (preset is not null)
+        {
+            if (!PresetsView.Cast<Preset>().Contains(preset)) ClearFilters();
+            SelectedPreset = preset;
+        }
+        if (SelectedPreset is null) return;
+        if (InstallCommand.CanExecute(null)) await InstallCommand.ExecuteAsync(null);
+    }
+
+    /// <summary>"Ignore": forget the last install, so the warning doesn't come back.</summary>
+    [RelayCommand]
+    private void DismissHealth()
+    {
+        if (SelectedInstallation is { } game) ForgetInstall(game);
+        HealthMessage = null;
+    }
+
+    private void ForgetInstall(GameInstallation game)
+    {
+        foreach (var key in _settings.Current.Installs.Keys.Where(k => string.Equals(k, game.RootPath, StringComparison.OrdinalIgnoreCase)).ToList())
+            _settings.Current.Installs.Remove(key);
+        _settings.Save();
     }
 
     // ---- Destination folder ----------------------------------------------------------------
@@ -534,6 +650,7 @@ public sealed partial class InstallerViewModel : ObservableObject
 
     private void DestinationChanged()
     {
+        _hotkeys.SetTarget(SelectedInstallation, DestinationFolder);
         OnPropertyChanged(nameof(DestinationFolder));
         OnPropertyChanged(nameof(IsUsingGameFolder));
         InstallCommand.NotifyCanExecuteChanged();
@@ -626,6 +743,8 @@ public sealed partial class InstallerViewModel : ObservableObject
 
             StatusText = Loc.Get("Inst.Status.Configuring");
             _reshade.SetPresetPath(game, target);
+            if (_hotkeys.Hotkeys.Count > 0) _hotkeys.Apply();
+            RecordInstall(game, preset.FileName, target);
             ProgressValue = 100;
 
             _log.Success($"Preset {preset.DisplayName} installed!");
@@ -725,6 +844,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         try
         {
             await Task.Run(() => _backups.Restore(backup));
+            ForgetInstall(game); // the folder is now as the backup left it, on purpose
 
             // The effects aren't part of the backup: make sure the restored preset has them.
             var presetPath = BackupService.ResolvePresetPath(game, _reshade.GetCurrentPresetPath(game));
@@ -772,6 +892,7 @@ public sealed partial class InstallerViewModel : ObservableObject
         {
             TryBackup(game, "uninstall");
             _reshade.Uninstall(game, _repository.Presets.Select(p => p.FileName));
+            ForgetInstall(game); // removed on purpose: no "repair" warning
             Dialogs.Info(Loc.Get("Inst.UninstallDone"));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

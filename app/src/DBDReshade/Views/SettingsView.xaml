@@ -209,6 +209,223 @@
                 </StackPanel>
             </Border>
 
+            <!-- In-game shortcuts: keys that switch preset during a match (ReShade's preset shortcuts) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" DataContext="{Binding Hotkeys}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Hotkeys.Title}" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Hotkeys.Text}" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                    <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:HotkeyRow}">
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox ItemsSource="{Binding DataContext.Presets, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                              SelectedItem="{Binding Preset}" DisplayMemberPath="DisplayName"
+                                              ToolTip="{DynamicResource Hotkeys.PresetTip}" />
+                                    <h:HotkeyBox Grid.Column="2" Style="{StaticResource {x:Type TextBox}}" TextAlignment="Center"
+                                                 KeyCode="{Binding KeyCode}" Ctrl="{Binding Ctrl}" Shift="{Binding Shift}" Alt="{Binding Alt}"
+                                                 ToolTip="{DynamicResource Hotkeys.KeyTip}" />
+                                    <Button Grid.Column="3" Style="{StaticResource GhostButton}" Margin="4,0,0,0" Padding="8,6"
+                                            ToolTip="{DynamicResource Hotkeys.Remove}"
+                                            Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="11" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <WrapPanel Margin="0,4,0,0">
+                        <Button Margin="0,0,8,8" Command="{Binding AddCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Hotkeys.Add}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="0,0,8,8" Command="{Binding UseFavoritesCommand}" ToolTip="{DynamicResource Hotkeys.FavoritesTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE734;" FontSize="12" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Hotkeys.Favorites}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="0,0,8,8" Style="{StaticResource GhostButton}" Command="{Binding ApplyCommand}"
+                                ToolTip="{DynamicResource Hotkeys.ApplyTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="12" Margin="0,0,8,0" />
+                                <TextBlock Text="{DynamicResource Hotkeys.Apply}" />
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+
+                    <TextBlock Text="{Binding Status}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                               Visibility="{Binding Status, Converter={StaticResource NullToVis}}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding StatusIsWarning}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding DuplicateWarning}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"
+                               Foreground="{DynamicResource WarningBrush}"
+                               Visibility="{Binding DuplicateWarning, Converter={StaticResource NullToVis}}" />
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"
+                               Text="{DynamicResource Hotkeys.Note}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Streamer overlay: an OBS browser source saying the stream uses DBD Reshade (and which preset) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" DataContext="{Binding Overlay}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Overlay.Title}" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{DynamicResource Overlay.Text}" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                    <CheckBox IsChecked="{Binding Enabled}">
+                        <TextBlock Text="{DynamicResource Overlay.Enable}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    </CheckBox>
+
+                    <StackPanel Margin="28,12,0,0" Visibility="{Binding Enabled, Converter={StaticResource BoolToVis}}">
+                        <!-- Address for OBS -->
+                        <TextBlock Text="{DynamicResource Overlay.Address}" Style="{StaticResource Muted}" FontSize="12" Margin="0,0,0,4" />
+                        <DockPanel Margin="0,0,0,4">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Margin="4,0,0,0"
+                                    ToolTip="{DynamicResource Overlay.PreviewTip}" Command="{Binding OpenPreviewCommand}">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8A7;" FontSize="13" />
+                            </Button>
+                            <Button DockPanel.Dock="Right" Margin="6,0,0,0" Command="{Binding CopyUrlCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" FontSize="12" Margin="0,0,8,0" />
+                                    <TextBlock Text="{DynamicResource Overlay.Copy}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBox Text="{Binding Url, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding Status}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Visibility="{Binding Status, Converter={StaticResource NullToVis}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding StatusIsError}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding NowShowing}" Style="{StaticResource Muted}" FontSize="12" Margin="0,2,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+
+                        <!-- Preview in the app: the badge as viewers see it (drawn here, same options as the page) -->
+                        <CheckBox IsChecked="{Binding ShowInAppPreview}" Margin="0,12,0,6">
+                            <TextBlock Text="{DynamicResource Overlay.PreviewTitle}" />
+                        </CheckBox>
+                        <Border CornerRadius="8" Height="96" ClipToBounds="True" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                Visibility="{Binding ShowInAppPreview, Converter={StaticResource BoolToVis}}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#3A4A3A" Offset="0" />
+                                    <GradientStop Color="#2B2F3A" Offset="0.55" />
+                                    <GradientStop Color="#4A3A35" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Grid>
+                                <Border Margin="12" VerticalAlignment="Center" CornerRadius="12" BorderBrush="{DynamicResource AccentBrush}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#C70E0E12" />
+                                            <Setter Property="BorderThickness" Value="3,0,0,0" />
+                                            <Setter Property="Padding" Value="8,8,16,8" />
+                                            <Setter Property="HorizontalAlignment" Value="Left" />
+                                            <Setter Property="TextElement.Foreground" Value="#F2F2F5" />
+                                            <Setter Property="Opacity" Value="1" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLight}" Value="True">
+                                                    <Setter Property="Background" Value="#DBFFFFFF" />
+                                                    <Setter Property="TextElement.Foreground" Value="#15151A" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsMinimal}" Value="True">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                    <Setter Property="Padding" Value="0" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AlignRight}" Value="True">
+                                                    <Setter Property="HorizontalAlignment" Value="Right" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding PreviewHidden}" Value="True">
+                                                    <Setter Property="Opacity" Value="0.25" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/logo.png" Width="36" Height="36" Margin="0,0,10,0"
+                                               RenderOptions.BitmapScalingMode="HighQuality" />
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="DBD RESHADE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" />
+                                            <TextBlock Text="{Binding PreviewTitle}" FontSize="15" FontWeight="Bold" TextTrimming="CharacterEllipsis" MaxWidth="380" />
+                                            <TextBlock Text="{Binding PreviewAuthor}" FontSize="11" Opacity="0.65"
+                                                       Visibility="{Binding PreviewAuthor, Converter={StaticResource NullToVis}}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8" Padding="6,2" CornerRadius="4"
+                                        Background="#99000000" Visibility="{Binding PreviewHidden, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{DynamicResource Overlay.PreviewHidden}" FontSize="10" Foreground="White" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- What it shows -->
+                        <WrapPanel Margin="0,12,0,0">
+                            <WrapPanel.Resources>
+                                <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                                    <Setter Property="Margin" Value="0,0,20,8" />
+                                </Style>
+                            </WrapPanel.Resources>
+                            <CheckBox IsChecked="{Binding ShowPreset}" Content="{DynamicResource Overlay.ShowPreset}" />
+                            <CheckBox IsChecked="{Binding ShowAuthor}" Content="{DynamicResource Overlay.ShowAuthor}"
+                                      IsEnabled="{Binding ShowPreset}" />
+                            <CheckBox IsChecked="{Binding OnlyWhilePlaying}" Content="{DynamicResource Overlay.OnlyWhilePlaying}" />
+                            <CheckBox IsChecked="{Binding IsMinimal}" Content="{DynamicResource Overlay.Minimal}" />
+                            <CheckBox IsChecked="{Binding IsLight}" Content="{DynamicResource Overlay.Light}" />
+                            <CheckBox IsChecked="{Binding AlignRight}" Content="{DynamicResource Overlay.AlignRight}" />
+                        </WrapPanel>
+
+                        <!-- Port + text file -->
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="{DynamicResource Overlay.Port}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBox Text="{Binding PortText, UpdateSourceTrigger=LostFocus}" Width="80" MaxLength="5"
+                                     ToolTip="{DynamicResource Overlay.PortTip}" />
+                        </StackPanel>
+                        <DockPanel Margin="0,10,0,0">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Margin="6,0,0,0"
+                                    ToolTip="{DynamicResource Set.OpenFolderTip}" Command="{Binding ShowTextFileCommand}"
+                                    Visibility="{Binding WriteTextFile, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" FontSize="13" />
+                            </Button>
+                            <CheckBox IsChecked="{Binding WriteTextFile}">
+                                <TextBlock Text="{DynamicResource Overlay.TextFile}" TextWrapping="Wrap" />
+                            </CheckBox>
+                        </DockPanel>
+
+                        <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,12,0,0" TextWrapping="Wrap"
+                                   Text="{DynamicResource Overlay.Obs}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
             <!-- Offline use: download everything once, then the app works without internet -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                 <StackPanel>

@@ -1,0 +1,163 @@
+<Window x:Class="DBDReshade.Views.ReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DBDReshade.ViewModels"
+        xmlns:h="clr-namespace:DBDReshade.Helpers"
+        xmlns:local="clr-namespace:DBDReshade.Views"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:ReportViewModel}"
+        Title="{DynamicResource Report.Title}"
+        Style="{StaticResource ChromeWindow}"
+        Width="620" Height="720" MinWidth="460" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource BackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        UseLayoutRounding="True">
+
+    <Window.Resources>
+        <h:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <h:BoolToVisibilityConverter x:Key="InvBoolToVis" Invert="True" />
+        <h:NullToVisibilityConverter x:Key="NullToVis" />
+        <h:NullToVisibilityConverter x:Key="NullToCollapsed" Invert="True" />
+    </Window.Resources>
+
+    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+    <DockPanel>
+    <local:TitleBar DockPanel.Dock="Top" />
+    <Grid Margin="24">
+
+        <!-- ===== Form ===== -->
+        <DockPanel Visibility="{Binding IsDone, Converter={StaticResource InvBoolToVis}}">
+            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+                <TextBlock Style="{StaticResource PageTitle}" Text="{DynamicResource Report.Title}" />
+                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap" Text="{DynamicResource Report.Subtitle}" />
+            </StackPanel>
+
+            <!-- Buttons -->
+            <DockPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+                <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" MinWidth="130" Margin="8,0,0,0"
+                        Command="{Binding SendCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE724;" FontSize="13" Margin="0,0,8,0" />
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{DynamicResource Report.Send}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSending}" Value="True">
+                                            <Setter Property="Text" Value="{DynamicResource Report.Sending}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button DockPanel.Dock="Right" Content="{DynamicResource Common.Cancel}" Command="{Binding CloseCommand}" IsCancel="True" />
+                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Command="{Binding OpenDiscordCommand}"
+                        ToolTip="{DynamicResource Report.DiscordTip}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="16" Height="16" Margin="0,0,8,0">
+                            <Border.Background><ImageBrush ImageSource="/Assets/Icons/discord.png" Stretch="Uniform" /></Border.Background>
+                        </Border>
+                        <TextBlock Text="{DynamicResource Report.Discord}" />
+                    </StackPanel>
+                </Button>
+            </DockPanel>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Report.What}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"
+                             TextWrapping="Wrap" MinHeight="130" MaxHeight="260" VerticalScrollBarVisibility="Auto"
+                             VerticalContentAlignment="Top" MaxLength="4000" />
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Text="{DynamicResource Report.WhatHint}" />
+                    <TextBlock Text="{Binding CharactersLeft}" FontSize="11" Margin="0,2,0,0" Foreground="{DynamicResource WarningBrush}"
+                               Visibility="{Binding CharactersLeft, Converter={StaticResource NullToVis}}" />
+
+                    <TextBlock Text="{DynamicResource Report.Contact}" FontWeight="SemiBold" Margin="0,16,0,6" />
+                    <TextBox Text="{Binding Contact, UpdateSourceTrigger=PropertyChanged}" MaxLength="100" />
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"
+                               Text="{DynamicResource Report.ContactHint}" />
+
+                    <CheckBox IsChecked="{Binding IncludeLog}" Margin="0,16,0,0">
+                        <TextBlock Text="{DynamicResource Report.IncludeLog}" TextWrapping="Wrap" />
+                    </CheckBox>
+
+                    <Button Style="{StaticResource LinkButton}" HorizontalAlignment="Left" Margin="0,14,0,0"
+                            Content="{DynamicResource Report.Preview}" Command="{Binding TogglePreviewCommand}" />
+                    <TextBox Text="{Binding Preview, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="11"
+                             TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                             Height="200" Margin="0,8,0,0"
+                             Visibility="{Binding ShowPreview, Converter={StaticResource BoolToVis}}" />
+
+                    <Border Margin="0,16,0,0" Padding="12,10" CornerRadius="8" Background="{DynamicResource SurfaceBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="14"
+                                       Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,10,0" VerticalAlignment="Top" />
+                            <TextBlock Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Text="{DynamicResource Report.Privacy}" />
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- ===== Result ===== -->
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="440"
+                    Visibility="{Binding IsDone, Converter={StaticResource BoolToVis}}">
+            <TextBlock FontSize="40" HorizontalAlignment="Center" Margin="0,0,0,14">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+                        <Setter Property="Text" Value="&#xE73E;" />
+                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShowFallback}" Value="True">
+                                <Setter Property="Text" Value="&#xE7BA;" />
+                                <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock Text="{Binding ResultTitle}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding ResultText}" Style="{StaticResource Muted}" Margin="0,8,0,20" TextAlignment="Center" TextWrapping="Wrap" />
+
+            <Button Style="{StaticResource LinkButton}" HorizontalAlignment="Center" Margin="0,0,0,16"
+                    Content="{DynamicResource Report.OpenIssue}" Command="{Binding OpenIssueCommand}"
+                    Visibility="{Binding IssueUrl, Converter={StaticResource NullToVis}}" />
+
+            <WrapPanel HorizontalAlignment="Center" Visibility="{Binding ShowFallback, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+                <Button Margin="4" Command="{Binding OpenGitHubCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="16" Height="16" Margin="0,0,8,0">
+                            <Border.Background><ImageBrush ImageSource="/Assets/Icons/github.png" Stretch="Uniform" /></Border.Background>
+                        </Border>
+                        <TextBlock Text="{DynamicResource Report.OnGitHub}" />
+                    </StackPanel>
+                </Button>
+                <Button Margin="4" Command="{Binding OpenDiscordCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="16" Height="16" Margin="0,0,8,0">
+                            <Border.Background><ImageBrush ImageSource="/Assets/Icons/discord.png" Stretch="Uniform" /></Border.Background>
+                        </Border>
+                        <TextBlock Text="{DynamicResource Report.Discord}" />
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+
+            <Button Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" MinWidth="140"
+                    Content="{DynamicResource Common.Close}" Command="{Binding CloseCommand}" />
+        </StackPanel>
+    </Grid>
+    </DockPanel>
+    </Border>
+</Window>

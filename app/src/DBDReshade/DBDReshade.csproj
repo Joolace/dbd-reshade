@@ -18,7 +18,7 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
 
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <Product>DBD Reshade</Product>
     <Authors>Joolace</Authors>
     <Copyright>Joolace</Copyright>
@@ -73,6 +73,8 @@
     <EmbeddedResource Include="Seed\EffectPackages.ini" LogicalName="EffectPackages.ini" />
     <!-- Built-in translations; translations/*.json on GitHub override them at runtime -->
     <EmbeddedResource Include="Strings\*.json" LogicalName="strings.%(Filename).json" />
+    <!-- Streamer overlay page, served to OBS by Services/OverlayService.cs -->
+    <EmbeddedResource Include="Overlay\overlay.html" LogicalName="overlay.html" />
   </ItemGroup>
 
 </Project>

@@ -292,6 +292,32 @@
                             Visibility="{Binding Converter={StaticResource NullToVis}}">
                         <TextBlock Style="{StaticResource StarText}" FontSize="20" />
                     </Button>
+                    <!-- Estimated performance cost: light / medium / heavy -->
+                    <Border DockPanel.Dock="Right" CornerRadius="5" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center"
+                            BorderThickness="1" Background="{DynamicResource SurfaceBrush}"
+                            DataContext="{Binding SelectedPreset}" ToolTip="{Binding PerformanceTip}"
+                            Visibility="{Binding Converter={StaticResource NullToVis}}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PerformanceLevel}" Value="Medium">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" />
+                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PerformanceLevel}" Value="Heavy">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerForegroundBrush}" />
+                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xEC4A;" FontSize="11" Margin="0,0,6,0" />
+                            <TextBlock Text="{Binding PerformanceText}" FontSize="11" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
                 <Grid>
                     <TextBlock Style="{StaticResource PageTitle}" Text="{Binding SelectedPreset.DisplayName}"
                                TextTrimming="CharacterEllipsis" />
@@ -304,6 +330,28 @@
                     <Run Text="{DynamicResource Inst.CurrentlyActive}" /> <Run Text="{Binding CurrentPresetName, Mode=OneWay}"
                                                                                Foreground="{DynamicResource TextBrush}" />
                 </TextBlock>
+
+                <!-- A game update (or Steam's file check) removed part of the install: offer to repair it -->
+                <Border Margin="0,10,0,0" Padding="12,10" CornerRadius="8" BorderThickness="1"
+                        Background="{DynamicResource BannerBackgroundBrush}" BorderBrush="{DynamicResource WarningBrush}"
+                        Visibility="{Binding HealthMessage, Converter={StaticResource NullToVis}}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="16"
+                                   Foreground="{DynamicResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Top" />
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Button Style="{StaticResource GhostButton}" Content="{DynamicResource Health.Ignore}"
+                                    Command="{Binding DismissHealthCommand}" />
+                            <Button Style="{StaticResource PrimaryButton}" Padding="12,6" FontSize="12" Margin="6,0,0,0"
+                                    Command="{Binding RepairCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE90F;" FontSize="12" Margin="0,0,6,0" />
+                                    <TextBlock Text="{DynamicResource Health.Repair}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock Text="{Binding HealthMessage}" TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
             </StackPanel>
 
             <!-- Preview -->

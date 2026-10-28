@@ -56,16 +56,23 @@ public partial class App : Application
         var packages = new PresetPackageService(_log);
         var changelog = new ChangelogService(_log);
         var network = new NetworkService(_log);
+        var hotkeys = new HotkeyService(settings, repository, reshade, _log);
         var offline = new OfflineService(sync, translations, repository, github, maps, reshade, shaders, _log);
 
         await Step(splash, "Splash.Game");
-        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log), new BackupService(_log), new StatsService(settings, _log));
+        var installer = new InstallerViewModel(repository, sync, locator, reshade, shaders, github, settings, _log, maps, mapPreview, new GameLauncher(_log), new BackupService(_log), new StatsService(settings, _log), hotkeys);
+        Views.ReportWindow.Service = new ReportService(_log, () =>
+            installer.SelectedInstallation is not { } game ? "not found"
+            : $"{game.Store} · ReShade {ReShadeService.GetInstalledVersion(game.BinariesDirectory)?.ToString() ?? "not installed"}"
+              + (installer.CurrentPresetName is { } preset ? $" · preset {preset}" : ""));
+
         var main = new MainViewModel(
             installer,
             new PresetManagerViewModel(repository, sync, packages, _log),
             new CopyPresetsViewModel(repository, _log),
             new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, packages, _log),
-            new SettingsViewModel(settings, storage, changelog, offline, network),
+            new SettingsViewModel(settings, storage, changelog, offline, network, new HotkeysViewModel(hotkeys, repository),
+                new OverlayViewModel(new OverlayService(settings, repository, _log, () => installer.SelectedInstallation), settings)),
             github, sync, translations, updater, _log, changelog, settings, network);
 
         // Like Discord: look for a new version before opening, without making anyone wait for long.
@@ -114,10 +121,28 @@ public partial class App : Application
         await Task.Delay(40);
     }
 
+    private bool _reportingError;
+
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         _log?.Error($"Unexpected error: {e.Exception}");
-        Dialogs.Error(Loc.Format("App.Error", e.Exception.Message, AppPaths.LogsDirectory));
         e.Handled = true;
+
+        // Offer to report it (once at a time: an error inside the report window must not loop).
+        if (!_reportingError && Views.ReportWindow.Service is not null && ReportService.IsAvailable)
+        {
+            _reportingError = true;
+            try
+            {
+                if (Dialogs.Confirm(Loc.Format("App.ErrorReport", e.Exception.Message)))
+                    Views.ReportWindow.Open(Loc.Format("Report.ErrorPrefill", e.Exception.Message));
+            }
+            finally
+            {
+                _reportingError = false;
+            }
+            return;
+        }
+        Dialogs.Error(Loc.Format("App.Error", e.Exception.Message, AppPaths.LogsDirectory));
     }
 }

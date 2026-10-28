@@ -108,6 +108,8 @@ works from ReShade's own menu in game.
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
 - **Favorites and filters**: star the presets you like, then open **Filters** to show only favorites, new or most used presets, by author or by map
 - **New badge**: presets that just arrived are marked for a few days, and the app tells you how many came in
+- **Performance badge**: every preset shows an estimated cost (light, medium, heavy) and the effects that weigh the most; filter **⚡ Light only** for lower-end PCs
+- **Repair after game updates**: if a Dead by Daylight update (or Steam's file check) removes ReShade, its effects or your preset, the app notices and fixes it with one click
 - **🔥 Most used**: see which presets the community installs the most (anonymous, can be turned off in Settings)
 - **Finds the game** on Steam, Epic Games and the Xbox app, or pick the folder by hand
 - **Installs ReShade** automatically, always the latest version from [reshade.me](https://reshade.me)
@@ -179,6 +181,8 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **Theme**: dark, light, or follow Windows
 - **Storage**: see how much space previews, map screenshots, logs and temporary files use, and free it with one click.
   Your presets, drafts and screenshots are never deleted. Each folder can be opened from here.
+- **In-game shortcuts**: assign a key to your favorite presets (F5, F6…) and switch preset during a match without opening ReShade
+- **Streamer overlay**: a small badge for OBS / Streamlabs (Browser source) that shows you use DBD Reshade and which preset is active, updated live when you switch preset in game
 - **Offline use**: download everything once (presets, previews, map screenshots, ReShade and the effects) and use the app without internet
 - **Privacy**: choose whether to share anonymous install counts for the *Most used* ranking
 - **About**: developer, version, license, credits and links (GitHub, website, Discord, Twitch, Instagram, report a bug)
@@ -189,7 +193,7 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **Automatic preset updates**: new and updated presets arrive at startup, without updating the app
 - **One-click app updates**: when a new version is out, a banner appears in the sidebar. Click **Update now**.
 - **What's new**: after an update the app shows what changed, and the **What's new** button in the sidebar opens the changelog any time
-- **Report a bug**: opens our Discord and the logs folder, so you can attach today's log
+- **Report a problem**: describe what went wrong and the app sends it to the developer as a GitHub issue, with today's log if you want (no account needed, your Windows user name is removed)
 - **Works offline**: if there's no connection a banner tells you what still works, and the app catches up by itself when you're back online
 - **Light on disk**: previews (about 1 GB in total) and map screenshots are downloaded only when you look at them
 
@@ -267,7 +271,7 @@ no guarantee: see the [Disclaimer](#disclaimer). Use it at your own risk.
 1. Make sure the game was **closed** while installing.
 2. In game press **Home**: if the ReShade menu doesn't open, ReShade isn't loaded. Click **Install preset** again (the app reinstalls ReShade if it's missing).
 3. If the menu opens but the effects show errors, click **Install preset** again: missing effects are downloaded again.
-4. Still not working? Use **Report a bug** and attach the app's log, plus `ReShade.log`, which is in the same folder as ReShade (see [Supported versions of the game](#supported-versions-of-the-game)).
+4. Still not working? Use **Report a problem** in the app (it attaches the log for you), and mention what `ReShade.log` says, which is in the same folder as ReShade (see [Supported versions of the game](#supported-versions-of-the-game)).
 </details>
 
 <details>

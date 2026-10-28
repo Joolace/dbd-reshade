@@ -18,8 +18,10 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly OfflineService _offline;
 
     public SettingsViewModel(SettingsService settings, StorageService storage, ChangelogService changelog,
-        OfflineService offline, NetworkService network)
+        OfflineService offline, NetworkService network, HotkeysViewModel hotkeys, OverlayViewModel overlay)
     {
+        Hotkeys = hotkeys;
+        Overlay = overlay;
         _changelog = changelog;
         _offline = offline;
         _isOnline = network.IsOnline;
@@ -60,6 +62,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     }
 
     public string DataFolder => AppPaths.DataRoot;
+
+    /// <summary>In-game shortcuts that switch preset.</summary>
+    public HotkeysViewModel Hotkeys { get; }
+
+    /// <summary>Overlay for streamers (OBS browser source).</summary>
+    public OverlayViewModel Overlay { get; }
 
     // ---- Privacy ----------------------------------------------------------------------------
 
