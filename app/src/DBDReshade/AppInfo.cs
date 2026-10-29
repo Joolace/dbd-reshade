@@ -6,7 +6,7 @@ namespace DBDReshade;
 public static class AppInfo
 {
     public static Version Version { get; } =
-        Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(2, 0, 5);
+        Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(2, 0, 6);
 
     public static string VersionText => $"v{Version.ToString(3)}";
 
