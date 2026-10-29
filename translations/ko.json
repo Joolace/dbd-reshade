@@ -388,5 +388,7 @@
   "NewPresets.Subtitle": "방금 라이브러리에 추가되었습니다. 클릭해서 확인하세요.",
   "NewPresets.ShowAll": "새 항목만 보기",
   "NewPresets.ShowOnStartup": "새 프리셋이 도착하면 이 창 표시",
-  "NewPresets.OpenTip": "이 프리셋 열기"
+  "NewPresets.OpenTip": "이 프리셋 열기",
+  "Inst.NewPresetsButton": "개 새 항목",
+  "Inst.NewPresetsTip": "최근 7일 동안 추가된 프리셋: 클릭해서 보기"
 }

@@ -275,6 +275,22 @@ public sealed partial class InstallerViewModel : ObservableObject
         NewPresetsBanner = Loc.Format("Inst.NewPresets", result.NewPresets);
     }
 
+    /// <summary>Presets with the "New" badge (arrived in the last 7 days): the "N new" button stays while there are any.</summary>
+    public int NewPresetCount => Presets.Count(p => p.IsNew);
+
+    public bool HasNewPresets => NewPresetCount > 0;
+
+    /// <summary>Opens the "New presets" window with every preset that still has the "New" badge.</summary>
+    [RelayCommand]
+    private void OpenNewPresets()
+    {
+        var presets = Presets.Where(p => p.IsNew).OrderBy(p => p.DisplayName, StringComparer.CurrentCultureIgnoreCase).ToList();
+        if (presets.Count == 0) return;
+        DismissBanner();
+        var vm = new NewPresetsViewModel(presets, _github, _settings, ShowPreset, () => ShowNewPresetsCommand.Execute(null));
+        new NewPresetsWindow(vm).ShowDialog();
+    }
+
     /// <summary>Selects a preset (clearing the filters if they hide it), e.g. from the "New presets" window.</summary>
     public void ShowPreset(Preset preset)
     {
@@ -322,6 +338,8 @@ public sealed partial class InstallerViewModel : ObservableObject
         Presets.Clear();
         foreach (var preset in _repository.Presets) Presets.Add(preset);
         ApplyRanking(); // also rebuilds the filters
+        OnPropertyChanged(nameof(NewPresetCount));
+        OnPropertyChanged(nameof(HasNewPresets));
 
         SelectedPreset = Presets.FirstOrDefault(p => p.FileName == selected) ?? Presets.FirstOrDefault();
     }

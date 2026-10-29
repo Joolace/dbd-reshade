@@ -388,5 +388,7 @@
   "NewPresets.Subtitle": "ライブラリに追加されたばかりです。クリックして確認できます。",
   "NewPresets.ShowAll": "新着のみ表示",
   "NewPresets.ShowOnStartup": "新しいプリセットが届いたらこのウィンドウを表示",
-  "NewPresets.OpenTip": "このプリセットを開く"
+  "NewPresets.OpenTip": "このプリセットを開く",
+  "Inst.NewPresetsButton": "件の新着",
+  "Inst.NewPresetsTip": "過去 7 日間に追加されたプリセット：クリックで表示"
 }

@@ -388,5 +388,7 @@
   "NewPresets.Subtitle": "Acaban de llegar a la biblioteca. Haz clic en uno para verlo.",
   "NewPresets.ShowAll": "Mostrar solo los nuevos",
   "NewPresets.ShowOnStartup": "Mostrar esta ventana cuando lleguen presets nuevos",
-  "NewPresets.OpenTip": "Abrir este preset"
+  "NewPresets.OpenTip": "Abrir este preset",
+  "Inst.NewPresetsButton": "nuevos",
+  "Inst.NewPresetsTip": "Presets añadidos en los últimos 7 días: haz clic para verlos"
 }

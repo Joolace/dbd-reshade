@@ -388,5 +388,7 @@
   "NewPresets.Subtitle": "它们刚刚加入预设库。点击即可查看。",
   "NewPresets.ShowAll": "只显示新预设",
   "NewPresets.ShowOnStartup": "有新预设时显示此窗口",
-  "NewPresets.OpenTip": "打开此预设"
+  "NewPresets.OpenTip": "打开此预设",
+  "Inst.NewPresetsButton": "个新预设",
+  "Inst.NewPresetsTip": "最近 7 天新增的预设：点击查看"
 }

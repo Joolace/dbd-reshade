@@ -89,8 +89,28 @@ public sealed class GitHubService
         new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(Path.GetExtension(name), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Raw text of media/presets.json.</summary>
-    public Task<string> GetPresetMetadataJsonAsync(CancellationToken ct = default) =>
-        Http.Client.GetStringAsync($"{Raw}/media/presets.json", ct);
+    /// <remarks>
+    /// raw.githubusercontent.com is a CDN that keeps files for about 5 minutes: right after a push it can still
+    /// serve the old presets.json while the API already lists the new presets, which then show up without
+    /// description or preview. The API always returns the current file, so it comes first; the raw address
+    /// (with a cache-busting query) is only the fallback when the API limit of 60 requests an hour is reached.
+    /// </remarks>
+    public async Task<string> GetPresetMetadataJsonAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get,
+                $"{Api}/contents/media/presets.json?ref={Uri.EscapeDataString(AppInfo.GitHubBranch)}");
+            request.Headers.Accept.ParseAdd("application/vnd.github.raw+json");
+            using var response = await Http.Client.SendAsync(request, ct);
+            if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync(ct);
+        }
+        catch (HttpRequestException)
+        {
+            // Try the raw address below.
+        }
+        return await Http.Client.GetStringAsync($"{Raw}/media/presets.json?t={DateTime.UtcNow.Ticks}", ct);
+    }
 
     /// <summary>Downloads one preview image. Previews are ~1 GB in total, so they're fetched on demand.</summary>
     public Task DownloadPreviewAsync(string fileName, string destination, CancellationToken ct = default) =>

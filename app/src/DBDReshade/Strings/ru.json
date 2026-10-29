@@ -388,5 +388,7 @@
   "NewPresets.Subtitle": "Они только что появились в библиотеке. Нажмите на любой, чтобы посмотреть.",
   "NewPresets.ShowAll": "Показать только новые",
   "NewPresets.ShowOnStartup": "Показывать это окно, когда появляются новые пресеты",
-  "NewPresets.OpenTip": "Открыть этот пресет"
+  "NewPresets.OpenTip": "Открыть этот пресет",
+  "Inst.NewPresetsButton": "новых",
+  "Inst.NewPresetsTip": "Пресеты, добавленные за последние 7 дней: нажмите, чтобы посмотреть"
 }
