@@ -39,6 +39,10 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly ChangelogService _changelog;
     private readonly SettingsService _settings;
     private readonly NetworkService _network;
+    private readonly InstallerViewModel _installer;
+
+    /// <summary>Completes once the start-up screen is gone (windows can then be shown on top of the app).</summary>
+    private readonly TaskCompletionSource _startupDone = new();
 
     public MainViewModel(
         InstallerViewModel installer,
@@ -56,6 +60,7 @@ public sealed partial class MainViewModel : ObservableObject
         NetworkService network)
     {
         _network = network;
+        _installer = installer;
         _isOffline = !network.IsOnline;
         network.Changed += (_, online) => System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => OnNetworkChanged(online));
         _changelog = changelog;
@@ -158,6 +163,7 @@ public sealed partial class MainViewModel : ObservableObject
     /// </summary>
     public void ShowWhatsNewIfUpdated()
     {
+        _startupDone.TrySetResult();
         var current = AppInfo.Version.ToString(3);
         var last = _settings.Current.LastSeenVersion;
         if (last == current) return;
@@ -165,6 +171,7 @@ public sealed partial class MainViewModel : ObservableObject
         _settings.Current.LastSeenVersion = current;
         _settings.Save();
         if (last is null && _settings.IsFirstRun) return;
+
 
         _log.Info($"Updated to {AppInfo.VersionText}: showing what's new.");
         Views.WhatsNewWindow.Open(_changelog, justUpdated: true);
@@ -203,12 +210,35 @@ public sealed partial class MainViewModel : ObservableObject
     {
         try
         {
-            await _sync.SyncAsync();
+            var result = await _sync.SyncAsync();
+            if (result.Added.Count > 0 && _settings.Current.ShowNewPresetsWindow)
+                await ShowNewPresetsAsync(result.Added);
         }
         catch (Exception ex)
         {
             _log.Warning($"Preset sync failed (working offline): {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// "N new presets" window, after the start-up screen and after "What's new" (one window at a time).
+    /// Not on the very first run: then every preset is new.
+    /// </summary>
+    private async Task ShowNewPresetsAsync(IReadOnlyList<string> added)
+    {
+        if (_settings.IsFirstRun) return;
+        await _startupDone.Task;
+        await Views.WhatsNewWindow.WaitClosedAsync();
+
+        var presets = added
+            .Select(name => _installer.Presets.FirstOrDefault(p => string.Equals(p.FileName, name, StringComparison.OrdinalIgnoreCase)))
+            .OfType<Preset>().ToList();
+        if (presets.Count == 0) return;
+
+        var vm = new NewPresetsViewModel(presets, _github, _settings,
+            show: preset => { SelectedPage = Pages[0]; _installer.ShowPreset(preset); },
+            showAllNew: () => { SelectedPage = Pages[0]; _installer.ShowNewPresetsCommand.Execute(null); });
+        new Views.NewPresetsWindow(vm).ShowDialog();
     }
 
     private async Task SyncTranslationsQuietlyAsync()

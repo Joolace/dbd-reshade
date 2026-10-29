@@ -19,10 +19,21 @@ public sealed class SettingsService
         {
             if (File.Exists(AppPaths.SettingsFile))
                 Current = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(AppPaths.SettingsFile)) ?? new();
+
+            // JSON gives back plain dictionaries: file and folder names must match regardless of case.
+            Current.NewPresets = new(Current.NewPresets ?? new(), StringComparer.OrdinalIgnoreCase);
+            Current.Installs = new(Current.Installs ?? new(), StringComparer.OrdinalIgnoreCase);
+            Current.Hotkeys ??= new();
+            Current.Overlay ??= new();
+            Current.Favorites ??= new();
+            Current.IgnoredPresets ??= new();
         }
         catch
         {
-            Current = new AppSettings(); // corrupted file: start fresh
+            // Corrupted file: start fresh, but keep a copy (favorites, deleted presets...) instead of
+            // overwriting it with the next save.
+            try { File.Copy(AppPaths.SettingsFile, AppPaths.SettingsFile + ".corrupt", overwrite: true); } catch { }
+            Current = new AppSettings();
         }
     }
 

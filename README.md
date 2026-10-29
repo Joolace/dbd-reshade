@@ -107,7 +107,8 @@ works from ReShade's own menu in game.
 
 - **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
 - **Favorites and filters**: star the presets you like, then open **Filters** to show only favorites, new or most used presets, by author or by map
-- **New badge**: presets that just arrived are marked for a few days, and the app tells you how many came in
+- **New presets window**: when new presets arrive, a window shows them with their preview; click one to open it (can be turned off)
+- **New badge**: presets that just arrived are marked for a few days
 - **Performance badge**: every preset shows an estimated cost (light, medium, heavy) and the effects that weigh the most; filter **⚡ Light only** for lower-end PCs
 - **Repair after game updates**: if a Dead by Daylight update (or Steam's file check) removes ReShade, its effects or your preset, the app notices and fixes it with one click
 - **🔥 Most used**: see which presets the community installs the most (anonymous, can be turned off in Settings)

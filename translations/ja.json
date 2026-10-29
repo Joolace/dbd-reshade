@@ -382,5 +382,11 @@
   "Overlay.Tagline": "映像：DBD Reshade",
   "Overlay.HiddenNow": "現在非表示：Dead by Daylight が閉じています（ゲームを起動すると表示されます。または「Dead by Daylight の起動中のみ」のチェックを外してください）。",
   "Overlay.PreviewTitle": "アプリ内プレビュー",
-  "Overlay.PreviewHidden": "非表示：ゲーム終了中"
+  "Overlay.PreviewHidden": "非表示：ゲーム終了中",
+  "NewPresets.WindowTitle": "新しいプリセット",
+  "NewPresets.Title": "新しいプリセット {0} 件",
+  "NewPresets.Subtitle": "ライブラリに追加されたばかりです。クリックして確認できます。",
+  "NewPresets.ShowAll": "新着のみ表示",
+  "NewPresets.ShowOnStartup": "新しいプリセットが届いたらこのウィンドウを表示",
+  "NewPresets.OpenTip": "このプリセットを開く"
 }

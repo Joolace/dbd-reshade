@@ -175,6 +175,9 @@ public sealed record RemoteFile(string Name, string DownloadUrl, string Sha);
 
 public sealed record SyncResult(int NewPresets, int UpdatedPresets, int RefreshedPreviews)
 {
+    /// <summary>File names of the presets that just arrived.</summary>
+    public IReadOnlyList<string> Added { get; init; } = Array.Empty<string>();
+
     public int ChangedPresets => NewPresets + UpdatedPresets;
 }
 
@@ -207,6 +210,9 @@ public sealed class AppSettings
 
     /// <summary>The last preset installed in each game folder (key: game root path), to notice when a game update breaks it.</summary>
     public Dictionary<string, InstallRecord> Installs { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Open the "New presets" window when a sync at start-up brings new presets.</summary>
+    public bool ShowNewPresetsWindow { get; set; } = true;
 
     /// <summary>Overlay for streamers (OBS browser source).</summary>
     public OverlaySettings Overlay { get; set; } = new();

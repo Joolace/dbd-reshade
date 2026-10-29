@@ -382,5 +382,11 @@
   "Overlay.Tagline": "画面由 DBD Reshade 提供",
   "Overlay.HiddenNow": "当前隐藏：Dead by Daylight 未运行（启动游戏后会显示，或取消勾选“仅在 Dead by Daylight 运行时”）。",
   "Overlay.PreviewTitle": "在应用中预览",
-  "Overlay.PreviewHidden": "已隐藏：游戏未运行"
+  "Overlay.PreviewHidden": "已隐藏：游戏未运行",
+  "NewPresets.WindowTitle": "新预设",
+  "NewPresets.Title": "{0} 个新预设",
+  "NewPresets.Subtitle": "它们刚刚加入预设库。点击即可查看。",
+  "NewPresets.ShowAll": "只显示新预设",
+  "NewPresets.ShowOnStartup": "有新预设时显示此窗口",
+  "NewPresets.OpenTip": "打开此预设"
 }

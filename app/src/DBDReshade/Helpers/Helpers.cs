@@ -136,11 +136,14 @@ public static class ImageLoader
     /// </summary>
     public static BitmapImage Load(string path, int decodePixelWidth = 0)
     {
+        // From a stream, not a Uri: a file name with "#" or "%" would be read as a URL fragment / escape.
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
         var image = new BitmapImage();
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
-        image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-        image.UriSource = new Uri(path, UriKind.Absolute);
+        // No IgnoreImageCache here: with a stream there is no Uri, and WPF would throw trying to remove a null
+        // key from its image cache. The cache only applies to images loaded by Uri anyway.
+        image.StreamSource = stream;
         if (decodePixelWidth > 0) image.DecodePixelWidth = decodePixelWidth;
         image.EndInit();
         image.Freeze();
@@ -367,9 +370,12 @@ public sealed class HotkeyBox : System.Windows.Controls.TextBox
         Cursor = System.Windows.Input.Cursors.Hand;
         GotKeyboardFocus += (_, _) => Refresh();
         LostKeyboardFocus += (_, _) => Refresh();
-        Loaded += (_, _) => Refresh();
-        Services.Loc.Changed += (_, _) => Refresh();
+        // Subscribed only while on screen: the static event would otherwise keep every removed row alive.
+        Loaded += (_, _) => { Services.Loc.Changed += OnLanguageChanged; Refresh(); };
+        Unloaded += (_, _) => Services.Loc.Changed -= OnLanguageChanged;
     }
+
+    private void OnLanguageChanged(object? sender, EventArgs e) => Refresh();
 
     protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
     {

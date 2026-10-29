@@ -382,5 +382,11 @@
   "Overlay.Tagline": "Gráficos por DBD Reshade",
   "Overlay.HiddenNow": "Oculto ahora: Dead by Daylight está cerrado (aparece al iniciar el juego, o desmarca \"Solo con Dead by Daylight abierto\").",
   "Overlay.PreviewTitle": "Vista previa en la app",
-  "Overlay.PreviewHidden": "oculto: juego cerrado"
+  "Overlay.PreviewHidden": "oculto: juego cerrado",
+  "NewPresets.WindowTitle": "Nuevos presets",
+  "NewPresets.Title": "{0} presets nuevos",
+  "NewPresets.Subtitle": "Acaban de llegar a la biblioteca. Haz clic en uno para verlo.",
+  "NewPresets.ShowAll": "Mostrar solo los nuevos",
+  "NewPresets.ShowOnStartup": "Mostrar esta ventana cuando lleguen presets nuevos",
+  "NewPresets.OpenTip": "Abrir este preset"
 }

@@ -43,7 +43,7 @@ public sealed class PresetSyncService
             if (added.Count > 0) _repository.MarkNew(added);
             _repository.Reload();
 
-            var result = new SyncResult(added.Count, updated, refreshed);
+            var result = new SyncResult(added.Count, updated, refreshed) { Added = added };
             _log.Success(result.ChangedPresets > 0 || refreshed > 0
                 ? $"Presets synced: {added.Count} new, {updated} updated, {refreshed} preview(s) refreshed."
                 : "Presets are already up to date.");

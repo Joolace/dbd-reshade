@@ -275,6 +275,15 @@ public sealed partial class InstallerViewModel : ObservableObject
         NewPresetsBanner = Loc.Format("Inst.NewPresets", result.NewPresets);
     }
 
+    /// <summary>Selects a preset (clearing the filters if they hide it), e.g. from the "New presets" window.</summary>
+    public void ShowPreset(Preset preset)
+    {
+        var target = Presets.FirstOrDefault(p => string.Equals(p.FileName, preset.FileName, StringComparison.OrdinalIgnoreCase));
+        if (target is null) return;
+        if (!PresetsView.Cast<Preset>().Contains(target)) ClearFilters();
+        SelectedPreset = target;
+    }
+
     /// <summary>Shows only the presets that just arrived.</summary>
     [RelayCommand]
     private void ShowNewPresets()
@@ -359,6 +368,11 @@ public sealed partial class InstallerViewModel : ObservableObject
             {
                 SetPreviewMessage(ex is HttpRequestException ? "Inst.PreviewOffline" : "Inst.PreviewFailed");
                 _log.Warning($"Preview for {preset.DisplayName} failed: {ex.Message}");
+
+                // A damaged image would fail forever: delete it so it's downloaded again next time
+                // (only downloaded previews, never the user's own screenshots).
+                if (ex is not HttpRequestException && !preset.IsCustom)
+                    try { File.Delete(path); } catch (Exception) { /* in use */ }
             }
         }
         finally

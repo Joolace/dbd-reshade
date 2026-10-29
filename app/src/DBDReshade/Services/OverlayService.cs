@@ -79,8 +79,10 @@ public sealed class OverlayService : IDisposable
             _ = Task.Run(() => ServeAsync(listener, _cts.Token));
             _log.Info($"Streamer overlay running at {Url}");
         }
-        catch (Exception ex) when (ex is HttpListenerException or InvalidOperationException)
+        catch (Exception ex)
         {
+            // Never let the overlay stop the app from starting (port taken, resource missing...).
+            try { _listener?.Close(); } catch { }
             LastError = ex.Message;
             _listener = null;
             _log.Warning($"Streamer overlay could not start on port {Options.Port}: {ex.Message}");

@@ -382,5 +382,11 @@
   "Overlay.Tagline": "Графика: DBD Reshade",
   "Overlay.HiddenNow": "Сейчас скрыт: Dead by Daylight закрыт (появится при запуске игры, или снимите галочку «Только когда Dead by Daylight открыт»).",
   "Overlay.PreviewTitle": "Предпросмотр в приложении",
-  "Overlay.PreviewHidden": "скрыт: игра закрыта"
+  "Overlay.PreviewHidden": "скрыт: игра закрыта",
+  "NewPresets.WindowTitle": "Новые пресеты",
+  "NewPresets.Title": "Новых пресетов: {0}",
+  "NewPresets.Subtitle": "Они только что появились в библиотеке. Нажмите на любой, чтобы посмотреть.",
+  "NewPresets.ShowAll": "Показать только новые",
+  "NewPresets.ShowOnStartup": "Показывать это окно, когда появляются новые пресеты",
+  "NewPresets.OpenTip": "Открыть этот пресет"
 }

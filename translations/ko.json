@@ -382,5 +382,11 @@
   "Overlay.Tagline": "그래픽: DBD Reshade",
   "Overlay.HiddenNow": "지금은 숨김: Dead by Daylight가 꺼져 있습니다(게임을 시작하면 나타나며, \"Dead by Daylight 실행 중에만\" 체크를 해제해도 됩니다).",
   "Overlay.PreviewTitle": "앱에서 미리보기",
-  "Overlay.PreviewHidden": "숨김: 게임 꺼짐"
+  "Overlay.PreviewHidden": "숨김: 게임 꺼짐",
+  "NewPresets.WindowTitle": "새 프리셋",
+  "NewPresets.Title": "새 프리셋 {0}개",
+  "NewPresets.Subtitle": "방금 라이브러리에 추가되었습니다. 클릭해서 확인하세요.",
+  "NewPresets.ShowAll": "새 항목만 보기",
+  "NewPresets.ShowOnStartup": "새 프리셋이 도착하면 이 창 표시",
+  "NewPresets.OpenTip": "이 프리셋 열기"
 }

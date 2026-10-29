@@ -8,6 +8,15 @@ namespace DBDReshade.Views;
 public partial class WhatsNewWindow : Window
 {
     private static WhatsNewWindow? _open;
+    private static TaskCompletionSource? _closed;
+
+    /// <summary>Completes when the window is closed (at once if it isn't open).</summary>
+    public static Task WaitClosedAsync()
+    {
+        if (_open is null) return Task.CompletedTask;
+        _closed ??= new TaskCompletionSource();
+        return _closed.Task;
+    }
 
     private WhatsNewWindow(WhatsNewViewModel viewModel)
     {
@@ -18,7 +27,12 @@ public partial class WhatsNewWindow : Window
         SourceInitialized += (_, _) => WindowTheme.SetTitleBar(this, ThemeManager.IsDark);
         viewModel.RequestClose += (_, _) => Close();
         Loaded += async (_, _) => await viewModel.LoadAsync();
-        Closed += (_, _) => _open = null;
+        Closed += (_, _) =>
+        {
+            _open = null;
+            _closed?.TrySetResult();
+            _closed = null;
+        };
     }
 
     /// <summary>Shows the "What's new" window (or brings it to the front if it's already open).</summary>
