@@ -965,5 +965,178 @@
         "videoLink": "https://discord.gg/N8eExDuVUe",
         "preset-preview": "Event Menu_S.jpg",
         "author": "KnightLight"
+    },
+    "00_Lobby-Preset_DarvLP.ini": {
+        "description": "A preset for the lobby and menus, so the game already looks consistent with DarvLP's map pack before the trial starts.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "00_Lobby-Preset_DarvLP.jpg",
+        "author": "DarvLP"
+    },
+    "01_MacMillan_DarvLP.ini": {
+        "description": "Tuned for The MacMillan Estate: lifts the dark industrial corners and the woods so loops and totems stay readable without washing out the night.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "01_MacMillan_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "The MacMillan Estate"
+    },
+    "02_Autohaven_DarvLP.ini": {
+        "description": "Made for Autohaven Wreckers: cuts the dusty orange haze and adds contrast to the car stacks and junk piles for a cleaner view of the yard.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "02_Autohaven_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Autohaven Wreckers"
+    },
+    "03_Coldwind_Dark_DarvLP.ini": {
+        "description": "The darker take on Coldwind Farm: keeps the moody night atmosphere of the corn fields while sharpening silhouettes between the rows.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "03_Coldwind_Dark_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Coldwind Farm"
+    },
+    "03_Coldwind_Light_DarvLP.ini": {
+        "description": "The brighter take on Coldwind Farm: opens up the corn fields and farmhouses for maximum visibility in chases.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "03_Coldwind_Light_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Coldwind Farm"
+    },
+    "04_Crotus_DarvLP.ini": {
+        "description": "Made for Crotus Prenn Asylum: clears the heavy fog and green tint around the asylum and the chapel while keeping the cold, gloomy mood.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "04_Crotus_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Crotus Prenn Asylum"
+    },
+    "05_Lerys_DarvLP.ini": {
+        "description": "Tuned for Léry's Memorial Institute: brightens the long corridors and treatment rooms so you can read the indoor map without losing its clinical feel.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "05_Lerys_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Léry's Memorial Institute"
+    },
+    "06_Forest_DarvLP.ini": {
+        "description": "Made for the Red Forest: tames the strong red light and the shadows under the trees for clearer, more natural colours.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "06_Forest_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Red Forest"
+    },
+    "07_Swamp_DarvLP.ini": {
+        "description": "Tuned for Backwater Swamp: reduces the thick murky haze over the water and brings out the boats, shacks and grass.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "07_Swamp_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Backwater Swamp"
+    },
+    "08_Springwood_DarvLP.ini": {
+        "description": "Made for Springwood: a clean, balanced look for Badham Preschool and its suburban streets, with crisper details in the houses and yards.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "08_Springwood_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Springwood"
+    },
+    "09_Game_DarvLP.ini": {
+        "description": "Tuned for The Game: lifts the dark rooms and catwalks of Gideon Meat Plant so pallets, windows and stairs are easier to spot.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "09_Game_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Gideon Meat Plant"
+    },
+    "10_Yamaoka_DarvLP.ini": {
+        "description": "Made for the Yamaoka Estate: softens the blue night haze and adds clarity to the temples, gardens and shrines.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "10_Yamaoka_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Yamaoka Estate"
+    },
+    "11_Ormond_DarvLP.ini": {
+        "description": "Tuned for Ormond: cuts the snowy glare and cold fog of the mountain resort while keeping the winter atmosphere.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "11_Ormond_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Ormond"
+    },
+    "12_Hawkins_DarvLP.ini": {
+        "description": "Made for Hawkins National Laboratory: brightens the underground corridors and rooms for better readability in this indoor map.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "12_Hawkins_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Hawkins National Laboratory"
+    },
+    "13_Saloon_DarvLP.ini": {
+        "description": "Tuned for the Dead Dawg Saloon: removes the yellow dust and adds contrast to the western town for clearer chases between the buildings.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "13_Saloon_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Grave of Glenvale"
+    },
+    "14_Midwich_DarvLP.ini": {
+        "description": "Made for Midwich Elementary School: lifts the dark classrooms and halls of Silent Hill without losing its eerie mood.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "14_Midwich_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Silent Hill"
+    },
+    "15_RPD_DarvLP.ini": {
+        "description": "Tuned for the Raccoon City Police Station: brightens the halls and offices so you can find your way through this large indoor map.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "15_RPD_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Raccoon City"
+    },
+    "16_Eyrie_DarvLP.ini": {
+        "description": "Made for the Eyrie of Crows: tones down the golden sandstorm haze and brings out the ruins and the main building.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "16_Eyrie_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Forsaken Boneyard"
+    },
+    "17_Garden_DarvLP.ini": {
+        "description": "Tuned for the Garden of Joy: clearer greens and better visibility around the house and the tall grass of the garden.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "17_Garden_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Garden of Joy"
+    },
+    "18_Greenville_DarvLP.ini": {
+        "description": "Made for Greenville Square: balances the dark streets and neon lights of the town for clean, readable chases.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "18_Greenville_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Withered Isle"
+    },
+    "19_Refuge_DarvLP.ini": {
+        "description": "Tuned for the Fallen Refuge: clears the purple haze over the ruined village while keeping its dramatic atmosphere.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "19_Refuge_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "The Decimated Borgo"
+    },
+    "20_Borgo_DarvLP.ini": {
+        "description": "Made for the Shattered Square: reduces the heavy fog and dark tones of the Borgo for better visibility across the plaza and ruins.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "20_Borgo_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "The Decimated Borgo"
+    },
+    "21_Toba_DarvLP.ini": {
+        "description": "Tuned for Toba Landing: lifts the dark forest and the misty camp of Dvarka Deepwood for clearer sight lines.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "21_Toba_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Dvarka Deepwood"
+    },
+    "22_Nostromo_DarvLP.ini": {
+        "description": "Made for the Nostromo Wreckage: brightens the dark spaceship wreck and its surroundings so loops and objectives stand out.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "22_Nostromo_DarvLP.jpg",
+        "author": "DarvLP",
+        "map": "Nostromo Wreckage"
+    },
+    "23_Delusion_DarvLP.ini": {
+        "description": "Part of DarvLP's map pack: a balanced preset with cleaner colours and better visibility for this map.",
+        "videoLink": "https://www.nexusmods.com/deadbydaylight/mods/64?tab=description",
+        "preset-preview": "23_Delusion_DarvLP.jpg",
+        "author": "DarvLP"
     }
 }
