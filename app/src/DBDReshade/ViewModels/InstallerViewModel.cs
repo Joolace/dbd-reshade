@@ -389,7 +389,7 @@ public sealed partial class InstallerViewModel : ObservableObject
 
                 // A damaged image would fail forever: delete it so it's downloaded again next time
                 // (only downloaded previews, never the user's own screenshots).
-                if (ex is not HttpRequestException && !preset.IsCustom)
+                if (ex is NotSupportedException or FileFormatException && !preset.IsCustom)
                     try { File.Delete(path); } catch (Exception) { /* in use */ }
             }
         }
@@ -407,10 +407,8 @@ public sealed partial class InstallerViewModel : ObservableObject
     [RelayCommand]
     private void ShowFullscreen()
     {
-        if (SelectedPreset is null || PresetRepository.GetPreviewPath(SelectedPreset) is not { } path || !File.Exists(path))
-            return;
-
-        new FullscreenImageWindow(path, SelectedPreset.DisplayName).ShowDialog();
+        if (SelectedPreset is null) return;
+        new FullscreenImageWindow(new PresetViewerViewModel(this, _github, _log)).ShowDialog();
     }
 
     private bool CanTryOnMaps() => !IsBusy && SelectedPreset is not null;

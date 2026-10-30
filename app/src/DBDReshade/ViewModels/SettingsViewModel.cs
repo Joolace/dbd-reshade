@@ -18,8 +18,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly OfflineService _offline;
 
     public SettingsViewModel(SettingsService settings, StorageService storage, ChangelogService changelog,
-        OfflineService offline, NetworkService network, HotkeysViewModel hotkeys, OverlayViewModel overlay)
+        OfflineService offline, NetworkService network, HotkeysViewModel hotkeys, OverlayViewModel overlay, RepairViewModel repair)
     {
+        Repair = repair;
         Hotkeys = hotkeys;
         Overlay = overlay;
         _changelog = changelog;
@@ -68,6 +69,9 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     /// <summary>Overlay for streamers (OBS browser source).</summary>
     public OverlayViewModel Overlay { get; }
+
+    /// <summary>Repair tools for the preset library.</summary>
+    public RepairViewModel Repair { get; }
 
     // ---- Privacy ----------------------------------------------------------------------------
 

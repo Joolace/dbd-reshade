@@ -72,7 +72,8 @@ public partial class App : Application
             new CopyPresetsViewModel(repository, _log),
             new EditorViewModel(repository, maps, mapPreview, () => installer.SelectedInstallation, packages, _log),
             new SettingsViewModel(settings, storage, changelog, offline, network, new HotkeysViewModel(hotkeys, repository),
-                new OverlayViewModel(new OverlayService(settings, repository, _log, () => installer.SelectedInstallation), settings)),
+                new OverlayViewModel(new OverlayService(settings, repository, _log, () => installer.SelectedInstallation), settings),
+                new RepairViewModel(github, repository, sync, translations, _log)),
             github, sync, translations, updater, _log, changelog, settings, network);
 
         // Like Discord: look for a new version before opening, without making anyone wait for long.

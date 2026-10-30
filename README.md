@@ -105,7 +105,7 @@ works from ReShade's own menu in game.
 <!-- SCREENSHOT: Install Preset page, highlighting the preset list, preview, Game box and the three buttons -->
 ![Install Preset](./screenshots/1.png)
 
-- **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen)
+- **139+ presets** with description, author link and a large preview (click it or press **Space** for full screen, then browse the presets with ← →, install, star them or open the log from the floating bar)
 - **Favorites and filters**: star the presets you like, then open **Filters** to show only favorites, new or most used presets, by author or by map
 - **New presets window**: when new presets arrive, a window shows them with their preview; click one to open it (can be turned off)
 - **New badge**: presets that just arrived are marked for a few days
@@ -185,6 +185,7 @@ Copy any selection of presets (or all of them) to a folder, for example to share
 - **In-game shortcuts**: assign a key to your favorite presets (F5, F6…) and switch preset during a match without opening ReShade
 - **Streamer overlay**: a small badge for OBS / Streamlabs (Browser source) that shows you use DBD Reshade and which preset is active, updated live when you switch preset in game
 - **Offline use**: download everything once (presets, previews, map screenshots, ReShade and the effects) and use the app without internet
+- **Repair**: download the preset descriptions again, check the official presets and the translations, if something looks wrong
 - **Privacy**: choose whether to share anonymous install counts for the *Most used* ranking
 - **About**: developer, version, license, credits and links (GitHub, website, Discord, Twitch, Instagram, report a bug)
 - **Help translate** link

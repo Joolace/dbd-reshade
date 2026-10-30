@@ -23,7 +23,8 @@ public static class Http
         response.EnsureSuccessStatusCode();
 
         var total = response.Content.Headers.ContentLength;
-        var tempFile = destination + ".part";
+        // A name of its own per download: the same preview can be fetched twice at once (list + full screen).
+        var tempFile = $"{destination}.{Guid.NewGuid():N}.part";
 
         try
         {
